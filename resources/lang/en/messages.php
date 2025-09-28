@@ -109,6 +109,7 @@ return [
     'no_votes_yet' => 'No votes yet.',
     'search' => 'Search',
     'close_poll' => 'Close Poll', 
+    'reopen' => 'Re-Open Poll',
 ];
 
 

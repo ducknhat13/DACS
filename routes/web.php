@@ -60,6 +60,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/polls/create', [PollController::class, 'create'])->name('polls.create');
     Route::post('/polls', [PollController::class, 'store'])->name('polls.store');
 });
+// Quick Access Route
+Route::get('/quick-access/{code}', [PollController::class, 'quickAccess'])->name('polls.quick-access');
 Route::get('/polls/{slug}/access', [PollController::class, 'accessForm'])->name('polls.access');
 Route::post('/polls/{slug}/access', [PollController::class, 'accessCheck'])->name('polls.access.check');
 Route::middleware(\App\Http\Middleware\EnsurePollAccess::class)->group(function () {

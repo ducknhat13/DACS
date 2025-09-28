@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PollController extends Controller
 {
@@ -146,7 +147,7 @@ class PollController extends Controller
         $isOwner = Auth::check() && Auth::id() === $poll->user_id;
         
         // Debug info
-        \Log::info('Poll Debug', [
+        Log::info('Poll Debug', [
             'poll_id' => $poll->id,
             'hide_share' => $poll->hide_share,
             'hide_share_type' => gettype($poll->hide_share),
@@ -368,6 +369,24 @@ class PollController extends Controller
         }
         session(['poll_access_'.$poll->id => true]);
             return redirect()->route('polls.vote', $poll->slug)->with('success', __('messages.access_granted'));
+    }
+
+    public function quickAccess(string $code)
+    {
+        // Find poll by slug (using code as slug)
+        $poll = Poll::where('slug', $code)->first();
+        
+        if (!$poll) {
+            return redirect()->route('dashboard')->with('error', 'Poll not found with the provided code.');
+        }
+        
+        // If poll is private, redirect to access form
+        if ($poll->is_private) {
+            return redirect()->route('polls.access', $poll->slug);
+        }
+        
+        // If poll is public, redirect directly to vote
+        return redirect()->route('polls.vote', $poll->slug);
     }
 
     public function comment(Request $request, string $slug)

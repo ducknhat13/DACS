@@ -1,47 +1,67 @@
 ﻿<x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-3xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-headline-large text-on-surface font-semibold">{{ __('Dashboard') }}</h1>
+                <p class="text-body-medium text-on-surface-variant mt-1">{{ __('messages.your_polls') }}</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="btn btn-neutral" data-tooltip="Refresh">
+                    <i class="fa-solid fa-refresh"></i>
+                </button>
+                <a href="{{ route('polls.create') }}" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i>
+                    {{ __('messages.create_poll') }}
+                </a>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="pt-4 pb-12">
+    <div class="pt-4 pb-12 page-transition">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="card">
+            <div class="card card-elevated animate-fade-in-up">
                 <div class="text-gray-900 dark:text-gray-100">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold">{{ __('messages.your_polls') }}</h3>
-                        <a href="{{ route('polls.create') }}" class="btn btn-primary">{{ __('messages.create_poll') }}</a>
-                    </div>
-
-                    <!-- Smart search bar -->
-                    <form method="GET" class="mb-5">
-                        <div class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-2 sm:p-3 flex flex-wrap items-center gap-2">
-                            <div class="flex-1 min-w-64">
-                                <input type="text" name="q" value="{{ request('q') }}" placeholder="{{ __('messages.search_placeholder') }} / slug" class="w-full h-10 px-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-transparent focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:text-white">
-                            </div>
-                            <div class="flex items-center gap-2 ml-auto">
-                                <div>
-                                    <select name="status" class="h-10 px-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-transparent focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:text-white">
-                                        @php $st = request('status','all'); @endphp
-                                        <option value="all" {{ $st==='all'?'selected':'' }}>All</option>
-                                        <option value="open" {{ $st==='open'?'selected':'' }}>Open</option>
-                                        <option value="closed" {{ $st==='closed'?'selected':'' }}>Closed</option>
-                                    </select>
+                    <!-- Filter Bar with Material Chips -->
+                    <form method="GET" class="mb-6">
+                        <div class="bg-surface-variant rounded-2xl p-4 mb-6">
+                            <div class="flex flex-col lg:flex-row gap-4">
+                                <!-- Search Input -->
+                                <div class="input-field flex-1">
+                                    <input type="text" name="q" value="{{ request('q') }}" placeholder=" " class="bg-surface">
+                                    <label>{{ __('messages.search_placeholder') }} / slug</label>
                                 </div>
-                                <div>
-                                    <select name="sort" class="h-10 px-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-transparent focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:text-white">
-                                        @php $so = request('sort','newest'); @endphp
-                                        <option value="newest" {{ $so==='newest'?'selected':'' }}>Newest</option>
-                                        <option value="votes" {{ $so==='votes'?'selected':'' }}>Most votes</option>
-                                    </select>
+                                
+                                <!-- Filter Chips -->
+                                <div class="flex flex-wrap gap-2 items-center">
+                                    @php $st = request('status','all'); @endphp
+                                    <button type="button" class="filter-chip {{ $st === 'all' ? 'active' : '' }}" data-status="all">
+                                        <i class="fa-solid fa-list"></i>
+                                        All
+                                    </button>
+                                    <button type="button" class="filter-chip {{ $st === 'open' ? 'active' : '' }}" data-status="open">
+                                        <i class="fa-solid fa-play-circle"></i>
+                                        Active
+                                    </button>
+                                    <button type="button" class="filter-chip {{ $st === 'closed' ? 'active' : '' }}" data-status="closed">
+                                        <i class="fa-solid fa-stop-circle"></i>
+                                        Closed
+                                    </button>
+                                    
+                                    <!-- Sort Options -->
+                                    @php $so = request('sort','newest'); @endphp
+                                    <button type="button" class="filter-chip {{ $so === 'newest' ? 'active' : '' }}" data-sort="newest">
+                                        <i class="fa-solid fa-clock"></i>
+                                        Newest
+                                    </button>
+                                    <button type="button" class="filter-chip {{ $so === 'votes' ? 'active' : '' }}" data-sort="votes">
+                                        <i class="fa-solid fa-chart-line"></i>
+                                        Most Votes
+                                    </button>
                                 </div>
-                                <button class="btn btn-neutral" aria-label="{{ __('messages.search') }}">
-                                    {{ __('messages.search') }}
-                                </button>
-                                <button type="button" class="h-10 w-10 inline-flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-200" title="Reset filters" aria-label="Reset filters" onclick="window.location='{{ route('dashboard') }}'">
-                                    <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
-                                </button>
+                                
+                                <!-- Hidden inputs for form submission -->
+                                <input type="hidden" name="status" id="status-input" value="{{ $st }}">
+                                <input type="hidden" name="sort" id="sort-input" value="{{ $so }}">
                             </div>
                         </div>
                     </form>
@@ -51,56 +71,90 @@
                     @endphp
 
                     @if (empty($polls) || count($polls) === 0)
-                        <p class="text-sm text-gray-500">{{ __('messages.no_polls') }}</p>
-                    @else
-                        <div class="mb-2 px-3 sm:px-4 text-xs text-gray-500 dashboard-grid">
-                            <div class="font-medium whitespace-nowrap text-left min-w-0">Polls</div>
-                            <div class="text-center font-medium whitespace-nowrap">Participants</div>
-                            <div class="text-center font-medium whitespace-nowrap">Deadline</div>
-                            <div class="text-right font-medium whitespace-nowrap">Status</div>
-                            <div></div>
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-variant flex items-center justify-center">
+                                <i class="fa-solid fa-poll text-2xl text-on-surface-variant"></i>
+                            </div>
+                            <h3 class="text-title-medium text-on-surface mb-2">{{ __('messages.no_polls') }}</h3>
+                            <p class="text-body-medium text-on-surface-variant mb-6">Create your first poll to get started</p>
+                            <a href="{{ route('polls.create') }}" class="btn btn-primary">
+                                <i class="fa-solid fa-plus"></i>
+                                {{ __('messages.create_poll') }}
+                            </a>
                         </div>
-                        <div class="space-y-2">
-                            @foreach ($polls as $p)
+                    @else
+                        <!-- Polls Grid -->
+                        <div class="poll-grid grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                            @foreach ($polls as $index => $p)
                                 @php
                                     $total = $p->votes_count ?? 0;
                                     $created = $p->created_at ? \Carbon\Carbon::parse($p->created_at)->format('M d, Y') : '';
-                                    $deadline = $p->auto_close_at ? \Carbon\Carbon::parse($p->auto_close_at)->format('M d, Y') : '-';
+                                    $deadline = $p->auto_close_at ? \Carbon\Carbon::parse($p->auto_close_at)->format('M d, Y') : null;
                                     $isClosed = isset($p->is_closed) ? (bool)$p->is_closed : false;
+                                    $isExpired = $deadline && \Carbon\Carbon::parse($deadline)->isPast();
                                 @endphp
-                                <div class="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 sm:px-4 py-2 hover:shadow-sm transition overflow-visible">
-                                    <div class="relative dashboard-grid">
-                                        <div class="flex items-center gap-3 pr-3 min-w-0">
-                                            <div class="w-7 h-7 rounded-full bg-green-100 text-green-700 flex items-center justify-center"><i class="fa-solid fa-calendar" aria-hidden="true"></i></div>
-                                            <div class="min-w-0">
-                                                <a href="{{ route('polls.vote', $p->slug) }}" class="font-medium hover:text-indigo-600 truncate block">{{ $p->question }}</a>
-                                                <div class="text-xs text-gray-500 whitespace-nowrap">{{ $created }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="text-sm text-gray-700 dark:text-gray-300 text-center whitespace-nowrap">{{ $total }}</div>
-                                        <div class="text-sm text-gray-700 dark:text-gray-300 text-center whitespace-nowrap">{{ $deadline }}</div>
-                                        <div class="flex justify-end items-center gap-2 whitespace-nowrap">
-                                            @if($isClosed)
-                                                <span class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">● Closed</span>
-                                            @else
-                                                <span class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-xs">● Live</span>
-                                            @endif
-                                        </div>
-                                        <button type="button" class="w-8 h-8 inline-flex items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 justify-self-end" aria-haspopup="menu" aria-expanded="false" onclick="toggleActionMenu('menu{{ $p->id }}')">
-                                            <i class="fa-solid fa-ellipsis" aria-hidden="true"></i>
+                                <div class="poll-card animate-fade-in-up stagger-item" style="animation-delay: {{ $index * 0.1 }}s;">
+                                    <!-- Action Menu Button -->
+                                    <div class="poll-actions">
+                                        <button type="button" class="action-menu-button" onclick="toggleActionMenu('menu{{ $p->id }}')">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
                                         </button>
-                                        <div id="menu{{ $p->id }}" class="hidden absolute right-0 top-9 z-50 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg p-1">
-                                                <form method="POST" action="{{ route('polls.toggle', $p->slug) }}" class="block">
-                                                    @csrf
-                                                    <button type="submit" class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded">{{ $isClosed ? __('messages.reopen') : __('messages.close_poll') }}</button>
-                                                </form>
-                                                <a href="{{ route('polls.export', $p->slug) }}" class="block px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded">{{ __('messages.export_csv') }}</a>
-                                                <form method="POST" action="{{ route('polls.destroy', $p->slug) }}" onsubmit="return confirm('{{ __('messages.delete_confirm') }}');" class="block">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded">{{ __('messages.delete') }}</button>
-                                                </form>
+                                        <div id="menu{{ $p->id }}" class="action-menu">
+                                            <form method="POST" action="{{ route('polls.toggle', $p->slug) }}">
+                                                @csrf
+                                                <button type="submit" class="action-menu-item">
+                                                    <i class="fa-solid {{ $isClosed ? 'fa-play' : 'fa-stop' }}"></i>
+                                                    {{ $isClosed ? __('messages.reopen') : __('messages.close_poll') }}
+                                                </button>
+                                            </form>
+                                            <a href="{{ route('polls.export', $p->slug) }}" class="action-menu-item">
+                                                <i class="fa-solid fa-download"></i>
+                                                {{ __('messages.export_csv') }}
+                                            </a>
+                                            <form method="POST" action="{{ route('polls.destroy', $p->slug) }}" onsubmit="return confirm('{{ __('messages.delete_confirm') }}');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="action-menu-item danger">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                    {{ __('messages.delete') }}
+                                                </button>
+                                            </form>
                                         </div>
+                                    </div>
+
+                                    <!-- Poll Title -->
+                                    <a href="{{ route('polls.vote', $p->slug) }}" class="poll-title block">
+                                        {{ $p->question }}
+                                    </a>
+
+                                    <!-- Poll Meta -->
+                                    <div class="poll-meta">
+                                        <div class="poll-meta-item">
+                                            <i class="fa-solid fa-users"></i>
+                                            <span>{{ $total }} participants</span>
+                                        </div>
+                                        @if($deadline)
+                                            <div class="poll-meta-item {{ $isExpired ? 'text-error' : '' }}">
+                                                <i class="fa-solid fa-clock"></i>
+                                                <span>{{ $isExpired ? 'Expired' : 'Ends' }}: {{ $deadline }}</span>
+                                            </div>
+                                        @endif
+                                        <div class="poll-meta-item">
+                                            <i class="fa-solid fa-calendar"></i>
+                                            <span>Created: {{ $created }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Poll Status -->
+                                    <div class="poll-footer">
+                                        <span class="poll-status {{ $isClosed ? 'closed' : 'active' }}">
+                                            <i class="fa-solid {{ $isClosed ? 'fa-stop-circle' : 'fa-play-circle' }}"></i>
+                                            {{ $isClosed ? 'Closed' : 'Active' }}
+                                        </span>
+                                        
+                                        <a href="{{ route('polls.show', $p->slug) }}" class="text-primary text-sm font-medium hover:underline">
+                                            View Results →
+                                        </a>
                                     </div>
                                 </div>
                             @endforeach
@@ -110,6 +164,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Floating Action Button -->
+    <x-fab :href="route('polls.create')" icon="+" />
 
     <!-- Modal tạo poll -->
     <div id="createPollModal" class="hidden">
@@ -195,35 +252,101 @@
     </div>
 
     <script>
-        function toggleRow(id) {
-            const element = document.getElementById(id);
-            const arrow = document.getElementById('arrow' + id.replace('pollRow', ''));
+        // Filter Chips Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle filter chips
+            const filterChips = document.querySelectorAll('.filter-chip');
+            const statusInput = document.getElementById('status-input');
+            const sortInput = document.getElementById('sort-input');
             
-            if (element.classList.contains('hidden')) {
-                element.classList.remove('hidden');
-                if (arrow) arrow.style.transform = 'rotate(180deg)';
-            } else {
-                element.classList.add('hidden');
-                if (arrow) arrow.style.transform = 'rotate(0deg)';
-            }
-        }
+            filterChips.forEach(chip => {
+                chip.addEventListener('click', function() {
+                    const status = this.dataset.status;
+                    const sort = this.dataset.sort;
+                    
+                    if (status) {
+                        // Update status chips
+                        document.querySelectorAll('[data-status]').forEach(c => c.classList.remove('active'));
+                        this.classList.add('active');
+                        statusInput.value = status;
+                    }
+                    
+                    if (sort) {
+                        // Update sort chips
+                        document.querySelectorAll('[data-sort]').forEach(c => c.classList.remove('active'));
+                        this.classList.add('active');
+                        sortInput.value = sort;
+                    }
+                    
+                    // Submit form
+                    this.closest('form').submit();
+                });
+            });
+        });
 
         function toggleActionMenu(id) {
-            document.querySelectorAll('[id^="menu"]').forEach(function(el){ if (el.id !== id) el.classList.add('hidden'); });
+            // Close all other menus
+            document.querySelectorAll('.action-menu').forEach(function(el){ 
+                if (el.id !== id) el.classList.remove('show'); 
+            });
+            
+            // Toggle current menu
             const el = document.getElementById(id);
             if (!el) return;
-            el.classList.toggle('hidden');
+            el.classList.toggle('show');
         }
 
-        // Đóng menu khi click ra ngoài
+        // Close menus when clicking outside
         document.addEventListener('click', function(e){
             const target = e.target;
-            const isButton = target.closest && target.closest('[aria-haspopup="menu"]');
-            const isMenu = target.closest && target.closest('[id^="menu"]');
-            if (!isButton && !isMenu) {
-                document.querySelectorAll('[id^="menu"]').forEach(function(el){ el.classList.add('hidden'); });
+            const isActionButton = target.closest('.action-menu-button');
+            const isMenu = target.closest('.action-menu');
+            
+            if (!isActionButton && !isMenu) {
+                document.querySelectorAll('.action-menu').forEach(function(el){ 
+                    el.classList.remove('show'); 
+                });
             }
         }, true);
+
+        // Close menus on scroll or resize
+        window.addEventListener('scroll', function() {
+            document.querySelectorAll('.action-menu.show').forEach(function(el){ 
+                el.classList.remove('show'); 
+            });
+        });
+
+        window.addEventListener('resize', function() {
+            document.querySelectorAll('.action-menu.show').forEach(function(el){ 
+                el.classList.remove('show'); 
+            });
+        });
+
+        // Add ripple effect to cards
+        document.querySelectorAll('.poll-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.closest('.action-menu-button') || e.target.closest('.action-menu')) {
+                    return; // Don't add ripple for menu interactions
+                }
+                
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple-effect');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
 
         (function(){
             const modal = document.getElementById('createPollModal');

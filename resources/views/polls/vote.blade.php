@@ -3,7 +3,7 @@
         <h2 class="font-semibold text-3xl text-gray-800 dark:text-gray-200 leading-tight">{{ $poll->question }}</h2>
     </x-slot>
 
-    <div class="py-6">
+    <div class="py-6 page-transition">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <!-- Poll Status -->
             @if ($poll->is_closed)
@@ -32,7 +32,7 @@
 
             <!-- Vote Form -->
             @if (!$hasVoted || $isOwner)
-            <div class="card mb-6">
+            <div class="card card-elevated mb-6 animate-fade-in-up">
                 <div class="p-6">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-vote-yea text-indigo-600" aria-hidden="true"></i>

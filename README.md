@@ -8,7 +8,7 @@
 
 ## 📝 Mô Tả
 
-QuickPoll là một ứng dụng web được xây dựng bằng Laravel cho phép người dùng tạo và quản lý các cuộc khảo sát trực tuyến một cách nhanh chóng và dễ dàng. Ứng dụng hỗ trợ nhiều loại câu hỏi khác nhau, bảo mật cao và giao diện thân thiện.
+QuickPoll là một ứng dụng web được xây dựng bằng Laravel cho phép người dùng tạo và quản lý các cuộc khảo sát trực tuyến một cách nhanh chóng và dễ dàng. Ứng dụng hỗ trợ nhiều loại câu hỏi khác nhau, bảo mật cao và giao diện thân thiện theo Material Design 3.
 
 ## ✨ Tính Năng Chính
 
@@ -16,28 +16,29 @@ QuickPoll là một ứng dụng web được xây dựng bằng Laravel cho ph�
 - **Đăng ký/Đăng nhập**: Hệ thống xác thực hoàn chỉnh với Laravel Breeze
 - **Bảo mật poll**: Hỗ trợ poll riêng tư với mã truy cập
 - **Kiểm soát quyền truy cập**: Chỉ người tạo mới có thể quản lý poll của mình
+- **Quick Access**: Truy cập nhanh poll bằng slug từ header
 
 ### 📊 Tạo & Quản Lý Poll
-- **Tạo poll nhanh**: Giao diện thân thiện để tạo poll trong vài phút
+- **Tạo poll nhanh**: Giao diện Material Design thân thiện
 - **Nhiều loại câu hỏi**: 
   - Poll thông thường (single choice)
   - Poll ranking (xếp hạng)
 - **Tùy chọn nâng cao**:
   - Cho phép chọn nhiều đáp án
   - Tự động đóng poll theo thời gian
-  - Ẩn kết quả khi đang vote
+  - Ẩn nút chia sẻ
   - Cho phép bình luận
 
 ### 🗳️ Hệ Thống Vote
 - **Vote an toàn**: Kiểm soát session để tránh vote nhiều lần
 - **Thu thập thông tin**: Yêu cầu tên người vote (cho poll riêng tư)
-- **Kết quả real-time**: Hiển thị kết quả ngay lập tức
+- **Kết quả real-time**: Hiển thị kết quả với biểu đồ và thống kê chi tiết
 
 ### 📈 Quản Lý & Phân Tích
-- **Dashboard**: Tổng quan tất cả poll đã tạo
+- **Dashboard Material Design**: Tổng quan tất cả poll đã tạo
 - **Lọc & Tìm kiếm**: Tìm poll theo tên, trạng thái
 - **Xuất dữ liệu**: Export kết quả ra file CSV
-- **Thống kê chi tiết**: Số lượng vote, bình luận
+- **Thống kê chi tiết**: Số lượng vote, bình luận, biểu đồ tròn
 
 ### 🌐 Đa Ngôn Ngữ
 - **Hỗ trợ tiếng Việt**: Giao diện đầy đủ tiếng Việt
@@ -48,13 +49,16 @@ QuickPoll là một ứng dụng web được xây dựng bằng Laravel cho ph�
 ### Backend
 - **Laravel 12**: Framework PHP hiện đại
 - **PHP 8.2+**: Phiên bản PHP mới nhất
-- **SQLite**: Cơ sở dữ liệu nhẹ, dễ triển khai
+- **TiDB Cloud**: Cơ sở dữ liệu MySQL tương thích
 - **Laravel Breeze**: Authentication scaffolding
 
 ### Frontend
 - **Tailwind CSS 4**: Framework CSS utility-first
+- **Material Design 3**: Giao diện theo chuẩn Google
 - **Alpine.js**: JavaScript framework nhẹ
 - **Vite**: Build tool hiện đại
+- **Chart.js**: Biểu đồ tương tác
+- **FontAwesome**: Icon library
 - **Responsive Design**: Tương thích mọi thiết bị
 
 ## 📋 Yêu Cầu Hệ Thống
@@ -63,6 +67,8 @@ QuickPoll là một ứng dụng web được xây dựng bằng Laravel cho ph�
 - **Composer**: Để quản lý dependencies PHP
 - **Node.js**: >= 18.x (để build frontend assets)
 - **npm/yarn**: Package manager cho JavaScript
+- **XAMPP/WAMP**: Môi trường phát triển local
+- **TiDB Cloud Account**: Để sử dụng database cloud
 
 ## 🚀 Hướng Dẫn Cài Đặt
 
@@ -93,17 +99,80 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-### 4. Cấu Hình Database
+### 4. Cấu Hình Database với TiDB Cloud
+
+#### 4.1. Tạo TiDB Cloud Account
+1. Truy cập [TiDB Cloud](https://tidbcloud.com/)
+2. Tạo account và cluster mới
+3. Lấy thông tin kết nối:
+   - Host
+   - Port (thường là 4000)
+   - Database name
+   - Username
+   - Password
+
+#### 4.2. Cấu Hình Environment Variables
+
+Chỉnh sửa file `.env`:
+
+```env
+# Database Configuration
+DB_CONNECTION=mysql
+DB_HOST=[Host của TiDB Cloud]
+DB_PORT=4000
+DB_DATABASE=quickpoll
+DB_USERNAME=[User của TiDB Cloud]
+DB_PASSWORD=[Password của TiDB Cloud]
+
+# SSL Certificate (bắt buộc cho TiDB Cloud)
+MYSQL_ATTR_SSL_CA="C:/xampp/php/certs/cacert.pem"
+
+# Application Settings
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY= ...
+APP_DEBUG=true
+APP_URL=http://localhost
+
+APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
+APP_FAKER_LOCALE=en_US
+
+APP_MAINTENANCE_DRIVER=file
+
+
+### 5. Cài Đặt Chứng Chỉ SSL
+
+#### 5.1. Tải Certificate
+ Tải file `cacert.pem` từ [Mozilla CA Certificate Store](https://curl.se/ca/cacert.pem)
+
+
+#### 5.2. Cài Đặt Certificate
+1. Tạo thư mục `certs` trong `C:/xampp/php/`
+2. Copy file `cacert.pem` vào `C:/xampp/php/certs/cacert.pem`
 
 ```bash
-# Tạo file SQLite database (nếu chưa có)
-touch database/database.sqlite
+# Tạo thư mục (nếu chưa có)
+mkdir C:/xampp/php/certs
 
-# Chạy migrations
-php artisan migrate
+# Copy certificate file
+copy cacert.pem C:/xampp/php/certs/cacert.pem
 ```
 
-### 5. Build Frontend Assets
+
+**Lưu ý quan trọng**: Bạn bè của bạn cũng phải tải file `cacert.pem` và lưu nó vào chính xác cùng một đường dẫn `C:/xampp/php/certs/cacert.pem` trên máy của họ để kết nối được với TiDB Cloud.
+
+### 6. Chạy Migrations
+
+```bash
+# Chạy migrations để tạo bảng
+php artisan migrate
+
+# Tạo dữ liệu mẫu (tùy chọn)
+php artisan db:seed
+```
+
+### 7. Build Frontend Assets
 
 ```bash
 # Build assets cho production
@@ -148,53 +217,42 @@ php artisan serve
 
 ### 2. Tạo Poll Mới
 1. Đăng nhập vào hệ thống
-2. Click "Create New Poll" trên dashboard
-3. Điền thông tin:
+2. Click nút "Create New Poll" (FAB) hoặc từ navigation
+3. Điền thông tin theo Material Design form:
    - **Câu hỏi**: Nội dung câu hỏi khảo sát
    - **Loại poll**: Thông thường hoặc Ranking
    - **Các lựa chọn**: Thêm các phương án trả lời
    - **Cài đặt nâng cao**: Bảo mật, thời gian đóng, v.v.
 
 ### 3. Chia Sẻ & Vote
-1. Sau khi tạo poll, copy link chia sẻ
-2. Gửi link cho người tham gia
+1. Sau khi tạo poll, sử dụng Quick Access trong header
+2. Hoặc copy link chia sẻ từ trang kết quả
 3. Người tham gia truy cập và vote
-4. Xem kết quả real-time
+4. Xem kết quả real-time với biểu đồ
 
 ### 4. Quản Lý Poll
-- **Dashboard**: Xem tất cả poll đã tạo
+- **Dashboard**: Xem tất cả poll đã tạo với Material Design cards
 - **Tìm kiếm**: Lọc poll theo tên hoặc trạng thái
 - **Thống kê**: Xem số lượng vote, bình luận
 - **Export**: Xuất kết quả ra file CSV
 
 ## 🔧 Cấu Hình Nâng Cao
 
-### Environment Variables
+### Database Connection với SSL
 
-```env
-# Database
-DB_CONNECTION=sqlite
-DB_DATABASE=database/database.sqlite
+Để kết nối an toàn với TiDB Cloud, đảm bảo:
 
-# Application
-APP_NAME="QuickPoll"
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
-# Mail (tùy chọn)
-MAIL_MAILER=smtp
-MAIL_HOST=your-smtp-host
-MAIL_PORT=587
-MAIL_USERNAME=your-email
-MAIL_PASSWORD=your-password
-```
+1. **SSL Certificate**: File `cacert.pem` được cài đặt đúng vị trí
+2. **Environment Variables**: Cấu hình đầy đủ trong `.env`
+3. **Firewall**: Port 4000 được mở cho TiDB Cloud
+4. **Network**: Kết nối internet ổn định
 
 ### Customization
 
 - **Giao diện**: Chỉnh sửa trong `resources/views/`
-- **Styling**: Sửa đổi `resources/css/app.css` và Tailwind config
+- **Styling**: Sửa đổi `resources/css/app.css` và Material Design variables
 - **Logic**: Tùy chỉnh trong `app/Http/Controllers/`
+- **Database**: Thay đổi migrations trong `database/migrations/`
 
 ## 🧪 Testing
 
@@ -204,6 +262,9 @@ php artisan test
 
 # Chạy test cụ thể
 php artisan test --filter=FeatureTest
+
+# Chạy test với coverage
+php artisan test --coverage
 ```
 
 ## 📁 Cấu Trúc Project
@@ -211,23 +272,37 @@ php artisan test --filter=FeatureTest
 ```
 dacs_quickpoll/
 ├── app/
-│   ├── Http/Controllers/     # Controllers
-│   ├── Models/              # Eloquent Models
+│   ├── Http/Controllers/     # Controllers (Poll, Vote, Auth)
+│   ├── Models/              # Eloquent Models (Poll, Vote, User)
 │   ├── Events/              # Event Classes
-│   └── Support/             # Helper Classes
+│   ├── Support/             # Helper Classes (PollCode)
+│   └── Http/Middleware/     # Custom Middleware
 ├── database/
 │   ├── migrations/          # Database Migrations
 │   ├── factories/           # Model Factories
 │   └── seeders/            # Database Seeders
 ├── resources/
-│   ├── views/              # Blade Templates
-│   ├── css/                # Stylesheets
-│   └── js/                 # JavaScript
+│   ├── views/              # Blade Templates (Material Design)
+│   │   ├── layouts/        # Layout components
+│   │   ├── polls/          # Poll-related views
+│   │   └── components/     # Reusable components
+│   ├── css/                # Stylesheets (Tailwind + Material Design)
+│   └── js/                 # JavaScript (Alpine.js)
 ├── routes/
 │   ├── web.php             # Web Routes
 │   └── auth.php            # Auth Routes
-└── public/                 # Public Assets
+├── public/                 # Public Assets
+│   └── Logo.png           # Application Logo
+└── config/                # Configuration Files
 ```
+
+## 🎨 Material Design Features
+
+- **Color Palette**: Primary #176BEF, Success #179C52, Error #FF3E30
+- **Typography**: Product Sans, Montserrat fonts
+- **Components**: Cards, Buttons, Inputs, Navigation theo Material Design 3
+- **Animations**: Smooth transitions và hover effects
+- **Responsive**: Mobile-first design approach
 
 ## 🤝 Đóng Góp
 
@@ -248,10 +323,11 @@ Dự án này được phân phối dưới [MIT License](https://opensource.org
 ## 🙏 Acknowledgments
 
 - Laravel Framework
+- TiDB Cloud
+- Material Design 3
 - Tailwind CSS
 - Alpine.js
+- Chart.js
 - Tất cả contributors và người dùng
 
----
-
-**Lưu ý**: Đây là phiên bản development. Để deploy production, hãy tham khảo [Laravel Deployment Guide](https://laravel.com/docs/deployment).
+ 

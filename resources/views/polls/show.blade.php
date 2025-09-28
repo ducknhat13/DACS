@@ -1,20 +1,33 @@
 ﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-3xl text-gray-800 dark:text-gray-200 leading-tight">{{ $poll->question }}</h2>
-            <a href="{{ route('polls.vote', $poll->slug) }}" class="btn btn-primary">
-                <i class="fa-solid fa-vote-yea mr-2"></i>
-                Back to Poll
-            </a>
+            <div class="flex-1">
+                <h1 class="text-headline-large text-on-surface font-semibold">{{ $poll->question }}</h1>
+                <p class="text-body-medium text-on-surface-variant mt-1">Poll Results & Analytics</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('polls.vote', $poll->slug) }}" class="btn btn-primary">
+                    <i class="fa-solid fa-vote-yea"></i>
+                    Back to Poll
+                </a>
+            </div>
         </div>
     </x-slot>
 
     <div class="py-6">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             @if ($isOwner)
-            <div class="mb-4 flex items-center gap-2">
-                <button id="tabResults" class="tab-button active px-4 py-2">Results</button>
-                <button id="tabVoters" class="tab-button px-4 py-2">Voters</button>
+            <div class="mb-6">
+                <div class="material-tabs">
+                    <button id="tabResults" class="material-tab active">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        Results
+                    </button>
+                    <button id="tabVoters" class="material-tab">
+                        <i class="fa-solid fa-users"></i>
+                        Voters
+                    </button>
+                </div>
             </div>
             @endif
             <!-- Success/Error Messages -->
@@ -33,17 +46,29 @@
 
             <!-- Poll Status Banner -->
             @if ($poll->is_closed)
-                <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                    <div class="flex items-center gap-2 text-red-800 dark:text-red-200">
+                <div class="mb-8 material-alert error">
+                    <div class="alert-content">
                         <i class="fa-solid fa-lock"></i>
-                        <span class="font-semibold">This poll is closed</span>
+                        <div class="alert-text">
+                            <span class="alert-title">Poll Closed</span>
+                            <span class="alert-description">This poll is no longer accepting votes</span>
+                        </div>
                     </div>
                 </div>
     @endif
 
             <!-- Results Section -->
-            <div id="panelResults" class="card mb-6">
-                <div class="p-6">
+            <div id="panelResults" class="card card-elevated animate-fade-in-up mb-8">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-chart-bar text-primary"></i>
+                        {{ __('messages.poll_results') }}
+                    </div>
+                    <div class="card-subtitle">
+                        Total Votes: <span class="font-semibold text-primary">{{ $totalVotes }}</span>
+                    </div>
+                </div>
+                <div class="card-content">
                     <div id="results-skeleton" class="hidden">
                         <div class="skeleton h-6 w-40 mb-4 rounded"></div>
                         <div class="space-y-3">
@@ -52,10 +77,6 @@
                             <div class="skeleton h-48 rounded"></div>
                         </div>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-bar text-indigo-600" aria-hidden="true"></i>
-                        {{ __('messages.poll_results') }}
-                    </h3>
 
         @if ($poll->poll_type === 'ranking')
                         @php
@@ -89,15 +110,13 @@
                                     $percentage = $maxScore > 0 ? ($score / $maxScore) * 100 : 0;
                                 @endphp
                                 @if($score > 0)
-                                <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                                    <div class="flex-1">
-                                        <div class="flex items-center justify-between mb-2">
-                                            <span class="font-medium text-gray-800 dark:text-gray-200">{{ $option->option_text }}</span>
-                                            <span class="text-sm font-semibold text-indigo-600 dark:text-indigo-400">{{ $score }} points</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                            <div class="h-2 rounded-full transition-all duration-300" style="width: {{ $percentage }}%; background-color: {{ $colorMap[$option->id] }}"></div>
-                                        </div>
+                                <div class="material-progress-item animate-fade-in-up" style="animation-delay: {{ $loop->index * 0.1 }}s;">
+                                    <div class="progress-header">
+                                        <span class="progress-label">{{ $option->option_text }}</span>
+                                        <span class="progress-value">{{ $score }} points</span>
+                                    </div>
+                                    <div class="material-progress-bar">
+                                        <div class="progress-fill" style="width: {{ $percentage }}%; background-color: {{ $colorMap[$option->id] }}"></div>
                                     </div>
                                 </div>
                                 @endif
@@ -105,8 +124,14 @@
                             </div>
 
                         <!-- Ranking Chart -->
-                        <div class="mt-6">
-                            <canvas id="rankingChart" width="400" height="200"></canvas>
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h4 class="chart-title">Ranking Distribution</h4>
+                                <p class="chart-subtitle">Visual representation of option rankings</p>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="rankingChart" width="400" height="200"></canvas>
+                            </div>
                         </div>
                     @else
                         @php
@@ -131,15 +156,13 @@
                                     $percentage = $totalVotes > 0 ? ($count / $totalVotes) * 100 : 0;
                                 @endphp
                                 @if($count > 0)
-                                <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                                    <div class="flex-1">
-                                        <div class="flex items-center justify-between mb-2">
-                                            <span class="font-medium text-gray-800 dark:text-gray-200">{{ $option->option_text }}</span>
-                                            <span class="text-sm font-semibold text-indigo-600 dark:text-indigo-400">{{ $count }} votes ({{ number_format($percentage, 1) }}%)</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                            <div class="h-2 rounded-full transition-all duration-300" style="width: {{ $percentage }}%; background-color: {{ $colorMap[$option->id] }}"></div>
-                                        </div>
+                                <div class="material-progress-item animate-fade-in-up" style="animation-delay: {{ $loop->index * 0.1 }}s;">
+                                    <div class="progress-header">
+                                        <span class="progress-label">{{ $option->option_text }}</span>
+                                        <span class="progress-value">{{ $count }} votes ({{ number_format($percentage, 1) }}%)</span>
+                                    </div>
+                                    <div class="material-progress-bar">
+                                        <div class="progress-fill" style="width: {{ $percentage }}%; background-color: {{ $colorMap[$option->id] }}"></div>
                                     </div>
                                 </div>
                                 @endif
@@ -147,13 +170,20 @@
                 </div>
 
                         <!-- Regular Chart -->
-                        <div class="mt-6">
+                        <div class="chart-container">
                             @if($totalVotes > 0)
-                                <canvas id="regularChart" width="400" height="200"></canvas>
+                                <div class="chart-header">
+                                    <h4 class="chart-title">Vote Distribution</h4>
+                                    <p class="chart-subtitle">Visual representation of voting results</p>
+                                </div>
+                                <div class="chart-wrapper">
+                                    <canvas id="regularChart" width="400" height="200"></canvas>
+                                </div>
                             @else
-                                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-                                    <i class="fa-solid fa-chart-pie text-4xl mb-2"></i>
-                                    <p>{{ __('messages.no_votes_yet') }}</p>
+                                <div class="empty-state">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                    <h4 class="empty-title">No Votes Yet</h4>
+                                    <p class="empty-description">{{ __('messages.no_votes_yet') }}</p>
                                 </div>
                             @endif
                         </div>
@@ -161,59 +191,66 @@
 
                     {{-- Inline Share Section inside Results card for unified UI --}}
                     @if (!$poll->hide_share || $isOwner)
-                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center gap-2 mb-4">
-                            <i class="fa-solid fa-share-nodes text-green-600"></i>
-                            <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ __('messages.share_poll') }}</h4>
+                    <div class="share-section">
+                        <div class="share-header">
+                            <div class="share-title">
+                                <i class="fa-solid fa-share-nodes text-primary"></i>
+                                {{ __('messages.share_poll') }}
+                            </div>
+                            <p class="share-subtitle">Share your poll with others to get more responses</p>
                         </div>
 
                         <!-- Share Options Tabs -->
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <button type="button" id="showCode" class="share-tab active px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-sm font-medium transition-colors">
-                                <i class="fa-solid fa-code mr-2"></i>Code
+                        <div class="share-tabs">
+                            <button type="button" id="showCode" class="share-tab active">
+                                <i class="fa-solid fa-code"></i>
+                                Code
                             </button>
-                            <button type="button" id="showUrl" class="share-tab px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors">
-                                <i class="fa-solid fa-link mr-2"></i>URL
+                            <button type="button" id="showUrl" class="share-tab">
+                                <i class="fa-solid fa-link"></i>
+                                URL
                             </button>
-                            <button type="button" id="showQR" class="share-tab px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors">
-                                <i class="fa-solid fa-qrcode mr-2"></i>QR Code
+                            <button type="button" id="showQR" class="share-tab">
+                                <i class="fa-solid fa-qrcode"></i>
+                                QR Code
                             </button>
-        </div>
+                        </div>
 
                         <!-- Share Content -->
                         <div id="shareCode" class="share-content">
-                            <div class="space-y-2">
-                                <label class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ __('messages.poll_code') }}</label>
-                                <div class="flex gap-2">
-                                    <input id="code" class="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-mono" value="{{ $poll->slug }}" readonly>
-                                    <button type="button" data-target="code" class="btn-copy copy px-4 py-2 tooltip" data-tooltip="{{ __('messages.copy') }}" aria-label="{{ __('messages.copy') }}">
-                                        <i class="fa-solid fa-copy mr-1" aria-hidden="true"></i>{{ __('messages.copy') }}
-                                    </button>
-                                </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Share this code with others to let them find your poll</p>
+                            <div class="input-field">
+                                <input id="code" value="{{ $poll->slug }}" readonly>
+                                <label for="code">{{ __('messages.poll_code') }}</label>
                             </div>
+                            <button type="button" data-target="code" class="btn btn-primary copy">
+                                <i class="fa-solid fa-copy"></i>
+                                {{ __('messages.copy') }}
+                            </button>
+                            <p class="share-description">Share this code with others to let them find your poll</p>
                         </div>
 
                         <div id="shareUrl" class="share-content hidden">
-                            <div class="space-y-2">
-                                <label class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ __('messages.share_link') }}</label>
-                                <div class="flex gap-2">
-                                    <input id="share" class="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm" value="{{ route('polls.vote', $poll->slug) }}" readonly>
-                                    <button type="button" data-target="share" class="btn-copy copy px-4 py-2 tooltip" data-tooltip="{{ __('messages.copy') }}" aria-label="{{ __('messages.copy') }}">
-                                        <i class="fa-solid fa-copy mr-1" aria-hidden="true"></i>{{ __('messages.copy') }}
-                                    </button>
-                                </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Direct link to your poll</p>
+                            <div class="input-field">
+                                <input id="share" value="{{ route('polls.vote', $poll->slug) }}" readonly>
+                                <label for="share">{{ __('messages.share_link') }}</label>
                             </div>
+                            <button type="button" data-target="share" class="btn btn-primary copy">
+                                <i class="fa-solid fa-copy"></i>
+                                {{ __('messages.copy') }}
+                            </button>
+                            <p class="share-description">Direct link to your poll</p>
                         </div>
 
                         <div id="shareQR" class="share-content hidden">
-                            <div class="space-y-2">
-                                <label class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ __('messages.qr_code') }}</label>
-                                <div class="flex justify-center p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="qr-container">
+                                <div class="qr-header">
+                                    <h5 class="qr-title">{{ __('messages.qr_code') }}</h5>
+                                    <p class="qr-subtitle">Scan to access poll</p>
+                                </div>
+                                <div class="qr-wrapper">
                                     <div id="qrcode"></div>
                                 </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 text-center">Scan QR code to access the poll</p>
+                                <p class="share-description">Scan QR code to access the poll</p>
                             </div>
                         </div>
                             </div>
@@ -223,52 +260,84 @@
 
             <!-- Voters Section (Owner only) -->
     @if ($isOwner)
-            <div id="panelVoters" class="card mb-6 hidden">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-users text-green-600" aria-hidden="true"></i>
+            <div id="panelVoters" class="card card-elevated animate-fade-in-up mb-8 hidden">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-users text-primary"></i>
                         Voter Statistics
-                    </h3>
+                    </div>
+                    <div class="card-subtitle">
+                        View and filter participant data
+                    </div>
+                </div>
+                <div class="card-content">
 
-                    <!-- Sticky Filters -->
-                    <div class="sticky top-20 z-10 mb-3 p-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur rounded border border-gray-200 dark:border-gray-700">
-                        <form method="GET" class="flex flex-wrap gap-3 items-center">
-                            <input type="text" name="q" value="{{ request('q') }}" placeholder="{{ __('messages.search_placeholder') }}" class="flex-1 min-w-56 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
-                            <input type="date" name="from" value="{{ request('from') }}" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
-                            <input type="date" name="to" value="{{ request('to') }}" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
-                            <button type="submit" class="btn btn-primary" aria-label="Search"><i class="fa-solid fa-search mr-1" aria-hidden="true"></i>{{ __('messages.search') ?? 'Search' }}</button>
-                            <a href="{{ route('polls.show', $poll->slug) }}" class="btn btn-neutral" aria-label="Clear filters"><i class="fa-solid fa-times mr-1" aria-hidden="true"></i>{{ __('messages.clear') }}</a>
+                    <!-- Filters -->
+                    <div class="filters-container">
+                        <form method="GET" class="filters-form">
+                            <div class="filter-group">
+                                <div class="input-field">
+                                    <input type="text" name="q" value="{{ request('q') }}" placeholder=" ">
+                                    <label for="q">{{ __('messages.search_placeholder') }}</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="date" name="from" value="{{ request('from') }}" placeholder=" ">
+                                    <label for="from">From Date</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="date" name="to" value="{{ request('to') }}" placeholder=" ">
+                                    <label for="to">To Date</label>
+                                </div>
+                            </div>
+                            <div class="filter-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-search"></i>
+                                    SEARCH
+                                </button>
+                                <a href="{{ route('polls.show', $poll->slug) }}" class="btn btn-neutral">
+                                    <i class="fa-solid fa-times"></i>
+                                    CLEAR
+                                </a>
+                            </div>
                         </form>
                     </div>
 
                     <!-- Voters Table -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full text-sm">
-                <thead>
-                                <tr class="text-left text-gray-600 dark:text-gray-300">
-                                    <th class="py-2 pr-4">{{ __('messages.name') }}</th>
-                                    <th class="py-2 pr-4">{{ __('messages.choice') }}</th>
-                                    <th class="py-2 pr-4">{{ __('messages.time') }}</th>
-                    </tr>
-                </thead>
-                <tbody>
+                    <div class="table-container">
+                        <table class="material-table">
+                            <thead>
+                                <tr>
+                                    <th>{{ __('messages.name') }}</th>
+                                    <th>{{ __('messages.choice') }}</th>
+                                    <th>{{ __('messages.time') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                                 @forelse ($voters as $vote)
-                        <tr class="border-t border-gray-200 dark:border-gray-700">
-                                    <td class="py-2 pr-4 text-gray-800 dark:text-gray-200">{{ $vote->voter_name ?: 'Anonymous' }}</td>
-                                    <td class="py-2 pr-4 text-gray-700 dark:text-gray-300">
+                                <tr class="table-row">
+                                    <td class="voter-name">{{ $vote->voter_name ?: 'Anonymous' }}</td>
+                                    <td class="voter-choice">
                                         @if ($poll->poll_type === 'ranking')
-                                            Rank {{ $vote->rank }}: {{ $vote->option->option_text }}
+                                            <span class="choice-rank">Rank {{ $vote->rank }}:</span> {{ $vote->option->option_text }}
                                         @else
                                             {{ $vote->option->option_text }}
                                         @endif
                                     </td>
-                                    <td class="py-2 pr-4 text-gray-500">{{ $vote->created_at->format('d/m/Y H:i') }}</td>
-                        </tr>
+                                    <td class="voter-time">{{ $vote->created_at->format('d/m/Y H:i') }}</td>
+                                </tr>
                                 @empty
-                                <tr><td colspan="3" class="py-6 text-center text-gray-500 dark:text-gray-400">{{ __('messages.no_votes_yet') }}</td></tr>
+                                <tr>
+                                    <td colspan="3" class="empty-table">
+                                        <div class="empty-state">
+                                            <i class="fa-solid fa-users"></i>
+                                            <h4 class="empty-title">No Voters Found</h4>
+                                            <p class="empty-description">{{ __('messages.no_votes_yet') }}</p>
+                                        </div>
+                                    </td>
+                                </tr>
                                 @endforelse
-                </tbody>
-            </table>
+                            </tbody>
+                        </table>
                     </div>
 
                     @if ($votersPaginator && $votersPaginator->hasPages())
@@ -282,7 +351,7 @@
 
             <!-- Poll Information (for owner only) -->
             @if ($isOwner)
-            <div class="card">
+            <div class="card mb-8">
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
@@ -400,7 +469,7 @@
 
         // Share tab functionality
         document.addEventListener('DOMContentLoaded', function() {
-            // Results/Voters tabs (owner)
+            // Results/Voters tabs (owner) - Material Design
             const tabResults = document.getElementById('tabResults');
             const tabVoters = document.getElementById('tabVoters');
             const panelResults = document.getElementById('panelResults');
@@ -423,21 +492,31 @@
             const shareContents = document.querySelectorAll('.share-content');
             const copyButtons = document.querySelectorAll('.copy');
 
+            // Initialize: Hide all content except the first one
+            shareContents.forEach((content, index) => {
+                if (index !== 0) {
+                    content.classList.add('hidden');
+                }
+            });
+
             shareTabs.forEach(tab => {
                 tab.addEventListener('click', function() {
                     const targetId = this.id.replace('show', 'share');
                     
                     // Remove active class from all tabs
-                    shareTabs.forEach(t => t.classList.remove('active', 'bg-blue-100', 'dark:bg-blue-900/30', 'text-blue-700', 'dark:text-blue-300'));
-                    shareTabs.forEach(t => t.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300'));
+                    shareTabs.forEach(t => t.classList.remove('active'));
                     
                     // Hide all content
-                    shareContents.forEach(content => content.classList.add('hidden'));
+                    shareContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
                     
                     // Show target content and activate tab
-                    document.getElementById(targetId).classList.remove('hidden');
-                    this.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
-                    this.classList.add('active', 'bg-blue-100', 'dark:bg-blue-900/30', 'text-blue-700', 'dark:text-blue-300');
+                    const targetContent = document.getElementById(targetId);
+                    if (targetContent) {
+                        targetContent.classList.remove('hidden');
+                    }
+                    this.classList.add('active');
                 });
             });
 
