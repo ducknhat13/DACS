@@ -60,6 +60,10 @@
         @if ($poll->poll_type === 'ranking')
                         @php
                             $rankings = [];
+                            $colorMap = [];
+                            $barColors = ['#3B82F6', '#8B5CF6', '#06B6D4', '#10B981', '#F59E0B'];
+                            $colorIndex = 0;
+                            
                             foreach ($poll->options as $option) {
                                 $votes = $option->votes;
                                 $totalScore = 0;
@@ -67,6 +71,10 @@
                                     $totalScore += $vote->rank;
                                 }
                                 $rankings[$option->id] = $totalScore;
+                                if ($totalScore > 0) {
+                                    $colorMap[$option->id] = $barColors[$colorIndex % count($barColors)];
+                                    $colorIndex++;
+                                }
                             }
                             $sortedOptions = $poll->options->sortByDesc(function ($option) use ($rankings) {
                                 return $rankings[$option->id] ?? 0;
@@ -74,13 +82,13 @@
                         @endphp
 
                         <div class="space-y-4">
-                            @php $barColors = ['#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444']; @endphp
                             @foreach ($sortedOptions as $option)
                                 @php
                                     $score = $rankings[$option->id] ?? 0;
                                     $maxScore = $poll->options->count() * $totalVotes;
                                     $percentage = $maxScore > 0 ? ($score / $maxScore) * 100 : 0;
                                 @endphp
+                                @if($score > 0)
                                 <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                                     <div class="flex-1">
                                         <div class="flex items-center justify-between mb-2">
@@ -88,10 +96,11 @@
                                             <span class="text-sm font-semibold text-indigo-600 dark:text-indigo-400">{{ $score }} points</span>
                                         </div>
                                         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                            <div class="h-2 rounded-full transition-all duration-300" style="width: {{ $percentage }}%; background-color: {{ $barColors[$loop->index % count($barColors)] }}"></div>
+                                            <div class="h-2 rounded-full transition-all duration-300" style="width: {{ $percentage }}%; background-color: {{ $colorMap[$option->id] }}"></div>
                                         </div>
                                     </div>
                                 </div>
+                                @endif
                             @endforeach
                             </div>
 
@@ -102,18 +111,26 @@
                     @else
                         @php
                             $counts = [];
+                            $colorMap = [];
+                            $barColors = ['#3B82F6', '#8B5CF6', '#06B6D4', '#10B981', '#F59E0B'];
+                            $colorIndex = 0;
+                            
                             foreach ($poll->options as $option) {
                                 $counts[$option->id] = $option->votes->count();
+                                if ($option->votes->count() > 0) {
+                                    $colorMap[$option->id] = $barColors[$colorIndex % count($barColors)];
+                                    $colorIndex++;
+                                }
                             }
                         @endphp
 
                         <div class="space-y-4">
-                            @php $barColors = ['#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444']; @endphp
                             @foreach ($poll->options as $option)
                                 @php
                                     $count = $counts[$option->id];
                                     $percentage = $totalVotes > 0 ? ($count / $totalVotes) * 100 : 0;
                                 @endphp
+                                @if($count > 0)
                                 <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                                     <div class="flex-1">
                                         <div class="flex items-center justify-between mb-2">
@@ -121,17 +138,25 @@
                                             <span class="text-sm font-semibold text-indigo-600 dark:text-indigo-400">{{ $count }} votes ({{ number_format($percentage, 1) }}%)</span>
                                         </div>
                                         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                            <div class="h-2 rounded-full transition-all duration-300" style="width: {{ $percentage }}%; background-color: {{ $barColors[$loop->index % count($barColors)] }}"></div>
+                                            <div class="h-2 rounded-full transition-all duration-300" style="width: {{ $percentage }}%; background-color: {{ $colorMap[$option->id] }}"></div>
                                         </div>
                                     </div>
-                        </div>
-                    @endforeach
+                                </div>
+                                @endif
+                            @endforeach
                 </div>
 
                         <!-- Regular Chart -->
                         <div class="mt-6">
-                            <canvas id="regularChart" width="400" height="200"></canvas>
-            </div>
+                            @if($totalVotes > 0)
+                                <canvas id="regularChart" width="400" height="200"></canvas>
+                            @else
+                                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                                    <i class="fa-solid fa-chart-pie text-4xl mb-2"></i>
+                                    <p>{{ __('messages.no_votes_yet') }}</p>
+                                </div>
+                            @endif
+                        </div>
         @endif
 
                     {{-- Inline Share Section inside Results card for unified UI --}}
@@ -467,11 +492,14 @@
                     @php
                         $chartData = [];
                         $chartLabels = [];
-                        $chartColors = ['#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444'];
+                        $chartColors = [];
                         foreach ($sortedOptions as $index => $opt) {
                             $score = $rankings[$opt->id] ?? 0;
-                            $chartData[] = $score;
-                            $chartLabels[] = $opt->option_text;
+                            if ($score > 0) {
+                                $chartData[] = $score;
+                                $chartLabels[] = $opt->option_text;
+                                $chartColors[] = $colorMap[$opt->id]; // Sử dụng cùng colorMap
+                            }
                         }
                     @endphp
                     
@@ -515,11 +543,14 @@
                     @php
                         $chartData = [];
                         $chartLabels = [];
-                        $chartColors = ['#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444'];
+                        $chartColors = [];
                         foreach ($poll->options as $index => $opt) {
                             $c = $counts[$opt->id];
-                            $chartData[] = $c;
-                            $chartLabels[] = $opt->option_text;
+                            if ($c > 0) {
+                                $chartData[] = $c;
+                                $chartLabels[] = $opt->option_text;
+                                $chartColors[] = $colorMap[$opt->id]; // Sử dụng cùng colorMap
+                            }
                         }
                     @endphp
                     

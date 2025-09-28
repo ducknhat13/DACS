@@ -1,7 +1,9 @@
 # QuickPoll - Ứng Dụng Tạo Khảo Sát Nhanh
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo">
+    <div style="font-family: 'Product Sans', sans-serif; font-size: 48px; font-weight: bold; text-align: center; margin: 20px 0;">
+        <span style="color: #2563eb;">Q</span><span style="color: #2563eb;">u</span><span style="color: #2563eb;">i</span><span style="color: #2563eb;">c</span><span style="color: #2563eb;">k</span><span style="color: #ef4444;">P</span><span style="color: #eab308;">o</span><span style="color: #3b82f6;">l</span><span style="color: #22c55e;">l</span>
+    </div>
 </p>
 
 ## 📝 Mô Tả
