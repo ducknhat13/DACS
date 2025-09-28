@@ -99,17 +99,7 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-### 4. Cấu Hình Database với TiDB Cloud
-
-#### 4.1. Tạo TiDB Cloud Account
-1. Truy cập [TiDB Cloud](https://tidbcloud.com/)
-2. Tạo account và cluster mới
-3. Lấy thông tin kết nối:
-   - Host
-   - Port (thường là 4000)
-   - Database name
-   - Username
-   - Password
+### 4. Cấu Hình Database 
 
 #### 4.2. Cấu Hình Environment Variables
 
