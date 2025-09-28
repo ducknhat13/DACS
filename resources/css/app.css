@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* UI upgrades */
+.dashboard-grid{display:grid;grid-template-columns:1fr 6rem 7rem 6rem 2.5rem;align-items:center;gap:.5rem}
+.btn {
+  @apply inline-flex items-center gap-2 px-3 py-2 rounded-md font-medium transition-colors duration-150 shadow-sm;
+}
+.btn-primary { @apply bg-indigo-600 text-white hover:bg-indigo-700; }
+.btn-neutral { @apply bg-gray-100 hover:bg-gray-200 text-gray-800; }
+.badge { @apply px-2 py-0.5 text-xs rounded bg-gray-200 dark:bg-gray-700; }
+.card { @apply bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-t-4 border-yellow-400; }
+.progress { @apply w-full bg-gray-200 dark:bg-gray-700 rounded h-2; }
+.progress-bar { @apply h-2 rounded bg-gradient-to-r from-indigo-500 to-purple-600 transition-all; }
+
+/* Fancy toggle */
+.toggle { @apply relative inline-flex w-12 h-6 items-center rounded-full transition-colors duration-200 bg-gray-300; }
+.toggle.on { @apply bg-indigo-600; }
+.toggle .knob { @apply absolute left-1 w-5 h-5 bg-white rounded-full shadow transform transition-all; }
+.toggle.on .knob { transform: translateX(1.5rem); }
+
+/* Copy button styles */
+.btn-copy {
+  @apply inline-flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors duration-200 shadow-sm;
+}
+.btn-copy:hover {
+  @apply bg-blue-700 shadow-md;
+}
+.btn-copy:active {
+  @apply bg-blue-800 transform scale-95;
+}
+
+/* Share tab styles */
+.share-tab {
+  @apply transition-all duration-200 cursor-pointer;
+}
+.share-tab:hover {
+  @apply transform scale-105 shadow-md;
+}
+.share-tab.active {
+  @apply transform scale-105 shadow-lg;
+}
+.share-tab:active {
+  @apply transform scale-95;
+}
+
+/* Tab button styles */
+.tab-button {
+  @apply transition-all duration-200 cursor-pointer;
+}
+.tab-button:hover {
+  @apply transform scale-105 shadow-md;
+}
+.tab-button.active {
+  @apply transform scale-105 shadow-lg;
+}
+.tab-button:active {
+  @apply transform scale-95;
+}
+
+/* Focus-visible ring for accessibility */
+.btn:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99,102,241,.45); /* indigo ring */
+}
+
+/* Skeleton loading */
+.skeleton { position: relative; overflow: hidden; background-color: rgba(0,0,0,0.06); }
+.dark .skeleton { background-color: rgba(255,255,255,0.08); }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: skeleton-loading 1.2s infinite;
+}
+@keyframes skeleton-loading { 0% { transform: translateX(-100%);} 100% { transform: translateX(100%);} }
+
+/* Toast */
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+  z-index: 60; padding: 10px 14px; border-radius: 8px; color: #fff; background-color: rgba(16, 185, 129, 0.95);
+  opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+/* Mobile submit bar */
+.submit-bar { position: sticky; bottom: 0; z-index: 40; backdrop-filter: blur(6px); }
+.submit-bar-inner { @apply max-w-4xl mx-auto flex justify-end p-3; }
+
+/* Tooltip (pure CSS) */
+.tooltip { position: relative; }
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute; left: 50%; bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  background: rgba(17,24,39,.9); /* gray-900 */
+  color: #fff; font-size: 12px; line-height: 1; padding: 6px 8px; border-radius: 6px;
+  white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .15s ease, transform .15s ease;
+}
+.tooltip:hover::after, .tooltip:focus-visible::after { opacity: 1; transform: translateX(-50%) translateY(-2px); }
