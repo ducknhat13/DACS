@@ -41,12 +41,19 @@
 
         <div class="flex items-center justify-between mt-6">
             <a class="text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
+                {{ __('messages.already_registered') }}
             </a>
 
             <x-primary-button class="ms-4">
-                {{ __('Register') }}
+                {{ __('app.register') }}
             </x-primary-button>
+        </div>
+
+        <div class="mt-6">
+            <a href="{{ route('oauth.google.redirect') }}" class="btn btn-neutral w-full justify-center">
+                <i class="fa-brands fa-google"></i>
+                {{ __('messages.sign_up_with_google') }}
+            </a>
         </div>
     </form>
 </x-guest-layout>

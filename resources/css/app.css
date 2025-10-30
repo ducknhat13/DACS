@@ -5,19 +5,19 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Material Design Color Palette */
+/* Material Design Color Palette - Now using Tailwind classes */
 :root {
-  --primary: #176BEF;
-  --primary-dark: #0D47A1;
-  --primary-light: #42A5F5;
-  --error: #FF3E30;
-  --warning: #F7B529;
-  --success: #179C52;
-  --surface: #FFFFFF;
-  --surface-variant: #F5F5F5;
-  --on-surface: #1A1A1A;
-  --on-surface-variant: #666666;
-  --outline: #E0E0E0;
+  --primary: theme('colors.primary.500');
+  --primary-dark: theme('colors.primary.700');
+  --primary-light: theme('colors.primary.400');
+  --error: theme('colors.error.500');
+  --warning: theme('colors.warning.500');
+  --success: theme('colors.success.500');
+  --surface: theme('colors.white');
+  --surface-variant: theme('colors.surface.100');
+  --on-surface: theme('colors.surface.900');
+  --on-surface-variant: theme('colors.surface.600');
+  --outline: theme('colors.surface.300');
   --shadow: rgba(0, 0, 0, 0.1);
   --shadow-elevated: rgba(0, 0, 0, 0.15);
 }
@@ -27,6 +27,25 @@ body {
   font-family: 'Montserrat', sans-serif;
   color: var(--on-surface);
   background-color: var(--surface-variant);
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: theme('colors.surface.900');
+    --surface-variant: theme('colors.surface.800');
+    --on-surface: theme('colors.surface.100');
+    --on-surface-variant: theme('colors.surface.400');
+    --outline: theme('colors.surface.700');
+  }
+}
+
+.dark {
+  --surface: theme('colors.surface.900');
+  --surface-variant: theme('colors.surface.800');
+  --on-surface: theme('colors.surface.100');
+  --on-surface-variant: theme('colors.surface.400');
+  --outline: theme('colors.surface.700');
 }
 
 /* Material Design Typography Scale */
@@ -49,83 +68,216 @@ body {
 /* UI upgrades */
 .dashboard-grid{display:grid;grid-template-columns:1fr 6rem 7rem 6rem 2.5rem;align-items:center;gap:.5rem}
 
+/* Utility Classes */
+@layer utilities {
+  /* Container */
+  .container-material {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Spacing */
+  .section-padding {
+    @apply py-16 lg:py-24;
+  }
+
+  .section-padding-sm {
+    @apply py-8 lg:py-12;
+  }
+
+  .section-padding-lg {
+    @apply py-24 lg:py-32;
+  }
+
+  /* Grid Systems */
+  .grid-material {
+    @apply grid gap-6;
+  }
+
+  .grid-material-sm {
+    @apply grid gap-4;
+  }
+
+  .grid-material-lg {
+    @apply grid gap-8;
+  }
+
+  .grid-responsive {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  .grid-responsive-sm {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
+  }
+
+  /* Flex Utilities */
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+
+  .flex-start {
+    @apply flex items-center justify-start;
+  }
+
+  .flex-end {
+    @apply flex items-center justify-end;
+  }
+
+  /* Text Utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Animation Utilities */
+  .animate-on-scroll {
+    @apply opacity-0 translate-y-4 transition-all duration-500 ease-out;
+  }
+
+  .animate-on-scroll.in-view {
+    @apply opacity-100 translate-y-0;
+  }
+
+  /* Focus Utilities */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+
+  .focus-ring-inset {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-inset;
+  }
+}
+
 /* Material Design Button System */
-.btn {
-  @apply inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-200 shadow-sm;
-  font-family: 'Montserrat', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border: none;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-material;
+    font-family: 'Montserrat', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    min-height: 44px;
+  }
 
-.btn::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
+  .btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
 
-.btn:active::before {
-  width: 300px;
-  height: 300px;
-}
+  .btn:active::before {
+    width: 300px;
+    height: 300px;
+  }
 
-.btn-primary { 
-  background-color: var(--primary);
-  color: white;
-  box-shadow: 0 2px 4px var(--shadow);
-}
+  .btn-primary { 
+    @apply bg-primary-500 text-white hover:bg-primary-600 hover:shadow-material-lg hover:-translate-y-0.5;
+  }
 
-.btn-primary:hover { 
-  background-color: var(--primary-dark);
-  box-shadow: 0 4px 8px var(--shadow-elevated);
-  transform: translateY(-1px);
-}
+  .btn-secondary { 
+    @apply bg-secondary-500 text-white hover:bg-secondary-600 hover:shadow-material-lg hover:-translate-y-0.5;
+  }
 
-.btn-neutral { 
-  background-color: var(--surface);
-  color: var(--on-surface);
-  border: 1px solid var(--outline);
-  box-shadow: 0 1px 2px var(--shadow);
-}
+  .btn-neutral { 
+    @apply text-surface-900 border border-surface-300 hover:shadow-material;
+    background-color: var(--surface);
+  }
 
-.btn-neutral:hover {
-  background-color: var(--surface-variant);
-  box-shadow: 0 2px 4px var(--shadow);
+  .btn-outline { 
+    @apply bg-transparent text-primary-500 border border-primary-500 hover:bg-primary-50 hover:text-primary-600;
+  }
+
+  .btn-ghost { 
+    @apply bg-transparent text-surface-600 hover:bg-surface-100 hover:text-surface-900;
+  }
+
+  .btn-danger { 
+    @apply bg-error-500 text-white hover:bg-error-600 hover:shadow-material-lg hover:-translate-y-0.5;
+  }
+
+  .btn-success { 
+    @apply bg-success-500 text-white hover:bg-success-600 hover:shadow-material-lg hover:-translate-y-0.5;
+  }
+
+  .btn-warning { 
+    @apply bg-warning-500 text-white hover:bg-warning-600 hover:shadow-material-lg hover:-translate-y-0.5;
+  }
+
+  /* Button Sizes */
+  .btn-sm {
+    @apply px-4 py-2 text-sm min-h-9;
+  }
+
+  .btn-lg {
+    @apply px-8 py-4 text-lg min-h-13;
+  }
+
+  /* Button States */
+  .btn:disabled {
+    @apply opacity-50 cursor-not-allowed hover:transform-none hover:shadow-material;
+  }
+
+  .btn:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+  }
 }
 /* Material Design Card System */
-.card {
-  background-color: var(--surface);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 1px 3px var(--shadow), 0 1px 2px var(--shadow);
-  border: none;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-}
+@layer components {
+  .card {
+    @apply rounded-2xl p-6 shadow-material transition-all duration-200 relative overflow-hidden;
+    background-color: var(--surface);
+    border: 1px solid var(--outline);
+    color: var(--on-surface);
+  }
 
-.card:hover {
-  box-shadow: 0 4px 6px var(--shadow), 0 2px 4px var(--shadow);
-  transform: translateY(-2px);
-}
+  .card:hover {
+    @apply shadow-material-lg -translate-y-1;
+  }
 
-.card-elevated {
-  box-shadow: 0 4px 6px var(--shadow), 0 2px 4px var(--shadow);
-}
+  .card-elevated {
+    @apply shadow-material-lg;
+  }
 
-.card-elevated:hover {
-  box-shadow: 0 8px 12px var(--shadow-elevated), 0 4px 8px var(--shadow-elevated);
-  transform: translateY(-4px);
+  .card-elevated:hover {
+    @apply shadow-material-xl -translate-y-2;
+  }
+
+  .card-interactive {
+    @apply cursor-pointer hover:shadow-material-lg hover:-translate-y-1 hover:border-primary-300;
+  }
+
+  .card-selected {
+    @apply border-primary-500 shadow-material-lg bg-primary-50;
+  }
+
+  /* Card Variants */
+  .card-outlined {
+    @apply border-2 border-surface-300 shadow-none;
+  }
+
+  .card-filled {
+    @apply bg-surface-100 border-surface-200;
+  }
+
+  .card-surface {
+    @apply bg-surface-50 border-surface-200;
+  }
 }
 
 /* Material Design Badge System */
@@ -224,54 +376,75 @@ body {
 }
 
 /* Material Design Input Fields */
-.input-field {
-  position: relative;
-  margin-bottom: 16px;
-}
+@layer components {
+  .input-field {
+    @apply relative mb-4;
+  }
 
-.input-field input,
-.input-field textarea,
-.input-field select {
-  width: 100%;
-  padding: 16px 12px 8px 12px;
-  border: 2px solid var(--outline);
-  border-radius: 8px;
-  background-color: var(--surface);
-  color: var(--on-surface);
-  font-size: 16px;
-  font-family: 'Montserrat', sans-serif;
-  transition: all 0.2s ease;
-  outline: none;
-}
+  .input-field input,
+  .input-field textarea,
+  .input-field select {
+    @apply w-full px-3 py-4 border-2 rounded-xl text-base font-sans transition-all duration-200 outline-none;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    border-color: var(--outline);
+  }
 
-.input-field input:focus,
-.input-field textarea:focus,
-.input-field select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(23, 107, 239, 0.1);
-}
+  .input-field input:focus,
+  .input-field textarea:focus,
+  .input-field select:focus {
+    @apply border-primary-500 ring-4 ring-primary-100;
+  }
 
-.input-field label {
-  position: absolute;
-  top: 16px;
-  left: 12px;
-  color: var(--on-surface-variant);
-  font-size: 16px;
-  transition: all 0.2s ease;
-  pointer-events: none;
-  background-color: var(--surface);
-  padding: 0 4px;
-}
+  .input-field input:invalid,
+  .input-field textarea:invalid,
+  .input-field select:invalid {
+    @apply border-error-500 ring-4 ring-error-100;
+  }
 
-.input-field input:focus + label,
-.input-field input:not(:placeholder-shown) + label,
-.input-field textarea:focus + label,
-.input-field textarea:not(:placeholder-shown) + label {
-  top: -8px;
-  left: 8px;
-  font-size: 12px;
-  color: var(--primary);
-  font-weight: 500;
+  .input-field label {
+    @apply absolute top-4 left-3 text-surface-600 text-base transition-all duration-200 pointer-events-none px-1;
+    background-color: var(--surface);
+  }
+
+  .input-field input:focus + label,
+  .input-field input:not(:placeholder-shown) + label,
+  .input-field textarea:focus + label,
+  .input-field textarea:not(:placeholder-shown) + label {
+    @apply -top-2 left-2 text-xs text-primary-500 font-medium;
+  }
+
+  .input-field input:invalid + label,
+  .input-field textarea:invalid + label,
+  .input-field select:invalid + label {
+    @apply text-error-500;
+  }
+
+  /* Input Variants */
+  .input-field.filled {
+    @apply bg-surface-100 rounded-xl;
+  }
+
+  .input-field.outlined {
+    @apply border-2 border-surface-300;
+  }
+
+  .input-field.underlined {
+    @apply border-0 border-b-2 border-surface-300 rounded-none;
+  }
+
+  /* Input Sizes */
+  .input-field.sm input,
+  .input-field.sm textarea,
+  .input-field.sm select {
+    @apply px-2 py-2 text-sm;
+  }
+
+  .input-field.lg input,
+  .input-field.lg textarea,
+  .input-field.lg select {
+    @apply px-4 py-5 text-lg;
+  }
 }
 
 /* Fancy toggle */
@@ -296,7 +469,7 @@ body {
   left: 2px;
   width: 24px;
   height: 24px;
-  background-color: white;
+  background-color: var(--surface);
   border-radius: 50%;
   box-shadow: 0 2px 4px var(--shadow);
   transform: translateX(0);
@@ -482,54 +655,125 @@ textarea:focus-visible {
 .stagger-item:nth-child(5) { animation-delay: 0.5s; }
 .stagger-item:nth-child(6) { animation-delay: 0.6s; }
 
-/* Mobile-First Responsive Design */
-@media (max-width: 640px) {
-  .md-fab {
-    bottom: 16px;
-    right: 16px;
-    width: 48px;
-    height: 48px;
-    font-size: 20px;
+/* Enhanced Responsive Design */
+@layer utilities {
+  /* Mobile-First Responsive Design */
+  @media (max-width: 640px) {
+    .md-fab {
+      @apply bottom-4 right-4 w-12 h-12 text-lg;
+    }
+    
+    .md-fab-extended {
+      @apply px-4 rounded-3xl text-xs;
+    }
+    
+    .card {
+      @apply p-4 rounded-xl mx-2;
+    }
+    
+    .btn {
+      @apply px-5 py-3 text-sm;
+    }
+    
+    .input-field input,
+    .input-field textarea,
+    .input-field select {
+      @apply px-2 py-3 text-sm;
+    }
+    
+    .input-field label {
+      @apply top-3 left-2 text-sm;
+    }
+    
+    .input-field input:focus + label,
+    .input-field input:not(:placeholder-shown) + label,
+    .input-field textarea:focus + label,
+    .input-field textarea:not(:placeholder-shown) + label {
+      @apply -top-1.5 left-1.5 text-xs;
+    }
+
+    /* Mobile Typography */
+    .text-display-large { @apply text-3xl; }
+    .text-display-medium { @apply text-2xl; }
+    .text-display-small { @apply text-xl; }
+    .text-headline-large { @apply text-lg; }
+    .text-headline-medium { @apply text-base; }
+    .text-headline-small { @apply text-sm; }
+
+    /* Mobile Spacing */
+    .section-padding {
+      @apply py-8;
+    }
+
+    .section-padding-sm {
+      @apply py-4;
+    }
+
+    .section-padding-lg {
+      @apply py-12;
+    }
+
+    /* Mobile Grid */
+    .grid-responsive {
+      @apply grid-cols-1 gap-4;
+    }
+
+    .grid-responsive-sm {
+      @apply grid-cols-1 gap-3;
+    }
   }
-  
-  .md-fab-extended {
-    width: auto;
-    padding: 0 16px;
-    border-radius: 24px;
-    font-size: 12px;
+
+  /* Tablet Design */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .card {
+      @apply p-5;
+    }
+    
+    .md-fab {
+      @apply bottom-5 right-5;
+    }
+
+    .grid-responsive {
+      @apply grid-cols-2 gap-5;
+    }
+
+    .grid-responsive-sm {
+      @apply grid-cols-2 gap-4;
+    }
   }
-  
-  .card {
-    padding: 16px;
-    border-radius: 12px;
-    margin: 0 8px;
+
+  /* Desktop Enhancements */
+  @media (min-width: 1025px) {
+    .card:hover {
+      @apply -translate-y-1;
+    }
+    
+    .btn:hover {
+      @apply -translate-y-0.5;
+    }
+    
+    .md-fab:hover {
+      @apply -translate-y-1;
+    }
+
+    .grid-responsive {
+      @apply grid-cols-3 gap-6;
+    }
+
+    .grid-responsive-sm {
+      @apply grid-cols-4 gap-4;
+    }
   }
-  
-  .btn {
-    padding: 12px 20px;
-    font-size: 14px;
-  }
-  
-  .input-field input,
-  .input-field textarea,
-  .input-field select {
-    padding: 12px 8px 6px 8px;
-    font-size: 14px;
-  }
-  
-  .input-field label {
-    top: 12px;
-    left: 8px;
-    font-size: 14px;
-  }
-  
-  .input-field input:focus + label,
-  .input-field input:not(:placeholder-shown) + label,
-  .input-field textarea:focus + label,
-  .input-field textarea:not(:placeholder-shown) + label {
-    top: -6px;
-    left: 6px;
-    font-size: 11px;
+
+  /* Large Desktop */
+  @media (min-width: 1280px) {
+    .container-material {
+      @apply max-w-8xl;
+    }
+
+    .grid-responsive {
+      @apply grid-cols-4 gap-8;
+    }
   }
 }
 
@@ -921,7 +1165,7 @@ textarea:focus-visible {
   width: 24px;
   left: 2px;
   bottom: 2px;
-  background-color: white;
+  background-color: var(--surface);
   border-radius: 50%;
   box-shadow: 0 2px 4px var(--shadow);
   transition: all 0.2s ease;
@@ -1356,7 +1600,7 @@ textarea:focus-visible {
 
 .qr-wrapper {
   padding: 20px;
-  background-color: white;
+  background-color: var(--surface);
   border-radius: 12px;
   border: 1px solid var(--outline);
   box-shadow: 0 2px 8px var(--shadow);
@@ -2168,25 +2412,6 @@ textarea:focus-visible {
   to {
     transform: scale(4);
     opacity: 0;
-  }
-}
-
-/* Desktop Enhancements */
-@media (min-width: 1025px) {
-  .card:hover {
-    transform: translateY(-4px);
-  }
-  
-  .btn:hover {
-    transform: translateY(-2px);
-  }
-  
-  .md-fab:hover {
-    transform: translateY(-3px);
-  }
-  
-  .poll-card:hover {
-    transform: translateY(-4px);
   }
 }
 

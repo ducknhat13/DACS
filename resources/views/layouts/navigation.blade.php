@@ -15,7 +15,7 @@
                 <div class="navigation-links">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         <i class="fa-solid fa-chart-pie"></i>
-                        {{ __('Dashboard') }}
+                        {{ __('app.dashboard') }}
                     </x-nav-link>
                     <x-nav-link :href="route('polls.create')" :active="request()->routeIs('polls.create')">
                         <i class="fa-solid fa-plus-circle"></i>
@@ -46,8 +46,11 @@
                 </div>
             </div>
 
-            <!-- Right Section: Profile Dropdown -->
+            <!-- Right Section: Dark Mode Toggle + Profile Dropdown -->
             <div class="header-right">
+                <!-- Dark Mode Toggle -->
+                <x-dark-mode-toggle class="mr-4" />
+                
                 @auth
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
@@ -66,7 +69,7 @@
 
                         <x-slot name="content">
                             <x-dropdown-link :href="route('profile.edit')">
-                                {{ __('Profile') }}
+                                {{ __('app.profile') }}
                             </x-dropdown-link>
 
                             <!-- Authentication -->
@@ -76,14 +79,14 @@
                                 <x-dropdown-link :href="route('logout')"
                                         onclick="event.preventDefault();
                                                     this.closest('form').submit();">
-                                    {{ __('Log Out') }}
+                                    {{ __('app.logout') }}
                                 </x-dropdown-link>
                             </form>
                         </x-slot>
                     </x-dropdown>
                 @else
-                    <a href="{{ route('login') }}" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">{{ __('Log in') }}</a>
-                    <a href="{{ route('register') }}" class="ms-4 text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">{{ __('Register') }}</a>
+                    <a href="{{ route('login') }}" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">{{ __('app.log_in') }}</a>
+                    <a href="{{ route('register') }}" class="ms-4 text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">{{ __('app.register') }}</a>
                 @endauth
             </div>
 
@@ -121,7 +124,7 @@
             <div class="mobile-navigation-links">
                 <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                     <i class="fa-solid fa-chart-pie"></i>
-                    {{ __('Dashboard') }}
+                    {{ __('app.dashboard') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('polls.create')" :active="request()->routeIs('polls.create')">
                     <i class="fa-solid fa-plus-circle"></i>
@@ -140,7 +143,7 @@
 
                 <div class="mt-3 space-y-1">
                     <x-responsive-nav-link :href="route('profile.edit')">
-                        {{ __('Profile') }}
+                        {{ __('app.profile') }}
                     </x-responsive-nav-link>
 
                     <!-- Authentication -->
@@ -150,14 +153,14 @@
                         <x-responsive-nav-link :href="route('logout')"
                                 onclick="event.preventDefault();
                                             this.closest('form').submit();">
-                            {{ __('Log Out') }}
+                            {{ __('app.logout') }}
                         </x-responsive-nav-link>
                     </form>
                 </div>
             @else
                 <div class="px-4">
-                    <a href="{{ route('login') }}" class="text-sm text-gray-600 dark:text-gray-300">{{ __('Log in') }}</a>
-                    <a href="{{ route('register') }}" class="ms-4 text-sm text-indigo-600 dark:text-indigo-400">{{ __('Register') }}</a>
+                    <a href="{{ route('login') }}" class="text-sm text-gray-600 dark:text-gray-300">{{ __('app.log_in') }}</a>
+                    <a href="{{ route('register') }}" class="ms-4 text-sm text-indigo-600 dark:text-indigo-400">{{ __('app.register') }}</a>
                 </div>
             @endauth
         </div>

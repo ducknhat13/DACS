@@ -41,8 +41,15 @@
             @endif
 
             <x-primary-button class="ms-3">
-                {{ __('Log in') }}
+                {{ __('app.log_in') }}
             </x-primary-button>
+        </div>
+
+        <div class="mt-6">
+            <a href="{{ route('oauth.google.redirect') }}" class="btn btn-neutral w-full justify-center">
+                <i class="fa-brands fa-google"></i>
+                {{ __('messages.continue_with_google') }}
+            </a>
         </div>
     </form>
 </x-guest-layout>

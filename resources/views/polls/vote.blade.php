@@ -27,7 +27,7 @@
                                         $media = is_string($mediaItem) ? json_decode($mediaItem, true) : $mediaItem;
                                     @endphp
                                     @if($media && isset($media['type']))
-                                        <div class="media-display-item bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                                        <div class="media-display-item bg-[var(--surface-variant)] rounded-xl border border-[color:var(--outline)] overflow-hidden hover:shadow-lg transition-shadow duration-300">
                                             @if($media['type'] === 'video')
                                                 <div class="aspect-video bg-gray-100 dark:bg-gray-700">
                                                     <video controls class="w-full h-full object-cover">
@@ -93,7 +93,7 @@
                             <div class="mb-4">
                                 <div id="sortable-options" class="space-y-2">
                                     @foreach ($poll->options as $option)
-                                        <div class="option-item flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 cursor-move" data-option-id="{{ $option->id }}" draggable="true">
+                                        <div class="option-item flex items-center gap-3 p-3 bg-[var(--surface-variant)] rounded-lg border border-[color:var(--outline)] cursor-move" data-option-id="{{ $option->id }}" draggable="true">
                                             <i class="fa-solid fa-grip-vertical text-gray-400"></i>
                                             <span class="flex-1 text-gray-800 dark:text-gray-200">{{ $option->option_text }}</span>
                                             <span class="rank-badge px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded text-sm font-medium">
@@ -108,7 +108,7 @@
                             <!-- Image Poll Options -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                 @foreach ($poll->options as $option)
-                                    <label class="image-option-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-primary hover:shadow-lg transition-all duration-200 cursor-pointer group w-full sm:max-w-xs mx-auto">
+                                    <label class="image-option-card bg-[var(--surface)] text-[color:var(--on-surface)] rounded-xl border border-[color:var(--outline)] hover:shadow-lg transition-all duration-200 cursor-pointer group w-full sm:max-w-xs mx-auto">
                                         <div class="relative">
                                             <!-- Image -->
                                             <div class="aspect-square overflow-hidden rounded-t-xl">
@@ -165,7 +165,7 @@
                                     @if ($isOtherOpt)
                                         @continue
                                     @endif
-                                    <label class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors">
+                                    <label class="flex items-center gap-3 p-3 bg-[var(--surface-variant)] rounded-lg border border-[color:var(--outline)] hover:bg-[var(--surface)] cursor-pointer transition-colors">
                                         <input type="{{ $poll->allow_multiple ? 'checkbox' : 'radio' }}" 
                                                name="{{ $poll->allow_multiple ? 'options[]' : 'options' }}" 
                                                value="{{ $option->id }}" 
@@ -180,11 +180,11 @@
                                 @endphp
                                 @if ($hasOther)
                                 <!-- Other option row behaves like an option with input -->
-                                <label class="block p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                <label class="block p-3 bg-[var(--surface-variant)] rounded-lg border border-[color:var(--outline)] cursor-pointer hover:bg-[var(--surface)] transition-colors">
                                     <div class="flex items-center gap-3">
                                         <input type="{{ $poll->allow_multiple ? 'checkbox' : 'radio' }}" name="{{ $poll->allow_multiple ? 'options[]' : 'options' }}" value="__other__" class="option-other-check w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                                         <span class="text-gray-800 dark:text-gray-200">{{ __('messages.other') }}:</span>
-                                        <input type="text" name="other_option" class="flex-1 px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500" placeholder="{{ __('messages.type_your_answer') }}">
+                                        <input type="text" name="other_option" class="flex-1 px-3 py-2 rounded border border-[color:var(--outline)] bg-[var(--surface)] text-[color:var(--on-surface)] focus:ring-primary-500 focus:border-primary-500" placeholder="{{ __('messages.type_your_answer') }}">
                                     </div>
                                 </label>
                                 @endif
@@ -202,7 +202,7 @@
                             </button>
                         </div>
                         <!-- Mobile submit bar -->
-                        <div class="md:hidden submit-bar bg-white/85 dark:bg-gray-800/85 border-t border-gray-200 dark:border-gray-700 mt-4">
+                        <div class="md:hidden submit-bar bg-[var(--surface)]/85 border-t border-[color:var(--outline)] mt-4">
                             <div class="submit-bar-inner">
                                 <button type="submit" class="btn btn-primary w-full" aria-label="{{ __('messages.submit_vote') }}">
                                     <i class="fa-solid fa-check mr-2" aria-hidden="true"></i>
@@ -248,7 +248,7 @@
                         @csrf
                         <div class="flex gap-3">
                             <input type="text" name="content" placeholder="Add a comment..." 
-                                   class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-800 dark:text-white" required>
+                                   class="flex-1 px-4 py-2 border border-[color:var(--outline)] rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-[var(--surface)] text-[color:var(--on-surface)]" required>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa-solid fa-paper-plane mr-2"></i>
                                 Post
@@ -259,7 +259,7 @@
                     <!-- Comments List -->
                     <div class="space-y-3">
                         @forelse ($comments as $comment)
-                            <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div class="p-3 bg-[var(--surface-variant)] rounded-lg border border-[color:var(--outline)]">
                                 <div class="flex items-center gap-2 mb-2">
                                     <span class="font-medium text-gray-800 dark:text-gray-200">
                                         {{ $comment->user ? $comment->user->name : $comment->voter_name }}

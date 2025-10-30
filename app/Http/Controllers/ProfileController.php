@@ -38,6 +38,22 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update the user's locale.
+     */
+    public function updateLocale(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'lang' => ['required', 'in:vi,en']
+        ]);
+        $user = $request->user();
+        $user->locale = $request->lang;
+        $user->save();
+        auth()->setUser($user->fresh());
+        session(['locale' => $request->lang]); // đồng bộ session luôn
+        return redirect()->route('profile.edit');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse

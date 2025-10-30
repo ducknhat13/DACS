@@ -37,7 +37,7 @@
                                         $media = is_string($mediaItem) ? json_decode($mediaItem, true) : $mediaItem;
                                     @endphp
                                     @if($media && isset($media['type']))
-                                        <div class="media-display-item bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                                        <div class="media-display-item bg-[var(--surface-variant)] rounded-xl border border-[color:var(--outline)] overflow-hidden hover:shadow-lg transition-shadow duration-300">
                                             @if($media['type'] === 'video')
                                                 <div class="aspect-video bg-gray-100 dark:bg-gray-700">
                                                     <video controls class="w-full h-full object-cover">
@@ -203,7 +203,7 @@
                                     $count = $counts[$option->id];
                                     $percentage = $totalVotes > 0 ? ($count / $totalVotes) * 100 : 0;
                                 @endphp
-                                <div class="image-result-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-fade-in-up w-full sm:max-w-xs mx-auto flex flex-col" style="animation-delay: {{ $loop->index * 0.1 }}s;">
+                                <div class="image-result-card bg-[var(--surface)] text-[color:var(--on-surface)] rounded-xl border border-[color:var(--outline)] overflow-hidden animate-fade-in-up w-full sm:max-w-xs mx-auto flex flex-col" style="animation-delay: {{ $loop->index * 0.1 }}s;">
                                     <!-- Image -->
                                     <div class="aspect-square overflow-hidden w-full" style="aspect-ratio: 1 / 1;">
                                         @if($option->hasImage())
@@ -550,12 +550,12 @@
                     </div>
 
                     @if ($poll->is_private)
-                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div class="mt-4 pt-4 border-t border-[color:var(--outline)]">
                         <div class="flex flex-col">
                             <span class="font-medium text-gray-600 dark:text-gray-400 mb-2">Access Key</span>
                             <div class="flex items-center gap-2">
                                 @if ($poll->access_key)
-                                    <code class="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-sm font-mono border border-gray-300 dark:border-gray-600">
+                                    <code class="flex-1 px-3 py-2 bg-[var(--surface-variant)] text-[color:var(--on-surface)] rounded text-sm font-mono border border-[color:var(--outline)]">
                                         {{ $poll->access_key }}
                                     </code>
                                     <button type="button" onclick="copyToClipboard('{{ $poll->access_key }}', this)" 

@@ -2,8 +2,8 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-headline-large text-on-surface font-semibold">{{ __('Dashboard') }}</h1>
-                <p class="text-body-medium text-on-surface-variant mt-1">{{ __('messages.your_polls') }}</p>
+                <h1 class="text-headline-large text-on-surface font-semibold">{{ __('messages.dashboard') }}</h1>
+                <p class="text-body-medium text-on-surface-variant mt-1">{{ __('messages.create_poll_help') }}</p>
             </div>
             <div class="flex items-center gap-3">
                 <button class="btn btn-neutral" data-tooltip="Refresh">
@@ -155,17 +155,17 @@
                                     <div class="poll-meta">
                                         <div class="poll-meta-item">
                                             <i class="fa-solid fa-users"></i>
-                                            <span>{{ $total }} participants</span>
+                                            <span>{{ $total }} {{ __('messages.participants') }}</span>
                                         </div>
                                         @if($deadline)
                                             <div class="poll-meta-item {{ $isExpired ? 'text-error' : '' }}">
                                                 <i class="fa-solid fa-clock"></i>
-                                                <span>{{ $isExpired ? 'Expired' : 'Ends' }}: {{ $deadline }}</span>
+                                                <span>{{ $isExpired ? __('messages.expired') : __('messages.ends') }}: {{ $deadline }}</span>
                                             </div>
                                         @endif
                                         <div class="poll-meta-item">
                                             <i class="fa-solid fa-calendar"></i>
-                                            <span>Created: {{ $created }}</span>
+                                            <span>{{ __('messages.created') }}: {{ $created }}</span>
                                         </div>
                                     </div>
 
@@ -173,11 +173,11 @@
                                     <div class="poll-footer">
                                         <span class="poll-status {{ $isClosed ? 'closed' : 'active' }}">
                                             <i class="fa-solid {{ $isClosed ? 'fa-stop-circle' : 'fa-play-circle' }}"></i>
-                                            {{ $isClosed ? 'Closed' : 'Active' }}
+                                            {{ $isClosed ? __('messages.closed') : __('messages.active') }}
                                         </span>
                                         
                                         <a href="{{ route('polls.show', $p->slug) }}" class="text-primary text-sm font-medium hover:underline bulk-link">
-                                            View Results →
+                                            {{ __('messages.view_results') }} →
                                         </a>
                                     </div>
                                 </div>
@@ -251,7 +251,7 @@
                     </div>
                     <div class="flex items-center justify-between mt-2">
                         <button type="button" id="addModalOption" class="btn btn-neutral">{{ __('messages.add_option') }}</button>
-                        <span class="text-xs text-gray-500">Tối đa 10 lựa chọn</span>
+                        <span class="text-xs text-[color:var(--on-surface-variant)]">Tối đa 10 lựa chọn</span>
                     </div>
                 </div>
                 
@@ -277,7 +277,7 @@
                     <input type="text" name="access_key" class="w-full border rounded-lg p-3 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nhập key (tối đa 64 ký tự)">
                 </div>
                 </div>
-                <div class="flex justify-end gap-2 sticky bottom-0 bg-white dark:bg-gray-800 pt-4">
+                <div class="flex justify-end gap-2 sticky bottom-0 bg-[var(--surface)] border-t border-[color:var(--outline)] pt-4">
                     <button type="button" id="cancelCreatePoll" class="btn btn-neutral">{{ __('messages.cancel') }}</button>
                     <button type="submit" class="btn btn-primary">{{ __('messages.create') }}</button>
                 </div>
@@ -601,25 +601,31 @@
             return list;
         }
 
-        bulkClose?.addEventListener('click', async function(){
+        bulkClose?.addEventListener('click', function(){
             const items = getSelectedCards().filter(el => el.dataset.closed === '0');
-            for (const el of items) {
-                await post(`/polls/${el.dataset.slug}/toggle`, new URLSearchParams());
-            }
-            window.location.reload();
+            // Fire-and-forget requests, then reload shortly after
+            items.forEach(el => { post(`/polls/${el.dataset.slug}/toggle`, new URLSearchParams()); });
+            setTimeout(() => window.location.reload(), 500);
         });
 
-        bulkReopen?.addEventListener('click', async function(){
+        bulkReopen?.addEventListener('click', function(){
             const items = getSelectedCards().filter(el => el.dataset.closed === '1');
-            for (const el of items) {
-                await post(`/polls/${el.dataset.slug}/toggle`, new URLSearchParams());
-            }
-            window.location.reload();
+            items.forEach(el => { post(`/polls/${el.dataset.slug}/toggle`, new URLSearchParams()); });
+            setTimeout(() => window.location.reload(), 500);
         });
 
         bulkExport?.addEventListener('click', function(){
-            selected.forEach(slug => {
-                window.open(`/polls/${slug}/export.csv`, '_blank');
+            // Tải tuần tự để tránh bị chặn popup; dùng iframe ẩn mỗi 500ms
+            const slugs = Array.from(selected);
+            slugs.forEach((slug, idx) => {
+                setTimeout(() => {
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = `/polls/${slug}/export.csv`;
+                    document.body.appendChild(iframe);
+                    // Dọn dẹp sau 10s
+                    setTimeout(() => { try { iframe.remove(); } catch(e){} }, 10000);
+                }, idx * 500);
             });
         });
 

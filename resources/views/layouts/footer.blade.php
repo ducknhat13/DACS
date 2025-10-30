@@ -8,24 +8,22 @@
                 <p class="footer-description">QuickPoll — Create, Share, Analyze.</p>
             </div>
 
-            <div class="footer-links">
-                <div class="footer-column">
-                    <div class="footer-title">Products</div>
-                    <a href="{{ route('dashboard') }}" class="footer-link">Dashboard</a>
-                    <a href="{{ route('polls.create') }}" class="footer-link">Create Poll</a>
-                    <a href="#" class="footer-link">View Results</a>
-                    <a href="#" class="footer-link">Share</a>
+            <div class="footer-links grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="footer-column flex flex-col">
+                    <div class="footer-title mb-2">{{ __('app.products') }}</div>
+                    <a href="{{ route('dashboard') }}" class="footer-link mb-1">{{ __('app.dashboard') }}</a>
+                    <a href="{{ route('polls.create') }}" class="footer-link mb-1">{{ __('messages.create_poll') }}</a>
                 </div>
-                <div class="footer-column">
-                    <div class="footer-title">Company</div>
-                    <a href="#" class="footer-link">About Us</a>
-                    <a href="#" class="footer-link">Contact</a>
-                    <a href="#" class="footer-link">Career</a>
+                <div class="footer-column flex flex-col mt-4 md:mt-0">
+                    <div class="footer-title mb-2">{{ __('app.company') }}</div>
+                    <a href="#" class="footer-link mb-1">{{ __('app.about_us') }}</a>
+                    <a href="#" class="footer-link mb-1">{{ __('app.contact') }}</a>
+                    <a href="#" class="footer-link">{{ __('app.career') }}</a>
                 </div>
-                <div class="footer-column">
-                    <div class="footer-title">Legal</div>
-                    <a href="#" class="footer-link">Terms of Service</a>
-                    <a href="#" class="footer-link">Privacy Policy</a>
+                <div class="footer-column flex flex-col mt-4 md:mt-0">
+                    <div class="footer-title mb-2">{{ __('app.legal') }}</div>
+                    <a href="#" class="footer-link mb-1">{{ __('app.terms_of_service') }}</a>
+                    <a href="#" class="footer-link">{{ __('app.privacy_policy') }}</a>
                 </div>
             </div>
         </div>
@@ -33,11 +31,11 @@
         <div class="footer-separator"></div>
 
         <div class="footer-bottom">
-            <div class="footer-copyright">© {{ date('Y') }} QuickPoll. All rights reserved.</div>
+            <div class="footer-copyright">© {{ date('Y') }} QuickPoll. {{ __('app.all_rights_reserved') }}.</div>
             <div class="footer-lang">
                 <button type="button" class="footer-lang-button">
                     <span class="material-symbols-rounded">language</span>
-                    <span>English</span>
+                    <span>{{ app()->getLocale() == 'en' ? __('app.english') : __('app.vietnamese') }}</span>
                 </button>
             </div>
         </div>

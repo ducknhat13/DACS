@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-headline-large text-on-surface font-semibold">{{ __('messages.create_poll') }}</h1>
-                <p class="text-body-medium text-on-surface-variant mt-1">Create engaging polls and gather feedback</p>
+                <p class="text-body-medium text-on-surface-variant mt-1">{{ __('messages.create_poll_subtext') }}</p>
             </div>
             <div class="flex items-center gap-3">
                 <a href="{{ route('dashboard') }}" class="btn btn-neutral">
@@ -17,7 +17,7 @@
     <div class="py-12">
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
             <!-- Main Material Card -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg sm:rounded-2xl border border-gray-200 dark:border-gray-700">
+            <div class="bg-[var(--surface)] overflow-hidden shadow-lg sm:rounded-2xl border border-[color:var(--outline)] text-[color:var(--on-surface)]">
                 @if ($errors->any())
                     <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
                         <ul class="list-disc pl-5">
@@ -36,19 +36,19 @@
                             <div class="space-y-6">
                                 <div class="border-b border-outline pb-4">
                                     <h3 class="text-headline-small text-on-surface font-semibold mb-2">{{ __('messages.basic_info') }}</h3>
-                                    <p class="text-body-medium text-on-surface-variant">Enter poll title, description, type, and options.</p>
+                                    <p class="text-body-medium text-on-surface-variant">{{ __('messages.basic_info_desc') }}</p>
                                 </div>
                             
                                 <!-- Poll Title -->
                                 <div class="input-field">
                                     <input type="text" name="title" id="title" required placeholder=" " value="{{ old('title') }}">
-                                    <label for="title">Poll Title (Required)</label>
+                                    <label for="title">{{ __('messages.poll_title') }}</label>
                                 </div>
 
                                 <!-- Poll Description -->
                                 <div class="input-field">
                                     <textarea name="description" id="description" rows="3" placeholder=" " maxlength="500">{{ old('description') }}</textarea>
-                                    <label for="description">Description (Optional)</label>
+                                    <label for="description">{{ __('messages.description_optional') }}</label>
                                     <div class="text-right text-body-small text-on-surface-variant mt-1">
                                         <span id="desc-count">0</span>/500 characters
                                     </div>
@@ -56,35 +56,35 @@
 
                                 <!-- Media Upload Section (only for Image polls) -->
                                 <div id="media-upload-section" class="space-y-3" style="display: none;">
-                                    <label class="text-title-small text-on-surface">Media Files (Optional)</label>
+                                    <label class="text-title-small text-on-surface">{{ __('messages.media_files_optional') }}</label>
                                     <div class="media-upload-section bg-surface-variant rounded-xl p-4 border border-outline">
                                         <div class="space-y-4">
                                             <!-- Upload Area -->
                                             <div class="media-upload-area border-2 border-dashed border-outline rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
                                                 <div class="upload-content">
                                                     <i class="fa-solid fa-cloud-upload-alt text-4xl text-on-surface-variant mb-2"></i>
-                                                    <p class="text-body-medium text-on-surface-variant mb-2">Drag & drop media files here or</p>
+                                                    <p class="text-body-medium text-on-surface-variant mb-2">{{ __('messages.drag_drop_media_files') }}</p>
                                                     <button type="button" class="btn btn-primary media-upload-btn">
                                                         <i class="fa-solid fa-upload"></i>
-                                                        Upload Media
+                                                        {{ __('messages.upload_media') }}
                                                     </button>
-                                                    <p class="text-body-small text-on-surface-variant mt-2">Supports images and videos (max 20MB)</p>
+                                                    <p class="text-body-small text-on-surface-variant mt-2">{{ __('messages.support_media_types') }}</p>
                                                 </div>
                                             </div>
                                             
                                             <!-- URL Input -->
                                             <div class="input-field">
                                                 <input type="url" id="media-url-input" placeholder=" " class="media-url-input">
-                                                <label for="media-url-input">Or enter media URL</label>
+                                                <label for="media-url-input">{{ __('messages.or_enter_media_url') }}</label>
                                             </div>
                                             
                                             <!-- Media Preview Container -->
                                             <div id="media-preview-container" class="space-y-3 hidden">
                                                 <div class="flex items-center justify-between">
-                                                    <h4 class="text-title-small text-on-surface">Media Preview</h4>
+                                                    <h4 class="text-title-small text-on-surface">{{ __('messages.media_preview') }}</h4>
                                                     <button type="button" id="clear-all-media" class="text-button text-error">
                                                         <i class="fa-solid fa-trash"></i>
-                                                        Clear All
+                                                        {{ __('messages.clear_all') }}
                                                     </button>
                                                 </div>
                                                 <div id="media-items" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -106,19 +106,19 @@
                                         <input type="radio" name="poll_type" id="poll_type_standard" value="standard" checked class="segmented-input">
                                         <label for="poll_type_standard" class="segmented-button">
                                             <i class="fa-solid fa-chart-pie"></i>
-                                            Standard
+                                            {{ __('messages.poll_type_standard') }}
                                         </label>
                                         
                                         <input type="radio" name="poll_type" id="poll_type_ranking" value="ranking" class="segmented-input">
                                         <label for="poll_type_ranking" class="segmented-button">
                                             <i class="fa-solid fa-sort-numeric-down"></i>
-                                            Ranking
+                                            {{ __('messages.poll_type_ranking') }}
                                         </label>
 
                                         <input type="radio" name="poll_type" id="poll_type_image" value="image" class="segmented-input">
                                         <label for="poll_type_image" class="segmented-button">
                                             <i class="fa-solid fa-image"></i>
-                                            Image
+                                            {{ __('messages.poll_type_image') }}
                                         </label>
                                     </div>
                                 </div>
@@ -129,13 +129,13 @@
                                         <input type="radio" name="choice_type" id="choice_type_single" value="single" checked class="segmented-input">
                                         <label for="choice_type_single" class="segmented-button">
                                             <i class="fa-solid fa-circle-dot"></i>
-                                            Single
+                                            {{ __('messages.choice_single') }}
                                         </label>
                                         
                                         <input type="radio" name="choice_type" id="choice_type_multiple" value="multiple" class="segmented-input">
                                         <label for="choice_type_multiple" class="segmented-button">
                                             <i class="fa-solid fa-check-square"></i>
-                                            Multiple
+                                            {{ __('messages.choice_multiple') }}
                                         </label>
                                     </div>
                                 </div>
@@ -143,8 +143,8 @@
                                 <!-- Maximum Image Selections (only for Image polls) -->
                                 <div id="max-image-selections-section" class="input-field hidden">
                                     <input type="number" name="max_image_selections" id="max_image_selections" min="1" placeholder=" " value="{{ old('max_image_selections') }}">
-                                    <label for="max_image_selections">Maximum Image Selections</label>
-                                    <div class="text-body-small text-on-surface-variant mt-1">Leave empty for unlimited selections</div>
+                                    <label for="max_image_selections">{{ __('messages.max_image_selections') }}</label>
+                                    <div class="text-body-small text-on-surface-variant mt-1">{{ __('messages.leave_empty_unlimited') }}</div>
                                 </div>
 
                                 <div class="space-y-3">
@@ -155,14 +155,14 @@
                                         <div class="flex items-center gap-3 option-row">
                                             <div class="input-field flex-1">
                                                 <input type="text" name="options[]" placeholder=" ">
-                                                <label>Option 1</label>
+                                                <label>{{ __('messages.option_1') }}</label>
                                             </div>
                                             <button type="button" class="btn btn-neutral removeOption px-3 py-2" aria-label="Remove option">✕</button>
                                         </div>
                                         <div class="flex items-center gap-3 option-row">
                                             <div class="input-field flex-1">
                                                 <input type="text" name="options[]" placeholder=" ">
-                                                <label>Option 2</label>
+                                                <label>{{ __('messages.option_2') }}</label>
                                             </div>
                                             <button type="button" class="btn btn-neutral removeOption px-3 py-2" aria-label="Remove option">✕</button>
                                         </div>
@@ -176,15 +176,15 @@
                                                 <div class="image-upload-area border-2 border-dashed border-outline rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
                                                     <div class="upload-content">
                                                         <i class="fa-solid fa-cloud-upload-alt text-4xl text-on-surface-variant mb-2"></i>
-                                                        <p class="text-body-medium text-on-surface-variant mb-2">Drag & drop image here or</p>
+                                                        <p class="text-body-medium text-on-surface-variant mb-2">{{ __('messages.drag_drop_image') }}</p>
                                                         <button type="button" class="btn btn-primary upload-btn">
                                                             <i class="fa-solid fa-upload"></i>
-                                                            Upload Image
+                                                            {{ __('messages.upload_image') }}
                                                         </button>
-                                                        <p class="text-body-small text-on-surface-variant mt-2">or</p>
+                                                        <p class="text-body-small text-on-surface-variant mt-2">{{ __('messages.or') }}</p>
                                                         <div class="input-field mt-2">
                                                             <input type="url" class="image-url-input" placeholder=" " data-index="0">
-                                                            <label>Enter Image URL</label>
+                                                            <label>{{ __('messages.enter_image_url') }}</label>
                                                         </div>
                                                     </div>
                                                     <div class="image-preview hidden">
@@ -193,11 +193,11 @@
                                                         </div>
                                                         <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
                                                             <i class="fa-solid fa-info-circle mr-1"></i>
-                                                            Image will be cropped to square format in poll view
+                                                            {{ __('messages.image_crop_info') }}
                                                         </div>
                                                         <button type="button" class="btn btn-neutral mt-2 remove-image-btn">
                                                             <i class="fa-solid fa-trash"></i>
-                                                            Remove Image
+                                                            {{ __('messages.remove_image') }}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -205,7 +205,7 @@
                                                 <!-- Image Title -->
                                                 <div class="input-field">
                                                     <input type="text" name="image_titles[]" placeholder=" ">
-                                                    <label>Image Title (Required)</label>
+                                                    <label>{{ __('messages.image_title_required') }}</label>
                                                 </div>
                                                 
                                                 <!-- Hidden inputs for image data -->
@@ -225,15 +225,15 @@
                                                 <div class="image-upload-area border-2 border-dashed border-outline rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
                                                     <div class="upload-content">
                                                         <i class="fa-solid fa-cloud-upload-alt text-4xl text-on-surface-variant mb-2"></i>
-                                                        <p class="text-body-medium text-on-surface-variant mb-2">Drag & drop image here or</p>
+                                                        <p class="text-body-medium text-on-surface-variant mb-2">{{ __('messages.drag_drop_image') }}</p>
                                                         <button type="button" class="btn btn-primary upload-btn">
                                                             <i class="fa-solid fa-upload"></i>
-                                                            Upload Image
+                                                            {{ __('messages.upload_image') }}
                                                         </button>
-                                                        <p class="text-body-small text-on-surface-variant mt-2">or</p>
+                                                        <p class="text-body-small text-on-surface-variant mt-2">{{ __('messages.or') }}</p>
                                                         <div class="input-field mt-2">
                                                             <input type="url" class="image-url-input" placeholder=" " data-index="1">
-                                                            <label>Enter Image URL</label>
+                                                            <label>{{ __('messages.enter_image_url') }}</label>
                                                         </div>
                                                     </div>
                                                     <div class="image-preview hidden">
@@ -242,11 +242,11 @@
                                                         </div>
                                                         <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
                                                             <i class="fa-solid fa-info-circle mr-1"></i>
-                                                            Image will be cropped to square format in poll view
+                                                            {{ __('messages.image_crop_info') }}
                                                         </div>
                                                         <button type="button" class="btn btn-neutral mt-2 remove-image-btn">
                                                             <i class="fa-solid fa-trash"></i>
-                                                            Remove Image
+                                                            {{ __('messages.remove_image') }}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -254,7 +254,7 @@
                                                 <!-- Image Title -->
                                                 <div class="input-field">
                                                     <input type="text" name="image_titles[]" placeholder=" ">
-                                                    <label>Image Title (Required)</label>
+                                                    <label>{{ __('messages.image_title_required') }}</label>
                                                 </div>
                                                 
                                                 <!-- Hidden inputs for image data -->
@@ -272,15 +272,15 @@
                                     <div class="flex items-center justify-start mt-3 gap-3">
                                         <button type="button" id="addOption" class="text-button text-primary">
                                             <i class="fa-solid fa-plus"></i>
-                                            Add Option
+                                            {{ __('messages.add_option') }}
                                         </button>
                                         <button type="button" id="addImageOption" class="text-button text-primary hidden">
                                             <i class="fa-solid fa-plus"></i>
-                                            Add Image Option
+                                            {{ __('messages.add_image_option') }}
                                         </button>
                                         <button type="button" id="addOther" class="text-button text-primary">
                                             <i class="fa-solid fa-plus"></i>
-                                            Add Other
+                                            {{ __('messages.add_other') }}
                                         </button>
                                     </div>
                                 </div>
@@ -290,7 +290,7 @@
                                         <i class="fa-solid fa-info-circle text-primary mt-0.5"></i>
                                         <div>
                                             <p class="text-body-medium text-on-surface">{{ __('messages.ranking_info') }}</p>
-                                            <p class="text-body-small text-on-surface-variant mt-1">Participants will rank all options from best to worst</p>
+                                            <p class="text-body-small text-on-surface-variant mt-1">{{ __('messages.participants_rank_all') }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -310,13 +310,13 @@
                                         <option value="session">{{ __('messages.one_vote_per_session') }}</option>
                                         <option value="private">{{ __('messages.private_with_key') }}</option>
                                     </select>
-                                    <label for="voting_security">Voting Security</label>
+                                    <label for="voting_security">{{ __('messages.voting_security') }}</label>
                                 </div>
 
                                 <div id="access-key-field" class="input-field hidden">
                                     <input type="text" name="access_key" id="access_key" placeholder=" " value="">
                                     <label for="access_key">{{ __('messages.access_key') }}</label>
-                                    <div class="text-body-small text-on-surface-variant mt-1">Leave empty to auto-generate</div>
+                                    <div class="text-body-small text-on-surface-variant mt-1">{{ __('messages.leave_empty_auto_generate') }}</div>
                                 </div>
 
                                 <!-- Advanced Settings Expansion Panel -->
@@ -325,7 +325,7 @@
                                         <button type="button" id="toggle-advanced" class="w-full flex items-center justify-between p-4 bg-surface-variant rounded-xl border border-outline hover:bg-surface transition-colors">
                                             <div class="flex items-center gap-3">
                                                 <span class="text-2xl">⚙️</span>
-                                                <span class="text-title-small font-semibold text-on-surface">Advanced Settings</span>
+                                                <span class="text-title-small font-semibold text-on-surface">{{ __('messages.advanced_settings') }}</span>
                                             </div>
                                             <i class="fa-solid fa-chevron-down text-on-surface-variant transition-transform" id="advanced-chevron"></i>
                                         </button>
@@ -334,7 +334,7 @@
                                     <div class="flex items-center justify-between py-3">
                                         <div class="flex-1">
                                             <span class="text-title-small font-medium text-on-surface">{{ __('messages.auto_close_poll') }}</span>
-                                            <p class="text-body-small text-on-surface-variant mt-1">Automatically close this poll at a specific date and time</p>
+                                            <p class="text-body-small text-on-surface-variant mt-1">{{ __('messages.auto_close_poll_desc') }}</p>
                                         </div>
                                         <div class="material-switch">
                                             <input type="checkbox" id="auto_close_enabled" name="auto_close_enabled" value="1" class="switch-input">
@@ -346,7 +346,7 @@
                                     <div id="auto_close_time" class="hidden mt-4">
                                         <div class="input-field">
                                             <input type="datetime-local" name="auto_close_at" placeholder=" ">
-                                            <label for="auto_close_at">Auto Close Date & Time</label>
+                                            <label for="auto_close_at">{{ __('messages.auto_close_date_time') }}</label>
                                         </div>
                                     </div>
 
@@ -354,7 +354,7 @@
                                     <div class="flex items-center justify-between py-3">
                                         <div class="flex-1">
                                             <span class="text-title-small font-medium text-on-surface">{{ __('messages.allow_comments') }}</span>
-                                            <p class="text-body-small text-on-surface-variant mt-1">Let participants leave comments on the poll</p>
+                                            <p class="text-body-small text-on-surface-variant mt-1">{{ __('messages.allow_comments_desc') }}</p>
                                         </div>
                                         <div class="material-switch">
                                             <input type="checkbox" id="allow_comments" name="allow_comments" value="1" class="switch-input">
@@ -368,7 +368,7 @@
                                     <div class="flex items-center justify-between py-3">
                                         <div class="flex-1">
                                             <span class="text-title-small font-medium text-on-surface">{{ __('messages.hide_share_button') }}</span>
-                                            <p class="text-body-small text-on-surface-variant mt-1">Hide the share button from poll results</p>
+                                            <p class="text-body-small text-on-surface-variant mt-1">{{ __('messages.hide_share_button_desc') }}</p>
                                         </div>
                                         <div class="material-switch">
                                             <input type="checkbox" id="hide_share" name="hide_share" value="1" class="switch-input">
@@ -467,7 +467,7 @@
                         otherRow.innerHTML = `
                             <div class="input-field flex-1">
                                 <input type="text" name="options[]" value="other" placeholder=" " readonly class="pointer-events-none opacity-70 select-none">
-                                <label>Other</label>
+                                <label>{{ __('messages.other') }}</label>
                             </div>
                             <button type="button" class="btn btn-neutral removeOption px-3 py-2" aria-label="Remove option">✕</button>
                         `;
@@ -732,22 +732,22 @@
                     <div class="image-upload-area border-2 border-dashed border-outline rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
                         <div class="upload-content">
                             <i class="fa-solid fa-cloud-upload-alt text-4xl text-on-surface-variant mb-2"></i>
-                            <p class="text-body-medium text-on-surface-variant mb-2">Drag & drop image here or</p>
+                            <p class="text-body-medium text-on-surface-variant mb-2">{{ __('messages.drag_drop_image') }}</p>
                             <button type="button" class="btn btn-primary upload-btn">
                                 <i class="fa-solid fa-upload"></i>
-                                Upload Image
+                                {{ __('messages.upload_image') }}
                             </button>
-                            <p class="text-body-small text-on-surface-variant mt-2">or</p>
+                            <p class="text-body-small text-on-surface-variant mt-2">{{ __('messages.or') }}</p>
                             <div class="input-field mt-2">
                                 <input type="url" class="image-url-input" placeholder=" " data-index="${index}">
-                                <label>Enter Image URL</label>
+                                <label>{{ __('messages.enter_image_url') }}</label>
                             </div>
                         </div>
                         <div class="image-preview hidden">
                             <img src="" alt="Preview" class="max-w-full max-h-48 mx-auto rounded-lg">
                             <button type="button" class="btn btn-neutral mt-2 remove-image-btn">
                                 <i class="fa-solid fa-trash"></i>
-                                Remove Image
+                                {{ __('messages.remove_image') }}
                             </button>
                         </div>
                     </div>
@@ -755,7 +755,7 @@
                     <!-- Image Title -->
                     <div class="input-field">
                         <input type="text" name="image_titles[]" placeholder=" ">
-                        <label>Image Title (Required)</label>
+                        <label>{{ __('messages.image_title_required') }}</label>
                     </div>
                     
                     <!-- Hidden inputs for image data -->
@@ -1078,7 +1078,7 @@
         function renderMediaItem(mediaItem) {
             const mediaItemsContainer = document.getElementById('media-items');
             const mediaItemElement = document.createElement('div');
-            mediaItemElement.className = 'media-item bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden';
+            mediaItemElement.className = 'media-item bg-[var(--surface)] text-[color:var(--on-surface)] rounded-lg border border-[color:var(--outline)] overflow-hidden';
             mediaItemElement.dataset.index = mediaItem.index;
 
             if (mediaItem.type === 'video') {

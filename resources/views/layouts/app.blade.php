@@ -25,8 +25,8 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
+    <body class="font-sans antialiased bg-surface-100 dark:bg-surface-900 text-surface-900 dark:text-surface-100">
+        <div class="min-h-screen bg-surface-100 dark:bg-surface-900 flex flex-col">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
@@ -44,6 +44,9 @@
             </main>
             
             @include('layouts.footer')
+            
+            <!-- Toast Notifications -->
+            <x-toast />
         </div>
     </body>
 </html>

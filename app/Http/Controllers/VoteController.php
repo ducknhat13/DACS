@@ -105,11 +105,23 @@ class VoteController extends Controller
             $selectedOptions = [$selectedOptions];
         }
         
-        if (empty($selectedOptions) && !($hasOtherOption && $otherTextInput !== '')) {
+        // Remove "__other__" placeholder from selectedOptions for validation
+        $validSelectedOptions = array_filter($selectedOptions, function($optionId) {
+            return $optionId !== '__other__';
+        });
+        
+        // Check if user selected "Other" but didn't provide text
+        $hasOtherSelected = in_array('__other__', $selectedOptions);
+        if ($hasOtherSelected && $otherTextInput === '') {
+            return back()->with("error", __("messages.pls_enter_other_text"));
+        }
+        
+        // Check if no valid options are selected
+        if (empty($validSelectedOptions) && !($hasOtherOption && $otherTextInput !== '')) {
             return back()->with("error", __("messages.pls_select"));
         }
 
-        if (!$poll->allow_multiple && count($selectedOptions) > 1) {
+        if (!$poll->allow_multiple && count($validSelectedOptions) > 1) {
             return back()->with("error", __("messages.only_one"));
         }
 
@@ -118,6 +130,12 @@ class VoteController extends Controller
             if (!$displayName) {
                 $displayName = $request->session()->get("voter_name");
             }
+            
+            // Remove "__other__" placeholder from selectedOptions
+            $selectedOptions = array_filter($selectedOptions, function($optionId) {
+                return $optionId !== '__other__';
+            });
+            
             // If guest typed "Other" option, create it before saving votes
             if ($hasOtherOption && $otherTextInput !== '') {
                 $newOption = \App\Models\PollOption::create([
@@ -131,6 +149,7 @@ class VoteController extends Controller
                     $selectedOptions[] = $newOption->id;
                 }
             }
+            
             foreach ($selectedOptions as $optionId) {
                 $vote = Vote::create([
                     "poll_id" => $poll->id,
