@@ -1,3 +1,32 @@
+{{--
+    History/Stats Page - stats/index.blade.php
+    
+    Trang thống kê và lịch sử polls của user với Material Design 3 UI.
+    
+    Features:
+    - Overview Cards: Summary counts (created, joined, votes received, top polls)
+    - Charts: Chart.js charts (votes by day, type distribution)
+    - Filters: Search, date range, scope (created/joined)
+    - Poll List: Table/list view với pagination và sorting
+    - Export: Export to CSV functionality
+    
+    Charts:
+    - Votes by Day: Line chart với 2 datasets (My polls, Joined polls)
+    - Type Distribution: Doughnut chart (Standard, Ranking, Image)
+    
+    Data từ StatsController:
+    - $createdCount, $joinedCount, $totalVotesReceived
+    - $topPolls: Top 5 polls by votes
+    - $polls: Paginated poll list
+    - $chartLabels, $chartMyVotes, $chartJoinedVotes: Chart data
+    - $chartTypeDistribution: Type distribution data
+    
+    JavaScript:
+    - Chart.js initialization: Render charts với dynamic data
+    - Filter chips: Dynamic filter với Material Design chips
+    
+    @author QuickPoll Team
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div class="container-material">
@@ -7,7 +36,9 @@
                     <p class="text-body-medium text-[color:var(--on-surface-variant)] mt-1">{{ __('messages.history_subtitle') }}</p>
                 </div>
                 <div class="flex items-center gap-2">
+                    {{-- Export to CSV Button --}}
                     <a href="{{ request()->fullUrlWithQuery(['scope' => $scope, 'export' => 'csv']) }}" class="btn btn-neutral" title="{{ __('messages.export_to_csv') }}"><i class="fa-solid fa-file-export"></i></a>
+                    {{-- Refresh Button --}}
                     <a href="{{ route('stats.index', ['scope' => $scope]) }}" class="btn btn-neutral" title="{{ __('messages.refresh') }}"><i class="fa-solid fa-rotate-right"></i></a>
                 </div>
             </div>
@@ -16,7 +47,7 @@
 
     <div class="section-padding-sm">
         <div class="container-material space-y-6">
-            <!-- Filters -->
+            {{-- Filters: Search, date range, scope --}}
             <div class="card p-4">
                 <form method="GET" class="flex flex-col lg:flex-row gap-3 items-start lg:items-center">
                     <input type="hidden" name="scope" value="{{ $scope }}">
@@ -43,20 +74,24 @@
                 </form>
             </div>
 
-            <!-- Overview Cards -->
+            {{-- Overview Cards: Summary statistics --}}
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {{-- Total Created Polls --}}
                 <div class="card p-4">
                     <div class="text-title-small text-[color:var(--on-surface-variant)]">{{ __('messages.total_created_polls') }}</div>
                     <div class="text-display-small">{{ $createdCount }}</div>
                 </div>
+                {{-- Total Joined Polls --}}
                 <div class="card p-4">
                     <div class="text-title-small text-[color:var(--on-surface-variant)]">{{ __('messages.total_joined_polls') }}</div>
                     <div class="text-display-small">{{ $joinedCount }}</div>
                 </div>
+                {{-- Total Votes Received --}}
                 <div class="card p-4">
                     <div class="text-title-small text-[color:var(--on-surface-variant)]">{{ __('messages.total_votes_received') }}</div>
                     <div class="text-display-small">{{ $totalVotesReceived }}</div>
                 </div>
+                {{-- Top Polls by Votes --}}
                 <div class="card p-4">
                     <div class="text-title-small text-[color:var(--on-surface-variant)]">{{ __('messages.top_interactions') }}</div>
                     <ul class="mt-2 space-y-1 text-body-medium">
@@ -70,19 +105,21 @@
                 </div>
             </div>
 
-            <!-- Charts placeholders -->
+            {{-- Charts: Chart.js charts với dynamic data từ controller --}}
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {{-- Votes by Day: Line chart --}}
                 <div class="card p-4 lg:col-span-2">
                     <div class="text-title-small mb-3">{{ __('messages.votes_by_day') }}</div>
                     <div class="relative" style="height:300px"><canvas id="chartVotesByDay"></canvas></div>
                 </div>
+                {{-- Type Distribution: Doughnut chart --}}
                 <div class="card p-4">
                     <div class="text-title-small mb-3">{{ __('messages.type_distribution') }}</div>
                     <div class="relative" style="height:300px"><canvas id="chartTypeDistribution"></canvas></div>
                 </div>
             </div>
 
-            <!-- Tabs -->
+            {{-- Tabs: Switch giữa "Created" và "Joined" scope --}}
             <div class="material-tabs">
                 <a class="material-tab {{ $scope==='created' ? 'active' : '' }}" href="{{ route('stats.index', ['scope'=>'created'] + request()->except('page')) }}">{{ __('messages.scope_created') }}</a>
                 <a class="material-tab {{ $scope==='joined' ? 'active' : '' }}" href="{{ route('stats.index', ['scope'=>'joined'] + request()->except('page')) }}">{{ __('messages.scope_joined') }}</a>

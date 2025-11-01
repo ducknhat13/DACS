@@ -1,3 +1,33 @@
+{{--
+    Vote Poll Page - polls/vote.blade.php
+    
+    Trang vote cho poll với Material Design 3 UI.
+    
+    Features:
+    - Poll media display: Images/videos trong description
+    - Poll status banner: Hiển thị nếu poll đã đóng
+    - Vote form: Khác nhau tùy poll type (standard/ranking/image)
+    - Results view: Hiển thị kết quả sau khi vote
+    - Comments section: Cho phép comment nếu poll.allow_comments = true
+    
+    Poll Types:
+    - Standard: Radio buttons hoặc checkboxes
+    - Ranking: Drag & drop để rank options
+    - Image: Image cards với checkbox/radio
+    
+    JavaScript:
+    - Ranking drag & drop: Sortable.js hoặc HTML5 drag API
+    - Image fullscreen modal: Click để xem image full size
+    - Form validation: Client-side validation trước khi submit
+    - Vote submission: AJAX hoặc form post với loading state
+    
+    Data từ Controller:
+    - $poll: Poll model với relationships (options, votes)
+    - $hasVoted: Boolean, đã vote chưa
+    - $isOwner: Boolean, có phải owner không
+    
+    @author QuickPoll Team
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div>
@@ -10,7 +40,7 @@
 
     <div class="py-6 page-transition">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <!-- Poll Media Section -->
+            {{-- Poll Media Section: Hiển thị images/videos trong description --}}
             @if($poll->hasDescriptionMedia())
                 <div class="mb-8">
                     <div class="card card-elevated">
@@ -53,7 +83,7 @@
                     </div>
                 </div>
             @endif
-            <!-- Poll Status -->
+            {{-- Poll Status Banner: Hiển thị nếu poll đã đóng --}}
             @if ($poll->is_closed)
                 <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                     <div class="flex items-center gap-2 text-red-800 dark:text-red-200">
@@ -63,7 +93,7 @@
                 </div>
             @endif
 
-            <!-- Success/Error Messages -->
+            {{-- Success/Error Messages: Flash messages từ session --}}
             @if (session('success'))
                 <div class="mb-6 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 p-4 rounded-lg border border-green-200 dark:border-green-700 flex items-center gap-2">
                     <i class="fa-solid fa-check-circle"></i>
@@ -78,7 +108,7 @@
             @endif
 
 
-            <!-- Vote Form -->
+            {{-- Vote Form: Chỉ hiển thị nếu chưa vote hoặc là owner --}}
             @if (!$hasVoted || $isOwner)
             <div class="card card-elevated mb-6 animate-fade-in-up">
                 <div class="p-6">
@@ -87,10 +117,14 @@
                         {{ __('messages.cast_your_vote') }}
                     </h3>
                     
+                    {{-- Vote Form: Submit đến VoteController@store --}}
                     <form method="POST" action="{{ route('polls.vote.store', $poll->slug) }}" class="space-y-3">
                         @csrf
+                        
+                        {{-- Ranking Poll: Drag & drop để rank options --}}
                         @if ($poll->poll_type === 'ranking')
                             <div class="mb-4">
+                                {{-- Sortable options container: Sử dụng HTML5 drag API --}}
                                 <div id="sortable-options" class="space-y-2">
                                     @foreach ($poll->options as $option)
                                         <div class="option-item flex items-center gap-3 p-3 bg-[var(--surface-variant)] rounded-lg border border-[color:var(--outline)] cursor-move" data-option-id="{{ $option->id }}" draggable="true">
@@ -102,10 +136,12 @@
                                         </div>
                                     @endforeach
                                 </div>
+                                {{-- Hidden input để submit ranking order --}}
                                 <input type="hidden" name="ranking" id="ranking-input">
                             </div>
+                        {{-- Image Poll: Image cards với checkbox/radio --}}
                         @elseif ($poll->poll_type === 'image')
-                            <!-- Image Poll Options -->
+                            {{-- Image Poll Options Grid --}}
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                 @foreach ($poll->options as $option)
                                     <label class="image-option-card bg-[var(--surface)] text-[color:var(--on-surface)] rounded-xl border border-[color:var(--outline)] hover:shadow-lg transition-all duration-200 cursor-pointer group w-full sm:max-w-xs mx-auto">

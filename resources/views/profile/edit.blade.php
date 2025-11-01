@@ -1,3 +1,31 @@
+{{--
+    Profile Edit Page - profile/edit.blade.php
+    
+    Trang quản lý profile của user với tabbed interface.
+    
+    Layout:
+    - Left sidebar: Navigation tabs với sticky positioning
+    - Right content: Tab content với Material Design cards
+    
+    Tabs:
+    - Account: Update profile information (name, email)
+    - Security: Change password, Google OAuth link/unlink
+    - Notifications: Email notification preferences
+    - Preferences: Locale (language) settings
+    
+    Alpine.js:
+    - x-data: Tab state management
+    - x-show: Show/hide tab content với transitions
+    - x-cloak: Hide until Alpine.js loads
+    
+    Forms:
+    - Update Profile: ProfileUpdateRequest validation
+    - Update Password: Password confirmation required
+    - Update Notifications: Boolean checkboxes
+    - Update Locale: Select language preference
+    
+    @author QuickPoll Team
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div class="container-material">
@@ -17,9 +45,10 @@
     <div class="section-padding-sm" x-data="{ tab: 'account' }">
         <div class="container-material">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <!-- Left Navigation Rail -->
+                {{-- Left Navigation Rail: Sticky sidebar với user info và tabs --}}
                 <aside class="lg:col-span-3 lg:sticky lg:top-6" style="align-self: start;">
                     <div class="card">
+                        {{-- User Avatar và Info --}}
                         <div class="p-4 flex items-center gap-4 border-b border-[color:var(--outline)]">
                             <div class="w-14 h-14 rounded-full bg-primary-500 text-white flex items-center justify-center text-lg font-semibold">
                                 {{ strtoupper(substr(Auth::user()->name,0,1)) }}
@@ -29,25 +58,30 @@
                                 <div class="text-sm text-[color:var(--on-surface-variant)] truncate">{{ Auth::user()->email }}</div>
                             </div>
                         </div>
+                        {{-- Tab Navigation --}}
                         <nav class="p-2">
+                            {{-- Account Details Tab --}}
                             <button @click="tab='account'"
                                     :class="tab==='account' ? 'bg-[var(--primary)] text-white' : 'text-[color:var(--on-surface-variant)] hover:bg-[var(--surface-variant)]'"
                                     class="w-full text-left px-3 py-2 rounded-md font-medium flex items-center gap-2">
                                 <i class="fa-solid fa-id-card"></i>
                                 {{ __('app.account_details') }}
                             </button>
+                            {{-- Security Tab --}}
                             <button @click="tab='security'"
                                     :class="tab==='security' ? 'bg-[var(--primary)] text-white' : 'text-[color:var(--on-surface-variant)] hover:bg-[var(--surface-variant)]'"
                                     class="w-full text-left px-3 py-2 rounded-md font-medium flex items-center gap-2">
                                 <i class="fa-solid fa-shield-halved"></i>
                                 {{ __('app.security') }}
                             </button>
+                            {{-- Notifications Tab --}}
                             <button @click="tab='notifications'"
                                     :class="tab==='notifications' ? 'bg-[var(--primary)] text-white' : 'text-[color:var(--on-surface-variant)] hover:bg-[var(--surface-variant)]'"
                                     class="w-full text-left px-3 py-2 rounded-md font-medium flex items-center gap-2">
                                 <i class="fa-solid fa-bell"></i>
                                 {{ __('app.notifications') }}
                             </button>
+                            {{-- Preferences Tab --}}
                             <button @click="tab='preferences'"
                                     :class="tab==='preferences' ? 'bg-[var(--primary)] text-white' : 'text-[color:var(--on-surface-variant)] hover:bg-[var(--surface-variant)]'"
                                     class="w-full text-left px-3 py-2 rounded-md font-medium flex items-center gap-2">
@@ -58,9 +92,9 @@
                     </div>
                 </aside>
 
-                <!-- Right Content -->
+                {{-- Right Content: Tab content panels --}}
                 <section class="lg:col-span-9">
-                    <!-- Account Details -->
+                    {{-- Account Details Tab Content --}}
                     <div x-show="tab==='account'" x-transition.opacity.duration.200ms class="card card-elevated" x-cloak>
                     <div class="card-header">
                         <div class="card-title">

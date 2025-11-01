@@ -1,3 +1,33 @@
+{{--
+    Poll Results Page - polls/show.blade.php
+    
+    Trang hiển thị kết quả poll với Material Design 3 UI.
+    
+    Features:
+    - Poll media display: Images/videos trong description
+    - Tabs (owner only): Results và Voters tabs
+    - Results view: Charts và vote counts
+    - Voters list: Danh sách voters với vote details
+    - Comments section: Cho phép comment nếu poll.allow_comments = true
+    
+    Owner Features:
+    - Tabs để switch giữa Results và Voters view
+    - Export results to CSV
+    - Close/Reopen poll
+    - Delete poll
+    
+    JavaScript:
+    - Chart.js: Render results charts
+    - Tab switching: Show/hide tab content
+    - Image modal: Fullscreen image view
+    
+    Data từ PollController:
+    - $poll: Poll model với relationships (options, votes, comments)
+    - $isOwner: Boolean, có phải owner không
+    - $hasVoted: Boolean, đã vote chưa
+    
+    @author QuickPoll Team
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
@@ -10,6 +40,7 @@
                 @endif
             </div>
             <div class="flex items-center gap-3">
+                {{-- Vote Button: Link đến vote page --}}
                 <a href="{{ route('polls.vote', $poll->slug) }}" class="btn btn-primary">
                     <i class="fa-solid fa-vote-yea"></i>
                     {{ __('messages.cast_your_vote') }}
@@ -20,7 +51,7 @@
 
     <div class="py-6">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <!-- Poll Media Section -->
+            {{-- Poll Media Section: Hiển thị images/videos trong description --}}
             @if($poll->hasDescriptionMedia())
                 <div class="mb-8">
                     <div class="card card-elevated">

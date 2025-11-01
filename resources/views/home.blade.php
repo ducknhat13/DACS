@@ -1,25 +1,53 @@
+{{--
+    Home Page - home.blade.php
+    
+    Trang chủ của ứng dụng với Material Design 3 design.
+    
+    Sections:
+    - Hero: Banner với background image và CTA buttons
+    - Statistics: Thống kê số liệu (Users, Polls, Votes)
+    - Features: 3 feature sections với images
+    - Live Demo Modal: Interactive demo poll với fake data
+    - CTA: Call-to-action section
+    
+    Features:
+    - Fully responsive: Mobile-first design
+    - Live Demo: Modal với fake poll để demo tính năng
+    - Localization: Tất cả text sử dụng __('messages.key')
+    - Images: Sử dụng Vite::asset() để load từ resources/image/
+    
+    JavaScript:
+    - Live Demo Modal: Open/close với animations
+    - Vote simulation: Fake voting với loading states
+    - Results animation: Transition từ vote sang results
+    
+    @author QuickPoll Team
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div class="hidden"></div>
     </x-slot>
 
-    <!-- HERO -->
+    {{-- Hero Section: Banner với background image và primary CTA --}}
     <section class="relative page-transition" style="min-height:400px;">
         <img src="{{ Vite::asset('resources/image/review.jpg') }}" alt="QuickPoll review" class="absolute inset-0 w-full h-full object-cover" />
+        {{-- Blue overlay: rgba(23,107,239,.4) - Primary color với opacity --}}
         <div class="absolute inset-0" style="background: rgba(23,107,239,.4);"></div>
         <div class="relative container-material py-12 sm:py-16 md:py-20 lg:py-28">
             <div class="max-w-2xl text-white px-4">
                 <h1 class="text-2xl sm:text-3xl md:text-display-small lg:text-display-medium font-semibold">{{ __('messages.home_hero_title') }}</h1>
                 <p class="mt-3 sm:mt-4 text-base sm:text-body-large opacity-95">{{ __('messages.home_hero_subtitle') }}</p>
                 <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    {{-- Create Poll CTA: Redirect đến create page hoặc login --}}
                     <a href="{{ auth()->check() ? route('polls.create') : route('login') }}" class="btn btn-primary text-center">{{ __('messages.create_poll') }}</a>
+                    {{-- Live Demo Button: Mở modal demo --}}
                     <button id="openDemo" class="btn btn-neutral text-center">{{ __('messages.live_demo') }}</button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- STATISTICS -->
+    {{-- Statistics Section: Trust indicators với số liệu --}}
     <section class="py-12 sm:py-16 md:py-20" style="background-color: var(--surface-variant);">
         <div class="container-material">
             <div class="text-center mb-8 sm:mb-12">
@@ -42,10 +70,10 @@
         </div>
     </section>
 
-    <!-- FEATURES -->
+    {{-- Features Section: 3 feature cards với alternating layout --}}
     <section class="section-padding-sm">
         <div class="container-material space-y-12 sm:space-y-16 lg:space-y-24 px-4">
-            <!-- Feature 1 -->
+            {{-- Feature 1: Create Poll --}}
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center py-6 sm:py-8 md:py-10 border-b border-[color:var(--outline)]">
                 <div>
                     <h3 class="text-lg sm:text-xl md:text-title-large font-semibold">{{ __('messages.feature_create_poll_title') }}</h3>

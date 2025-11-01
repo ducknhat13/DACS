@@ -1,9 +1,32 @@
+{{--
+    Contact Us Page - contact.blade.php
+    
+    Trang liên hệ với Material Design 3 design.
+    
+    Layout:
+    - Two-column: Contact info (left) và Contact form (right)
+    
+    Features:
+    - Contact information: Email, phone, response time
+    - Social media links: Facebook, Twitter, LinkedIn
+    - Contact form: Name, email, subject, message
+    - Auto-fill form: Name và email pre-filled nếu user đã login
+    - Form validation: Client-side và server-side validation
+    - Success message: Flash message sau khi submit thành công
+    
+    Form Handling:
+    - POST đến ContactController@store
+    - Email được gửi đến support email từ config
+    - Validation: Required fields, email format
+    
+    @author QuickPoll Team
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div class="hidden"></div>
     </x-slot>
 
-    <!-- HERO -->
+    {{-- Hero Section: Title và subtitle --}}
     <section class="relative py-12 sm:py-16 md:py-20 lg:py-28 page-transition" style="background: linear-gradient(135deg, rgba(23,107,239,0.1) 0%, rgba(23,107,239,0.05) 100%);">
         <div class="container-material px-4">
             <div class="max-w-3xl mx-auto text-center">

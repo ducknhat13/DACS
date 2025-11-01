@@ -1,9 +1,33 @@
+{{--
+    About Us Page - about.blade.php
+    
+    Trang giới thiệu về QuickPoll với Material Design 3 design.
+    
+    Sections:
+    - Hero: Title và subtitle
+    - Our Mission: Mission statement với statistics
+    - Our Values: 4 value cards (Simplicity, Privacy, Innovation, Community)
+    - Technology Stack: Logos của technologies sử dụng
+    - Meet the Team: Team members với contribution details
+    
+    Features:
+    - Fully responsive: Mobile-first design
+    - Team member modals: Click để xem chi tiết contribution
+    - Technology logos: Laravel, PHP, JavaScript, Tailwind CSS
+    - Localization: Tất cả text sử dụng __('messages.key')
+    
+    JavaScript:
+    - Team member modals: Open/close với Material Design 3 animations
+    - Smooth scroll: Navigation giữa sections
+    
+    @author QuickPoll Team
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div class="hidden"></div>
     </x-slot>
 
-    <!-- HERO -->
+    {{-- Hero Section: Title và subtitle --}}
     <section class="relative py-12 sm:py-16 md:py-20 lg:py-28 page-transition" style="background: linear-gradient(135deg, rgba(23,107,239,0.1) 0%, rgba(23,107,239,0.05) 100%);">
         <div class="container-material px-4">
             <div class="max-w-3xl mx-auto text-center">

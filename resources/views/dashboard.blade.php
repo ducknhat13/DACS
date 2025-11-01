@@ -1,4 +1,28 @@
-﻿<x-app-layout>
+﻿{{--
+    Dashboard Page - dashboard.blade.php
+    
+    Trang Dashboard hiển thị tất cả polls của user với Material Design 3 UI.
+    
+    Features:
+    - Poll list với grid layout (responsive: 1-3 columns)
+    - Filter & Search: Tìm kiếm theo tên/slug, lọc theo status (all/open/closed), sort (newest/votes)
+    - Bulk Actions: Chọn nhiều polls để đóng/mở/xóa/export cùng lúc
+    - Poll Cards: Hiển thị poll info với action menu
+    - Empty State: Hiển thị khi chưa có polls
+    
+    JavaScript Functionality:
+    - Bulk selection: Checkbox selection với bulk action bar
+    - Filter chips: Dynamic filter với Material Design chips
+    - Poll actions: Toggle, export, delete từ action menu
+    - Poll card interactions: Hover effects, click to view
+    
+    Data từ Controller:
+    - $polls: Collection of Poll models với relationships (options, votes)
+    - Filters: request('q'), request('status'), request('sort')
+    
+    @author QuickPoll Team
+--}}
+<x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
@@ -6,13 +30,16 @@
                 <p class="text-body-medium text-on-surface-variant mt-1">{{ __('messages.create_poll_help') }}</p>
             </div>
             <div class="flex items-center gap-3">
+                {{-- Refresh Button --}}
                 <button class="btn btn-neutral" data-tooltip="{{ __('messages.refresh') }}">
                     <i class="fa-solid fa-refresh"></i>
                 </button>
+                {{-- History/Stats Link --}}
                 <a href="{{ route('stats.index') }}" class="material-nav-link">
                     <i class="fa-solid fa-chart-line"></i>
                     {{ __('messages.history') }}
                 </a>
+                {{-- Create Poll Button --}}
                 <a href="{{ route('polls.create') }}" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                     {{ __('messages.create_poll') }}
@@ -22,7 +49,7 @@
     </x-slot>
 
     <div class="pt-4 pb-12 page-transition">
-        <!-- Bulk Action Bar (ephemeral header) -->
+        {{-- Bulk Action Bar: Hiển thị khi có polls được chọn --}}
         <div id="bulkBar" class="bulk-bar">
             <div class="bulk-left">
                 <button id="bulkExit" class="bulk-exit tooltip" aria-label="{{ __('messages.exit_selection') }}" data-tooltip="{{ __('messages.exit_bulk_mode') }}">
@@ -48,19 +75,20 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="card card-elevated animate-fade-in-up">
                 <div class="text-gray-900 dark:text-gray-100">
-                    <!-- Filter Bar with Material Chips -->
+                    {{-- Filter & Search Bar với Material Design Chips --}}
                     <form method="GET" class="mb-6">
                         <div class="bg-surface-variant rounded-2xl p-4 mb-6">
                             <div class="flex flex-col lg:flex-row gap-4">
-                                <!-- Search Input -->
+                                {{-- Search Input: Tìm kiếm theo tên poll hoặc slug --}}
                                 <div class="input-field flex-1">
                                     <input type="text" name="q" value="{{ request('q') }}" placeholder=" " class="bg-surface">
                                     <label>{{ __('messages.search_placeholder') }} / {{ __('messages.slug') }}</label>
                                 </div>
                                 
-                                <!-- Filter Chips -->
+                                {{-- Filter Chips: Lọc theo status và sort --}}
                                 <div class="flex flex-wrap gap-2 items-center">
                                     @php $st = request('status','all'); @endphp
+                                    {{-- Status Filter Chips --}}
                                     <button type="button" class="filter-chip {{ $st === 'all' ? 'active' : '' }}" data-status="all">
                                         <i class="fa-solid fa-list"></i>
                                         {{ __('messages.all') }}
@@ -74,7 +102,7 @@
                                         {{ __('messages.closed') }}
                                     </button>
                                     
-                                    <!-- Sort Options -->
+                                    {{-- Sort Options Chips --}}
                                     @php $so = request('sort','newest'); @endphp
                                     <button type="button" class="filter-chip {{ $so === 'newest' ? 'active' : '' }}" data-sort="newest">
                                         <i class="fa-solid fa-clock"></i>
@@ -86,7 +114,7 @@
                                     </button>
                                 </div>
                                 
-                                <!-- Hidden inputs for form submission -->
+                                {{-- Hidden inputs để submit form với filter values --}}
                                 <input type="hidden" name="status" id="status-input" value="{{ $st }}">
                                 <input type="hidden" name="sort" id="sort-input" value="{{ $so }}">
                             </div>
@@ -97,6 +125,7 @@
                         $polls = $polls ?? [];
                     @endphp
 
+                    {{-- Empty State: Hiển thị khi chưa có polls --}}
                     @if (empty($polls) || count($polls) === 0)
                         <div class="text-center py-12">
                             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-variant flex items-center justify-center">
@@ -110,7 +139,7 @@
                             </a>
                         </div>
                     @else
-                        <!-- Polls Grid -->
+                        {{-- Polls Grid: Responsive grid layout (1-3 columns) --}}
                         <div class="poll-grid grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                             @foreach ($polls as $index => $p)
                                 @php
