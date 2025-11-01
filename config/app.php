@@ -123,4 +123,20 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Social Media Links
+    |--------------------------------------------------------------------------
+    |
+    | Configure social media links for contact page and footer.
+    | Set these values in your .env file.
+    |
+    */
+
+    'social' => [
+        'facebook' => env('SOCIAL_FACEBOOK_URL', '#'),
+        'twitter' => env('SOCIAL_TWITTER_URL', '#'),
+        'linkedin' => env('SOCIAL_LINKEDIN_URL', '#'),
+    ],
+
 ];

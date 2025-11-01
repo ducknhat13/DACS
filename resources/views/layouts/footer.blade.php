@@ -2,10 +2,10 @@
     <div class="footer-inner">
         <div class="footer-top">
             <div class="footer-brand">
-                <a href="{{ route('dashboard') }}" class="footer-logo">
+                <a href="{{ route('home') }}" class="footer-logo">
                     <x-application-logo class="h-6 w-auto" />
                 </a>
-                <p class="footer-description">QuickPoll — Create, Share, Analyze.</p>
+                <p class="footer-description">{{ __('messages.create_poll_subtext') }}</p>
             </div>
 
             <div class="footer-links grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -16,14 +16,14 @@
                 </div>
                 <div class="footer-column flex flex-col mt-4 md:mt-0">
                     <div class="footer-title mb-2">{{ __('app.company') }}</div>
-                    <a href="#" class="footer-link mb-1">{{ __('app.about_us') }}</a>
-                    <a href="#" class="footer-link mb-1">{{ __('app.contact') }}</a>
+                    <a href="{{ route('about') }}" class="footer-link mb-1">{{ __('app.about_us') }}</a>
+                    <a href="{{ route('contact') }}" class="footer-link mb-1">{{ __('app.contact') }}</a>
                     <a href="#" class="footer-link">{{ __('app.career') }}</a>
                 </div>
                 <div class="footer-column flex flex-col mt-4 md:mt-0">
                     <div class="footer-title mb-2">{{ __('app.legal') }}</div>
-                    <a href="#" class="footer-link mb-1">{{ __('app.terms_of_service') }}</a>
-                    <a href="#" class="footer-link">{{ __('app.privacy_policy') }}</a>
+                    <a href="{{ route('terms') }}" class="footer-link mb-1">{{ __('app.terms_of_service') }}</a>
+                    <a href="{{ route('privacy') }}" class="footer-link">{{ __('app.privacy_policy') }}</a>
                 </div>
             </div>
         </div>
@@ -33,10 +33,14 @@
         <div class="footer-bottom">
             <div class="footer-copyright">© {{ date('Y') }} QuickPoll. {{ __('app.all_rights_reserved') }}.</div>
             <div class="footer-lang">
-                <button type="button" class="footer-lang-button">
+                <a
+                    href="{{ route('locale.switch', app()->getLocale() === 'en' ? 'vi' : 'en') }}"
+                    class="footer-lang-button"
+                    title="{{ __('app.language') }}"
+                >
                     <span class="material-symbols-rounded">language</span>
                     <span>{{ app()->getLocale() == 'en' ? __('app.english') : __('app.vietnamese') }}</span>
-                </button>
+                </a>
             </div>
         </div>
     </div>

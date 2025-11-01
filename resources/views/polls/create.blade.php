@@ -8,7 +8,7 @@
             <div class="flex items-center gap-3">
                 <a href="{{ route('dashboard') }}" class="btn btn-neutral">
                     <i class="fa-solid fa-arrow-left"></i>
-                    Back to Dashboard
+                    {{ __('messages.back_to_dashboard') }}
                 </a>
             </div>
         </div>
@@ -50,7 +50,7 @@
                                     <textarea name="description" id="description" rows="3" placeholder=" " maxlength="500">{{ old('description') }}</textarea>
                                     <label for="description">{{ __('messages.description_optional') }}</label>
                                     <div class="text-right text-body-small text-on-surface-variant mt-1">
-                                        <span id="desc-count">0</span>/500 characters
+                                        <span id="desc-count">0</span>/500 {{ __('messages.characters') }}
                                     </div>
                                 </div>
 
@@ -138,6 +138,13 @@
                                             {{ __('messages.choice_multiple') }}
                                         </label>
                                     </div>
+                                </div>
+
+                                <!-- Maximum Choices (only for Standard polls with multiple selection) -->
+                                <div id="max-choices-section" class="input-field hidden">
+                                    <input type="number" name="max_choices" id="max_choices" min="2" placeholder=" " value="{{ old('max_choices') }}">
+                                    <label for="max_choices">{{ __('messages.max_choices') }}</label>
+                                    <div class="text-body-small text-on-surface-variant mt-1">{{ __('messages.leave_empty_unlimited') }}</div>
                                 </div>
 
                                 <!-- Maximum Image Selections (only for Image polls) -->
@@ -574,6 +581,7 @@
                     if (addImageOptionBtn) addImageOptionBtn.classList.remove('hidden');
                     if (addOtherBtn) addOtherBtn.classList.add('hidden');
                 } else {
+                    // Standard poll
                     if (rankingInfo) rankingInfo.classList.add('hidden');
                     if (choiceTypeSection) choiceTypeSection.classList.remove('hidden');
                     if (maxImageSelectionsSection) maxImageSelectionsSection.classList.add('hidden');
@@ -587,6 +595,16 @@
                     if (addOptionBtn) addOptionBtn.classList.remove('hidden');
                     if (addImageOptionBtn) addImageOptionBtn.classList.add('hidden');
                     if (addOtherBtn) addOtherBtn.classList.remove('hidden');
+                    
+                    // Check current choice type to show/hide max-choices-section
+                    const selectedChoiceType = document.querySelector('input[name="choice_type"]:checked');
+                    if (maxChoicesSection && selectedChoiceType) {
+                        if (selectedChoiceType.value === 'multiple') {
+                            maxChoicesSection.classList.remove('hidden');
+                        } else {
+                            maxChoicesSection.classList.add('hidden');
+                        }
+                    }
                 }
             });
         });

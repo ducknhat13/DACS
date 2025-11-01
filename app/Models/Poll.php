@@ -8,6 +8,26 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
+/**
+ * Poll Model - Model đại diện cho một Poll (Khảo sát)
+ * 
+ * Các loại Poll:
+ * - 'standard': Poll thông thường (single/multiple choice)
+ * - 'ranking': Poll xếp hạng (user phải xếp hạng tất cả options)
+ * - 'image': Poll với hình ảnh (luôn multiple choice)
+ * 
+ * Quan hệ:
+ * - belongsTo User: Poll được tạo bởi user nào
+ * - hasMany PollOption: Các lựa chọn của poll
+ * - hasMany Vote: Các votes đã được cast
+ * - hasMany Comment: Các bình luận (nếu enabled)
+ * 
+ * Đặc biệt:
+ * - max_image_selections: Reused cho cả image polls và standard multiple choice
+ * - voter_identifier: Dùng để track unique participants (prevent duplicate votes)
+ * 
+ * @author QuickPoll Team
+ */
 class Poll extends Model
 {
     use HasFactory;
@@ -71,11 +91,19 @@ class Poll extends Model
     }
 
     /**
-     * Get the maximum number of selections allowed for image polls
+     * Get the maximum number of selections allowed
+     * For image polls: returns max_image_selections
+     * For standard polls with multiple choice: returns max_image_selections (stored from max_choices)
+     * For standard polls with single choice: returns 1
      */
     public function getMaxSelections(): ?int
     {
         if ($this->isImagePoll()) {
+            return $this->max_image_selections;
+        }
+        
+        if ($this->poll_type === 'standard' && $this->allow_multiple) {
+            // For standard multiple choice polls, max_image_selections contains max_choices value
             return $this->max_image_selections;
         }
         
@@ -96,5 +124,25 @@ class Poll extends Model
     public function hasDescriptionMedia(): bool
     {
         return !empty($this->description_media);
+    }
+
+    /**
+     * Tính số lượng unique participants (voters)
+     * 
+     * Đếm số người tham gia unique thay vì tổng số votes vì:
+     * - Ranking polls: 1 user vote = nhiều Vote records (1 cho mỗi option)
+     * - Multiple choice polls: 1 user có thể vote nhiều options
+     * 
+     * Sử dụng distinct('voter_identifier') để:
+     * - Logged in users: "user_{id}" (persistent)
+     * - Guests: "session_{session_id}" (reset khi clear cookies)
+     * 
+     * @return int - Số lượng unique participants
+     */
+    public function getParticipantsCountAttribute(): int
+    {
+        // Cả ranking và regular polls đều dùng distinct voter_identifier
+        // để đảm bảo đếm chính xác (1 user = 1 participant)
+        return $this->votes()->distinct('voter_identifier')->count('voter_identifier');
     }
 }

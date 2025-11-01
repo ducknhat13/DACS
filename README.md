@@ -262,29 +262,151 @@ php artisan test --coverage
 ```
 dacs_quickpoll/
 ├── app/
-│   ├── Http/Controllers/     # Controllers (Poll, Vote, Auth)
-│   ├── Models/              # Eloquent Models (Poll, Vote, User)
+│   ├── Http/Controllers/     # Controllers (Poll, Vote, Auth, Stats, Contact)
+│   │   ├── PollController.php    # Quản lý Poll: create, store, vote, show, export
+│   │   ├── VoteController.php    # Xử lý voting: store, handleRankingVote, handleRegularVote
+│   │   ├── StatsController.php   # Thống kê và History page
+│   │   ├── ContactController.php # Contact form submission
+│   │   └── ProfileController.php # User profile management
+│   ├── Models/              # Eloquent Models
+│   │   ├── Poll.php             # Poll model với relationships và helper methods
+│   │   ├── Vote.php            # Vote model
+│   │   ├── PollOption.php      # PollOption model
+│   │   └── User.php            # User model với notification preferences
+│   ├── Notifications/       # Email Notifications
+│   │   ├── NewVoteNotification.php          # Email khi có vote mới
+│   │   └── PollClosingReminderNotification.php # Email nhắc nhở trước khi đóng poll
+│   ├── Mail/                # Mailable Classes
+│   │   └── ContactMail.php  # Email từ contact form
 │   ├── Events/              # Event Classes
-│   ├── Support/             # Helper Classes (PollCode)
+│   ├── Support/             # Helper Classes
+│   │   └── PollCode.php     # Generate unique poll slugs
 │   └── Http/Middleware/     # Custom Middleware
+│       └── EnsurePollAccess.php # Check access key cho private polls
 ├── database/
 │   ├── migrations/          # Database Migrations
 │   ├── factories/           # Model Factories
 │   └── seeders/            # Database Seeders
 ├── resources/
 │   ├── views/              # Blade Templates (Material Design)
-│   │   ├── layouts/        # Layout components
-│   │   ├── polls/          # Poll-related views
+│   │   ├── layouts/        # Layout components (app, guest, navigation, footer)
+│   │   ├── polls/          # Poll-related views (create, vote, show, name, access)
+│   │   ├── profile/        # Profile views (edit)
+│   │   ├── stats/          # Statistics/History page
 │   │   └── components/     # Reusable components
 │   ├── css/                # Stylesheets (Tailwind + Material Design)
-│   └── js/                 # JavaScript (Alpine.js)
+│   ├── js/                 # JavaScript (Alpine.js, Chart.js)
+│   └── lang/               # Localization files (en, vi)
+│       ├── en/messages.php
+│       └── vi/messages.php
 ├── routes/
-│   ├── web.php             # Web Routes
-│   └── auth.php            # Auth Routes
+│   ├── web.php             # Web Routes (có comments chi tiết)
+│   └── auth.php            # Auth Routes (Laravel Breeze)
 ├── public/                 # Public Assets
 │   └── Logo.png           # Application Logo
 └── config/                # Configuration Files
 ```
+
+## 📝 Code Documentation & Comments
+
+Project này đã được **documented đầy đủ** với comments tiếng Việt để bạn có thể hiểu code dễ dàng:
+
+### ✅ Controllers (Đã comment đầy đủ)
+
+Tất cả Controllers đều có:
+- **Header comments**: Giải thích chức năng tổng quan của Controller
+- **Method docblocks**: Mô tả từng method, parameters, return types
+- **Inline comments**: Giải thích logic phức tạp và business rules
+
+**Đã comment:**
+- ✅ `PollController`: Quản lý vòng đời Poll (create → store → vote → show → export)
+- ✅ `VoteController`: Xử lý voting logic cho 3 loại poll (standard, ranking, image)
+- ✅ `StatsController`: Tính toán thống kê và charts data
+- ✅ `ContactController`: Xử lý contact form submission
+- ✅ `ProfileController`: User profile management (locale, notifications, delete account)
+- ✅ `ImageUploadController`: Upload và validate media files
+- ✅ `GoogleAuthController`: Google OAuth authentication và account linking
+
+### ✅ Models (Đã comment đầy đủ)
+
+Models có:
+- **Header comments**: Mô tả model, relationships, đặc điểm
+- **Method comments**: Giải thích các helper methods và accessors
+
+**Đã comment:**
+- ✅ `Poll`: Model chính với relationships, helper methods (getParticipantsCountAttribute, getMaxSelections)
+- ✅ `User`: Authentication, notification preferences, OAuth support
+- ✅ `Vote`: Vote tracking với voter_identifier và rank
+- ✅ `PollOption`: Options với image support và helper methods
+- ✅ `Comment`: Comment model với user tracking
+
+### ✅ Routes (Đã comment đầy đủ)
+
+File `routes/web.php` có:
+- **Header comment**: Giải thích cấu trúc routes
+- **Inline comments**: Nhóm routes theo chức năng (Public, Auth, Poll, etc.)
+
+### ✅ Notifications & Mail (Đã comment đầy đủ)
+
+- ✅ `NewVoteNotification`: Email khi có vote mới
+- ✅ `PollClosingReminderNotification`: Email nhắc nhở trước khi đóng poll
+- ✅ `ContactMail`: Mailable cho contact form emails
+
+### ✅ Middleware & Support (Đã comment đầy đủ)
+
+- ✅ `EnsurePollAccess`: Kiểm tra quyền truy cập poll (private polls)
+- ✅ `SetLocale`: Set application locale cho mỗi request
+- ✅ `PollCode`: Helper class để generate unique poll slugs
+
+### ✅ Migrations (Đã comment đầy đủ)
+
+Các migrations quan trọng đã có comments giải thích:
+- ✅ `create_polls_table`: Bảng polls chính
+- ✅ `create_poll_options_table`: Bảng options
+- ✅ `create_votes_table`: Bảng votes với indexes và constraints
+- ✅ `create_comments_table`: Bảng comments
+- ✅ `add_poll_type_to_polls_table`: Thêm poll_type enum
+- ✅ `add_rank_to_votes_table`: Thêm rank cho ranking polls
+- ✅ `add_image_support_to_polls_and_options`: Image poll support
+- ✅ `add_notification_preferences_to_users_table`: Notification settings
+
+### ✅ Config Files (Đã comment đầy đủ)
+
+- ✅ `config/mail.php`: SMTP configuration với examples
+- ✅ `config/app.php`: Application config (social links đã có comments)
+
+### ✅ JavaScript & CSS (Đã comment đầy đủ)
+
+- ✅ `resources/js/app.js`: Main entry point với Alpine.js setup
+- ✅ `resources/css/app.css`: Material Design 3 styles và utilities
+
+### Code Conventions
+
+Khi đọc code, bạn sẽ thấy:
+- **Tên biến rõ ràng**: `$voterIdentifier`, `$hasVoted`, `$isOwner`
+- **Comments giải thích "tại sao"**: Không chỉ "làm gì" mà còn giải thích logic
+- **Docblocks đầy đủ**: Parameters và return types được document
+- **Tiếng Việt**: Tất cả comments bằng tiếng Việt để dễ hiểu
+
+### Cách đọc code cho người mới
+
+1. **Bắt đầu với Routes** (`routes/web.php`):
+   - Xem route nào gọi controller nào
+   - Hiểu flow: URL → Route → Controller → View
+
+2. **Đọc Controllers**:
+   - Mỗi method xử lý 1 request cụ thể
+   - Comments giải thích từng bước xử lý
+   - Header comments mô tả tổng quan
+
+3. **Hiểu Models**:
+   - Relationships giữa các models
+   - Helper methods và accessors
+   - Database schema qua migrations
+
+4. **Xem Views**:
+   - Blade templates với localization
+   - Material Design 3 components
 
 ## 🎨 Material Design Features
 

@@ -6,13 +6,13 @@
                 @if($poll->description)
                     <p class="text-body-medium text-on-surface-variant mt-1">{{ $poll->description }}</p>
                 @else
-                    <p class="text-body-medium text-on-surface-variant mt-1">Poll Results & Analytics</p>
+                    <p class="text-body-medium text-on-surface-variant mt-1">{{ __('messages.poll_results') }}</p>
                 @endif
             </div>
             <div class="flex items-center gap-3">
                 <a href="{{ route('polls.vote', $poll->slug) }}" class="btn btn-primary">
                     <i class="fa-solid fa-vote-yea"></i>
-                    Back to Poll
+                    {{ __('messages.cast_your_vote') }}
                 </a>
             </div>
         </div>
@@ -27,7 +27,7 @@
                         <div class="card-header">
                             <div class="card-title">
                                 <i class="fa-solid fa-images text-primary"></i>
-                                Poll Media
+                                {{ __('messages.media_preview') }}
                             </div>
                         </div>
                         <div class="card-content">
@@ -68,11 +68,11 @@
                 <div class="material-tabs">
                     <button id="tabResults" class="material-tab active">
                         <i class="fa-solid fa-chart-pie"></i>
-                        Results
+                        {{ __('messages.results') }}
                     </button>
                     <button id="tabVoters" class="material-tab">
                         <i class="fa-solid fa-users"></i>
-                        Voters
+                        {{ __('messages.voters') }}
                     </button>
                 </div>
             </div>
@@ -97,8 +97,8 @@
                     <div class="alert-content">
                         <i class="fa-solid fa-lock"></i>
                         <div class="alert-text">
-                            <span class="alert-title">Poll Closed</span>
-                            <span class="alert-description">This poll is no longer accepting votes</span>
+                            <span class="alert-title">{{ __('messages.poll_closed') }}</span>
+                            <span class="alert-description">{{ __('messages.poll_is_closed') }}</span>
                         </div>
                     </div>
                 </div>
@@ -112,7 +112,11 @@
                         {{ __('messages.poll_results') }}
                     </div>
                     <div class="card-subtitle">
-                        Total Votes: <span class="font-semibold text-primary">{{ $totalVotes }}</span>
+                        @if($poll->poll_type === 'ranking')
+                            {{ __('messages.participants') }}: <span class="font-semibold text-primary">{{ $totalParticipants ?? $poll->participants_count }}</span>
+                        @else
+                            {{ __('messages.votes') }}: <span class="font-semibold text-primary">{{ $totalVotes }}</span>
+                        @endif
                     </div>
                 </div>
                 <div class="card-content">
@@ -153,7 +157,9 @@
                             @foreach ($sortedOptions as $option)
                                 @php
                                     $score = $rankings[$option->id] ?? 0;
-                                    $maxScore = $poll->options->count() * $totalVotes;
+                                    // For ranking polls, use totalParticipants instead of totalVotes for calculation
+                                    $participantCount = $totalParticipants ?? $poll->participants_count ?? 1;
+                                    $maxScore = $poll->options->count() * $participantCount;
                                     $percentage = $maxScore > 0 ? ($score / $maxScore) * 100 : 0;
                                 @endphp
                                 @if($score > 0)
@@ -173,8 +179,8 @@
                         <!-- Ranking Chart -->
                         <div class="chart-container">
                             <div class="chart-header">
-                                <h4 class="chart-title">Ranking Distribution</h4>
-                                <p class="chart-subtitle">Visual representation of option rankings</p>
+                                <h4 class="chart-title">{{ __('messages.voter_statistics') }}</h4>
+                                <p class="chart-subtitle">&nbsp;</p>
                             </div>
                             <div class="chart-wrapper">
                                 <canvas id="rankingChart" width="400" height="200"></canvas>
@@ -229,7 +235,7 @@
                                         <!-- Vote Count -->
                                         <div class="text-center mb-3">
                                             <span class="text-2xl font-bold text-primary">{{ $count }}</span>
-                                            <span class="text-sm text-gray-600 dark:text-gray-400 ml-1">votes</span>
+                                            <span class="text-sm text-gray-600 dark:text-gray-400 ml-1">{{ __('messages.votes') }}</span>
                                         </div>
                                         
                                         <!-- Progress Bar -->
@@ -253,8 +259,8 @@
                         @if($totalVotes > 0)
                         <div class="mt-8">
                             <div class="chart-header">
-                                <h3 class="chart-title">Voting Distribution</h3>
-                                <p class="chart-subtitle">Visual representation of image poll results</p>
+                                <h3 class="chart-title">{{ __('messages.voter_statistics') }}</h3>
+                                <p class="chart-subtitle">&nbsp;</p>
                             </div>
                             <div class="chart-wrapper">
                                 <canvas id="imageChart" width="400" height="200"></canvas>
@@ -287,7 +293,7 @@
                                 <div class="material-progress-item animate-fade-in-up" style="animation-delay: {{ $loop->index * 0.1 }}s;">
                                     <div class="progress-header">
                                         <span class="progress-label">{{ $option->option_text }}</span>
-                                        <span class="progress-value">{{ $count }} votes ({{ number_format($percentage, 1) }}%)</span>
+                                        <span class="progress-value">{{ $count }} {{ __('messages.votes') }} ({{ number_format($percentage, 1) }}%)</span>
                                     </div>
                                     <div class="material-progress-bar">
                                         <div class="progress-fill" style="width: {{ $percentage }}%; background-color: {{ $colorMap[$option->id] }}"></div>
@@ -301,8 +307,8 @@
                         <div class="chart-container">
                             @if($totalVotes > 0)
                                 <div class="chart-header">
-                                    <h4 class="chart-title">Vote Distribution</h4>
-                                    <p class="chart-subtitle">Visual representation of voting results</p>
+                                    <h4 class="chart-title">{{ __('messages.voter_statistics') }}</h4>
+                                    <p class="chart-subtitle">&nbsp;</p>
                                 </div>
                                 <div class="chart-wrapper">
                                     <canvas id="regularChart" width="400" height="200"></canvas>
@@ -320,12 +326,12 @@
                     {{-- Inline Share Section inside Results card for unified UI --}}
                     @if (!$poll->hide_share || $isOwner)
                     <div class="share-section">
-                        <div class="share-header">
+                            <div class="share-header">
                             <div class="share-title">
                                 <i class="fa-solid fa-share-nodes text-primary"></i>
                                 {{ __('messages.share_poll') }}
                             </div>
-                            <p class="share-subtitle">Share your poll with others to get more responses</p>
+                            <p class="share-subtitle">&nbsp;</p>
                         </div>
 
                         <!-- Share Options Tabs -->
@@ -340,7 +346,7 @@
                             </button>
                             <button type="button" id="showQR" class="share-tab">
                                 <i class="fa-solid fa-qrcode"></i>
-                                QR Code
+                                {{ __('messages.qr_code') }}
                             </button>
                         </div>
 
@@ -354,7 +360,7 @@
                                 <i class="fa-solid fa-copy"></i>
                                 {{ __('messages.copy') }}
                             </button>
-                            <p class="share-description">Share this code with others to let them find your poll</p>
+                            <p class="share-description">{{ __('messages.share_code') }}</p>
                         </div>
 
                         <div id="shareUrl" class="share-content hidden">
@@ -366,19 +372,19 @@
                                 <i class="fa-solid fa-copy"></i>
                                 {{ __('messages.copy') }}
                             </button>
-                            <p class="share-description">Direct link to your poll</p>
+                            <p class="share-description">{{ __('messages.share_link') }}</p>
                         </div>
 
                         <div id="shareQR" class="share-content hidden">
                             <div class="qr-container">
                                 <div class="qr-header">
                                     <h5 class="qr-title">{{ __('messages.qr_code') }}</h5>
-                                    <p class="qr-subtitle">Scan to access poll</p>
+                                    <p class="qr-subtitle">&nbsp;</p>
                                 </div>
                                 <div class="qr-wrapper">
                                     <div id="qrcode"></div>
                                 </div>
-                                <p class="share-description">Scan QR code to access the poll</p>
+                                <p class="share-description">&nbsp;</p>
                             </div>
                         </div>
                             </div>
@@ -392,10 +398,10 @@
                 <div class="card-header">
                     <div class="card-title">
                         <i class="fa-solid fa-users text-primary"></i>
-                        Voter Statistics
+                        {{ __('messages.voter_statistics') }}
                     </div>
                     <div class="card-subtitle">
-                        View and filter participant data
+                        {{ __('messages.voter_statistics_desc') }}
                     </div>
                 </div>
                 <div class="card-content">
@@ -410,21 +416,21 @@
                                 </div>
                                 <div class="input-field">
                                     <input type="date" name="from" value="{{ request('from') }}" placeholder=" ">
-                                    <label for="from">From Date</label>
+                                    <label for="from">{{ __('messages.from_date') }}</label>
                                 </div>
                                 <div class="input-field">
                                     <input type="date" name="to" value="{{ request('to') }}" placeholder=" ">
-                                    <label for="to">To Date</label>
+                                    <label for="to">{{ __('messages.to_date') }}</label>
                                 </div>
                             </div>
                             <div class="filter-actions">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fa-solid fa-search"></i>
-                                    SEARCH
+                                    {{ __('messages.search') }}
                                 </button>
                                 <a href="{{ route('polls.show', $poll->slug) }}" class="btn btn-neutral">
                                     <i class="fa-solid fa-times"></i>
-                                    CLEAR
+                                    {{ __('messages.clear') }}
                                 </a>
                             </div>
                         </form>
@@ -443,10 +449,10 @@
                             <tbody>
                                 @forelse ($voters as $vote)
                                 <tr class="table-row">
-                                    <td class="voter-name">{{ $vote->voter_name ?: 'Anonymous' }}</td>
+                                    <td class="voter-name">{{ $vote->voter_name ?: __('messages.anonymous') }}</td>
                                     <td class="voter-choice">
                                         @if ($poll->poll_type === 'ranking')
-                                            <span class="choice-rank">Rank {{ $vote->rank }}:</span> {{ $vote->option->option_text }}
+                                            <span class="choice-rank">{{ __('messages.rank') }} {{ $vote->rank }}:</span> {{ $vote->option->option_text }}
                                         @else
                                             {{ $vote->option->option_text }}
                                         @endif
@@ -458,7 +464,7 @@
                                     <td colspan="3" class="empty-table">
                                         <div class="empty-state">
                                             <i class="fa-solid fa-users"></i>
-                                            <h4 class="empty-title">No Voters Found</h4>
+                                            <h4 class="empty-title">{{ __('messages.no_voters_found') }}</h4>
                                             <p class="empty-description">{{ __('messages.no_votes_yet') }}</p>
                                         </div>
                                     </td>
@@ -484,19 +490,19 @@
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                             <i class="fa-solid fa-info-circle text-blue-600"></i>
-                            Poll Information
+                            {{ __('messages.poll_information') }}
                         </h3>
                         <div class="flex items-center gap-2">
                             <span class="px-2 py-1 text-xs font-medium rounded-full {{ $poll->is_closed ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' }}">
-                                {{ $poll->is_closed ? 'Closed' : 'Open' }}
+                                {{ $poll->is_closed ? __('messages.closed') : __('messages.active') }}
                             </span>
                             <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
                                 @if($poll->poll_type === 'ranking')
-                                    Ranking
+                                    {{ __('messages.poll_type_ranking') }}
                                 @elseif($poll->poll_type === 'image')
-                                    Image
+                                    {{ __('messages.poll_type_image') }}
                                 @else
-                                    Regular
+                                    {{ __('messages.poll_type_standard') }}
                                 @endif
                             </span>
         </div>
@@ -504,44 +510,49 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                         <div class="flex flex-col">
-                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">Poll Type</span>
+                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('messages.poll_type') }}</span>
                             <span class="text-gray-800 dark:text-gray-200">
                                 @if($poll->poll_type === 'ranking')
-                                    Ranking Poll
+                                    {{ __('messages.poll_type_ranking') }}
                                 @elseif($poll->poll_type === 'image')
-                                    Image Poll
+                                    {{ __('messages.poll_type_image') }}
                                 @else
-                                    Regular Poll
+                                    {{ __('messages.poll_type_standard') }}
                                 @endif
                             </span>
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">Allow Multiple</span>
+                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('messages.allow_multiple') }}</span>
                             <span class="text-gray-800 dark:text-gray-200">
-                                {{ $poll->allow_multiple ? 'Yes' : 'No' }}
+                                {{ $poll->allow_multiple ? __('messages.yes') : __('messages.no') }}
                             </span>
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">Voting Security</span>
+                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('messages.voting_security') }}</span>
                             <span class="text-gray-800 dark:text-gray-200">
-                                {{ $poll->voting_security === 'private' ? 'Private' : 'Session-based' }}
+                                {{ $poll->voting_security === 'private' ? __('messages.private') : __('messages.session_based') }}
                             </span>
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">Total Votes</span>
-                            <span class="text-gray-800 dark:text-gray-200">{{ $totalVotes }}</span>
+                            @if($poll->poll_type === 'ranking')
+                                <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('messages.participants') }}</span>
+                                <span class="text-gray-800 dark:text-gray-200">{{ $totalParticipants ?? $poll->participants_count }}</span>
+                            @else
+                                <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('messages.total_votes') }}</span>
+                                <span class="text-gray-800 dark:text-gray-200">{{ $totalVotes }}</span>
+                            @endif
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">Options</span>
+                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('messages.options') }}</span>
                             <span class="text-gray-800 dark:text-gray-200">{{ $poll->options->count() }}</span>
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">Created</span>
+                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('messages.created') }}</span>
                             <span class="text-gray-800 dark:text-gray-200">{{ $poll->created_at->format('d/m/Y H:i') }}</span>
                         </div>
                         @if ($poll->auto_close_at)
                         <div class="flex flex-col">
-                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">Auto Close</span>
+                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('messages.auto_close_poll') }}</span>
                             <span class="text-gray-800 dark:text-gray-200">
                                 {{ \Carbon\Carbon::parse($poll->auto_close_at)->format('d/m/Y H:i') }}
                             </span>
@@ -552,7 +563,7 @@
                     @if ($poll->is_private)
                     <div class="mt-4 pt-4 border-t border-[color:var(--outline)]">
                         <div class="flex flex-col">
-                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-2">Access Key</span>
+                            <span class="font-medium text-gray-600 dark:text-gray-400 mb-2">{{ __('messages.access_key') }}</span>
                             <div class="flex items-center gap-2">
                                 @if ($poll->access_key)
                                     <code class="flex-1 px-3 py-2 bg-[var(--surface-variant)] text-[color:var(--on-surface)] rounded text-sm font-mono border border-[color:var(--outline)]">
@@ -560,16 +571,16 @@
                                     </code>
                                     <button type="button" onclick="copyToClipboard('{{ $poll->access_key }}', this)" 
                                             class="btn-copy px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors flex items-center gap-1">
-                                        <i class="fa-solid fa-copy"></i> Copy
+                                        <i class="fa-solid fa-copy"></i> {{ __('messages.copy') }}
                                     </button>
                                 @else
                                     <span class="px-3 py-2 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded text-sm border border-yellow-300 dark:border-yellow-700 flex items-center gap-2">
-                                        <i class="fa-solid fa-key"></i> No access key required
+                                        <i class="fa-solid fa-key"></i> {{ __('messages.no_access_key_required') }}
                                     </span>
                                 @endif
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                                Share this key with people you want to give access to this poll
+                                {{ __('messages.share_access_key_hint') }}
                             </p>
                         </div>
                     </div>
@@ -692,7 +703,7 @@
                         const qrUrl = 'https://quickchart.io/qr?text=' + encodeURIComponent(window.location.href);
                         const img = document.createElement('img');
                         img.src = qrUrl;
-                        img.alt = 'QR Code';
+                        img.alt = '{{ __('messages.qr_code') }}';
                         img.className = 'w-32 h-32';
                         qrContainer.appendChild(img);
                     }
@@ -798,6 +809,51 @@
                             }
                         }
                     });
+                }
+            @else
+                // Regular Chart (doughnut)
+                const regularCtx = document.getElementById('regularChart');
+                if (regularCtx) {
+                    @php
+                        $chartData = [];
+                        $chartLabels = [];
+                        $chartColors = [];
+                        $barColors = ['#3B82F6', '#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444', '#14B8A6', '#A78BFA'];
+                        $colorIndex = 0;
+                        foreach ($poll->options as $opt) {
+                            $count = $opt->votes->count();
+                            if ($count > 0) {
+                                $chartData[] = $count;
+                                $chartLabels[] = $opt->option_text;
+                                $chartColors[] = $barColors[$colorIndex % count($barColors)];
+                                $colorIndex++;
+                            }
+                        }
+                    @endphp
+                    if (@json($chartData).length > 0) {
+                        new Chart(regularCtx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: @json($chartLabels),
+                                datasets: [{
+                                    data: @json($chartData),
+                                    backgroundColor: @json($chartColors),
+                                    borderWidth: 2,
+                                    borderColor: '#ffffff'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: { padding: 20, usePointStyle: true }
+                                    }
+                                }
+                            }
+                        });
+                    }
                 }
             @endif
         }

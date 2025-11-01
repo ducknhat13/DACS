@@ -16,9 +16,9 @@
 
     <div class="section-padding-sm" x-data="{ tab: 'account' }">
         <div class="container-material">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 <!-- Left Navigation Rail -->
-                <aside class="lg:col-span-3">
+                <aside class="lg:col-span-3 lg:sticky lg:top-6" style="align-self: start;">
                     <div class="card">
                         <div class="p-4 flex items-center gap-4 border-b border-[color:var(--outline)]">
                             <div class="w-14 h-14 rounded-full bg-primary-500 text-white flex items-center justify-center text-lg font-semibold">
@@ -61,7 +61,7 @@
                 <!-- Right Content -->
                 <section class="lg:col-span-9">
                     <!-- Account Details -->
-                    <div x-show="tab==='account'" x-transition.opacity.duration.200ms class="card card-elevated">
+                    <div x-show="tab==='account'" x-transition.opacity.duration.200ms class="card card-elevated" x-cloak>
                     <div class="card-header">
                         <div class="card-title">
                             <i class="fa-solid fa-user text-primary-500"></i>
@@ -87,7 +87,7 @@
                 </div>
 
                     <!-- Security -->
-                    <div x-show="tab==='security'" x-transition.opacity.duration.200ms class="card card-elevated">
+                    <div x-show="tab==='security'" x-transition.opacity.duration.200ms class="card card-elevated" x-cloak>
                     <div class="card-header">
                         <div class="card-title">
                             <i class="fa-solid fa-lock text-primary-500"></i>
@@ -139,7 +139,7 @@
                     </div>
 
                     <!-- Notifications -->
-                    <div x-show="tab==='notifications'" x-transition.opacity.duration.200ms class="card card-elevated">
+                    <div x-show="tab==='notifications'" x-transition.opacity.duration.200ms class="card card-elevated" x-cloak>
                         <div class="card-header">
                             <div class="card-title">
                                 <i class="fa-solid fa-bell text-primary-500"></i>
@@ -149,14 +149,15 @@
                                 {{ __('app.notifications_desc') }}
                             </div>
                         </div>
-                        <div class="card-content space-y-5">
+                        <form method="POST" action="{{ route('profile.notifications.update') }}" class="card-content space-y-5">
+                            @csrf
                             <div class="flex items-center justify-between">
                                 <div>
                                     <div class="font-medium text-[color:var(--on-surface)]">{{ __('app.email_me_on_vote') }}</div>
                                     <div class="text-sm text-[color:var(--on-surface-variant)]">{{ __('app.recommended_to_stay_informed') }}</div>
                                 </div>
                                 <label class="material-switch">
-                                    <input type="checkbox" class="switch-input">
+                                    <input type="checkbox" name="email_on_vote" value="1" class="switch-input" {{ old('email_on_vote', $user->email_on_vote ?? true) ? 'checked' : '' }}>
                                     <span class="switch-label"><span class="switch-slider"></span></span>
                                 </label>
                             </div>
@@ -166,21 +167,21 @@
                                     <div class="text-sm text-[color:var(--on-surface-variant)]">{{ __('app.reminder_before_close') }}</div>
                                 </div>
                                 <label class="material-switch">
-                                    <input type="checkbox" class="switch-input">
+                                    <input type="checkbox" name="notify_before_autoclose" value="1" class="switch-input" {{ old('notify_before_autoclose', $user->notify_before_autoclose ?? true) ? 'checked' : '' }}>
                                     <span class="switch-label"><span class="switch-slider"></span></span>
                                 </label>
                             </div>
 
-                            <div class="flex-end">
-                                <button type="button" class="btn btn-primary">
-                                    {{ __('app.save_changes') }}
+                            <div class="pt-4 border-t border-[color:var(--outline)]">
+                                <button type="submit" class="btn btn-primary">
+                                    {{ __('messages.save') }}
                                 </button>
                             </div>
-                        </div>
+                        </form>
                     </div>
 
                     <!-- Settings & Preferences -->
-                    <div x-show="tab==='preferences'" x-transition.opacity.duration.200ms class="card card-elevated">
+                    <div x-show="tab==='preferences'" x-transition.opacity.duration.200ms class="card card-elevated" x-cloak>
                         <div class="card-header">
                             <div class="card-title">
                                 <i class="fa-solid fa-gear text-primary-500"></i>
@@ -248,11 +249,7 @@
                             </script>
 
 
-                            <div class="flex-end">
-                                <button type="button" class="btn btn-primary">
-                                    {{ __('app.save_changes') }}
-                                </button>
-                            </div>
+                            
                     </div>
                 </div>
 

@@ -18,6 +18,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Support Email
+    |--------------------------------------------------------------------------
+    |
+    | This is the email address where contact form submissions will be sent.
+    | ContactController sử dụng email này để gửi contact form emails.
+    |
+    | You can override this by setting SUPPORT_EMAIL in your .env file:
+    | SUPPORT_EMAIL=support@yourdomain.com
+    |
+    | Priority: config('mail.support_email') > env('SUPPORT_EMAIL') > default
+    |
+    */
+
+    'support_email' => env('SUPPORT_EMAIL', 'support@quickpoll.com'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Mailer Configurations
     |--------------------------------------------------------------------------
     |
@@ -37,14 +54,38 @@ return [
 
     'mailers' => [
 
+        /**
+         * SMTP Mailer Configuration
+         * 
+         * Dùng cho:
+         * - Development: Mailpit (localhost:8025, port 1025)
+         * - Production: Gmail, Outlook, hoặc SMTP server khác
+         * 
+         * .env configuration examples:
+         * 
+         * Mailpit (local development):
+         * MAIL_MAILER=smtp
+         * MAIL_HOST=127.0.0.1
+         * MAIL_PORT=1025
+         * MAIL_ENCRYPTION=null
+         * 
+         * Gmail (production):
+         * MAIL_MAILER=smtp
+         * MAIL_HOST=smtp.gmail.com
+         * MAIL_PORT=587
+         * MAIL_ENCRYPTION=tls
+         * MAIL_USERNAME=your-email@gmail.com
+         * MAIL_PASSWORD=your-16-char-app-password
+         * 
+         * Note: Gmail requires App Password, không dùng password thường
+         */
         'smtp' => [
             'transport' => 'smtp',
-            'scheme' => env('MAIL_SCHEME'),
-            'url' => env('MAIL_URL'),
             'host' => env('MAIL_HOST', '127.0.0.1'),
             'port' => env('MAIL_PORT', 2525),
+            'encryption' => env('MAIL_ENCRYPTION', 'tls'), // tls, ssl, hoặc null
             'username' => env('MAIL_USERNAME'),
-            'password' => env('MAIL_PASSWORD'),
+            'password' => env('MAIL_PASSWORD'), // Nên dùng quotes nếu có spaces: "xxxx xxxx xxxx xxxx"
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],

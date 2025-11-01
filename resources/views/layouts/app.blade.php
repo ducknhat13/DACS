@@ -8,7 +8,7 @@
         <title>{{ config('app.name', 'QuickPoll') }}</title>
         <link rel="icon" type="image/png" href="{{ asset('Logo.png') }}">
         <meta property="og:title" content="{{ $ogTitle ?? config('app.name', 'QuickPoll') }}" />
-        <meta property="og:description" content="{{ $ogDescription ?? 'Tạo và chia sẻ khảo sát nhanh chóng' }}" />
+        <meta property="og:description" content="{{ $ogDescription ?? __('messages.create_poll_subtext') }}" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="{{ url()->current() }}" />
         @isset($ogImage)

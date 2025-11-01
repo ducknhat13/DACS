@@ -6,9 +6,13 @@
                 <p class="text-body-medium text-on-surface-variant mt-1">{{ __('messages.create_poll_help') }}</p>
             </div>
             <div class="flex items-center gap-3">
-                <button class="btn btn-neutral" data-tooltip="Refresh">
+                <button class="btn btn-neutral" data-tooltip="{{ __('messages.refresh') }}">
                     <i class="fa-solid fa-refresh"></i>
                 </button>
+                <a href="{{ route('stats.index') }}" class="material-nav-link">
+                    <i class="fa-solid fa-chart-line"></i>
+                    {{ __('messages.history') }}
+                </a>
                 <a href="{{ route('polls.create') }}" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                     {{ __('messages.create_poll') }}
@@ -21,22 +25,22 @@
         <!-- Bulk Action Bar (ephemeral header) -->
         <div id="bulkBar" class="bulk-bar">
             <div class="bulk-left">
-                <button id="bulkExit" class="bulk-exit tooltip" aria-label="Exit selection" data-tooltip="Exit Bulk Mode">
+                <button id="bulkExit" class="bulk-exit tooltip" aria-label="{{ __('messages.exit_selection') }}" data-tooltip="{{ __('messages.exit_bulk_mode') }}">
                     <span class="material-symbols-rounded">close</span>
                 </button>
-                <div id="bulkCount" class="bulk-count">0 selected</div>
+                <div id="bulkCount" class="bulk-count">0 {{ __('messages.selected') }}</div>
             </div>
             <div class="bulk-actions">
-                <button id="bulkClose" class="bulk-btn tooltip" data-tooltip="Close Selected Polls" disabled>
+                <button id="bulkClose" class="bulk-btn tooltip" data-tooltip="{{ __('messages.close_selected_polls') }}" disabled>
                     <span class="material-symbols-rounded">lock</span>
                 </button>
-                <button id="bulkReopen" class="bulk-btn tooltip" data-tooltip="Reopen Selected Polls" disabled>
+                <button id="bulkReopen" class="bulk-btn tooltip" data-tooltip="{{ __('messages.reopen_selected_polls') }}" disabled>
                     <span class="material-symbols-rounded">lock_open</span>
                 </button>
-                <button id="bulkExport" class="bulk-btn tooltip" data-tooltip="Export to CSV" disabled>
+                <button id="bulkExport" class="bulk-btn tooltip" data-tooltip="{{ __('messages.export_to_csv') }}" disabled>
                     <span class="material-symbols-rounded">file_download</span>
                 </button>
-                <button id="bulkDelete" class="bulk-btn danger tooltip" data-tooltip="Delete Selected Polls" disabled>
+                <button id="bulkDelete" class="bulk-btn danger tooltip" data-tooltip="{{ __('messages.delete_selected_polls') }}" disabled>
                     <span class="material-symbols-rounded">delete</span>
                 </button>
             </div>
@@ -51,7 +55,7 @@
                                 <!-- Search Input -->
                                 <div class="input-field flex-1">
                                     <input type="text" name="q" value="{{ request('q') }}" placeholder=" " class="bg-surface">
-                                    <label>{{ __('messages.search_placeholder') }} / slug</label>
+                                    <label>{{ __('messages.search_placeholder') }} / {{ __('messages.slug') }}</label>
                                 </div>
                                 
                                 <!-- Filter Chips -->
@@ -59,26 +63,26 @@
                                     @php $st = request('status','all'); @endphp
                                     <button type="button" class="filter-chip {{ $st === 'all' ? 'active' : '' }}" data-status="all">
                                         <i class="fa-solid fa-list"></i>
-                                        All
+                                        {{ __('messages.all') }}
                                     </button>
                                     <button type="button" class="filter-chip {{ $st === 'open' ? 'active' : '' }}" data-status="open">
                                         <i class="fa-solid fa-play-circle"></i>
-                                        Active
+                                        {{ __('messages.active') }}
                                     </button>
                                     <button type="button" class="filter-chip {{ $st === 'closed' ? 'active' : '' }}" data-status="closed">
                                         <i class="fa-solid fa-stop-circle"></i>
-                                        Closed
+                                        {{ __('messages.closed') }}
                                     </button>
                                     
                                     <!-- Sort Options -->
                                     @php $so = request('sort','newest'); @endphp
                                     <button type="button" class="filter-chip {{ $so === 'newest' ? 'active' : '' }}" data-sort="newest">
                                         <i class="fa-solid fa-clock"></i>
-                                        Newest
+                                        {{ __('messages.newest') }}
                                     </button>
                                     <button type="button" class="filter-chip {{ $so === 'votes' ? 'active' : '' }}" data-sort="votes">
                                         <i class="fa-solid fa-chart-line"></i>
-                                        Most Votes
+                                        {{ __('messages.most_votes') }}
                                     </button>
                                 </div>
                                 
@@ -99,7 +103,7 @@
                                 <i class="fa-solid fa-poll text-xl text-on-surface-variant"></i>
                             </div>
                             <h3 class="text-title-medium text-on-surface mb-2">{{ __('messages.no_polls') }}</h3>
-                            <p class="text-body-medium text-on-surface-variant mb-6">Create your first poll to get started</p>
+                            <p class="text-body-medium text-on-surface-variant mb-6">{{ __('messages.get_started_hint') }}</p>
                             <a href="{{ route('polls.create') }}" class="btn btn-primary">
                                 <i class="fa-solid fa-plus"></i>
                                 {{ __('messages.create_poll') }}
@@ -110,7 +114,8 @@
                         <div class="poll-grid grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                             @foreach ($polls as $index => $p)
                                 @php
-                                    $total = $p->votes_count ?? 0;
+                                    // Use participants_count for accurate participant count (handles ranking polls correctly)
+                                    $total = $p->participants_count ?? $p->votes_count ?? 0;
                                     $created = $p->created_at ? \Carbon\Carbon::parse($p->created_at)->format('M d, Y') : '';
                                     $deadline = $p->auto_close_at ? \Carbon\Carbon::parse($p->auto_close_at)->format('M d, Y') : null;
                                     $isClosed = isset($p->is_closed) ? (bool)$p->is_closed : false;
@@ -147,7 +152,7 @@
                                     </div>
 
                                     <!-- Poll Title -->
-                                    <a href="{{ route('polls.vote', $p->slug) }}" class="poll-title block bulk-link">
+                                    <a href="{{ route('polls.vote', $p->slug) }}" class="poll-title block bulk-link poll-title-truncate" title="{{ $p->title ?? $p->question }}">
                                         {{ $p->title ?? $p->question }}
                                     </a>
 
@@ -191,13 +196,13 @@
 
     <!-- Extended FAB with menu -->
     <div id="fabMenu" class="fab-menu">
-        <button id="fabMain" class="md-fab ripple tooltip" aria-label="Open actions" data-tooltip="Actions">
+        <button id="fabMain" class="md-fab ripple tooltip" aria-label="{{ __('messages.open_actions') }}" data-tooltip="{{ __('messages.actions') }}">
             <span class="material-symbols-rounded">more_vert</span>
         </button>
-        <button id="fabCreate" class="fab-mini secondary tooltip tooltip-left" data-tooltip="Create New Poll" aria-label="Create New Poll">
+        <button id="fabCreate" class="fab-mini secondary tooltip tooltip-left" data-tooltip="{{ __('messages.create_new_poll') }}" aria-label="{{ __('messages.create_new_poll') }}">
             <span class="material-symbols-rounded">add</span>
         </button>
-        <button id="fabBulk" class="fab-mini tooltip tooltip-left" data-tooltip="Bulk Mode" aria-label="Bulk Mode">
+        <button id="fabBulk" class="fab-mini tooltip tooltip-left" data-tooltip="{{ __('messages.bulk_mode') }}" aria-label="{{ __('messages.bulk_mode') }}">
             <span class="material-symbols-rounded">select_all</span>
         </button>
     </div>
@@ -226,7 +231,7 @@
                 <div class="space-y-4">
                 <div>
                     <label class="block mb-1 text-sm font-medium">{{ __('messages.question') }}</label>
-                    <textarea name="question" rows="3" class="w-full border rounded-lg p-3 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Ví dụ: Địa điểm bạn muốn đi cuối tuần này?" required></textarea>
+                    <textarea name="question" rows="3" class="w-full border rounded-lg p-3 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="{{ __('messages.question_example') }}" required></textarea>
                 </div>
                 
                 <div>
@@ -242,16 +247,16 @@
                     <div id="modalOptions" class="space-y-2 max-h-64 sm:max-h-72 overflow-y-auto pr-1">
                         <div class="flex items-center gap-2 option-row">
                             <input type="text" name="options[]" class="flex-1 border rounded-lg p-3 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="{{ __('messages.option_placeholder') }} 1" required>
-                            <button type="button" class="btn btn-neutral removeOption" aria-label="Remove option">✕</button>
+                            <button type="button" class="btn btn-neutral removeOption" aria-label="{{ __('messages.remove_option') }}">✕</button>
                         </div>
                         <div class="flex items-center gap-2 option-row">
                             <input type="text" name="options[]" class="flex-1 border rounded-lg p-3 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="{{ __('messages.option_placeholder') }} 2" required>
-                            <button type="button" class="btn btn-neutral removeOption" aria-label="Remove option">✕</button>
+                            <button type="button" class="btn btn-neutral removeOption" aria-label="{{ __('messages.remove_option') }}">✕</button>
                         </div>
                     </div>
                     <div class="flex items-center justify-between mt-2">
                         <button type="button" id="addModalOption" class="btn btn-neutral">{{ __('messages.add_option') }}</button>
-                        <span class="text-xs text-[color:var(--on-surface-variant)]">Tối đa 10 lựa chọn</span>
+                        <span class="text-xs text-[color:var(--on-surface-variant)]">{{ __('messages.max_options') }}</span>
                     </div>
                 </div>
                 
@@ -274,7 +279,7 @@
                 </div>
                 <div id="access_key_wrap" class="hidden">
                     <label class="block mb-1 text-sm font-medium mt-2">{{ __('messages.access_key') }}</label>
-                    <input type="text" name="access_key" class="w-full border rounded-lg p-3 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nhập key (tối đa 64 ký tự)">
+                    <input type="text" name="access_key" class="w-full border rounded-lg p-3 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="{{ __('messages.access_key_placeholder_max') }}">
                 </div>
                 </div>
                 <div class="flex justify-end gap-2 sticky bottom-0 bg-[var(--surface)] border-t border-[color:var(--outline)] pt-4">
@@ -410,7 +415,7 @@
                 row.className = 'flex items-center gap-2 option-row';
                 row.innerHTML = `
                     <input type="text" name="options[]" class="flex-1 border rounded-lg p-3 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="{{ __('messages.option_placeholder') }} ${current+1}" required>
-                    <button type="button" class="btn btn-neutral removeOption" aria-label="Remove option">✕</button>
+                    <button type="button" class="btn btn-neutral removeOption" aria-label="{{ __('messages.remove_option') }}">✕</button>
                 `;
                 options.appendChild(row);
             });
@@ -456,8 +461,8 @@
                 <div class="alert-content">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                     <div class="alert-text">
-                        <div class="alert-title">Confirm Delete</div>
-                        <div class="alert-description">Bạn có chắc muốn xóa các poll đã chọn? Hành động không thể hoàn tác.</div>
+                        <div class="alert-title">{{ __('messages.confirm_delete') }}</div>
+                        <div class="alert-description">{{ __('messages.bulk_delete_confirmation') }}</div>
                     </div>
                 </div>
             </div>
@@ -485,6 +490,7 @@
 
         const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const selected = new Set();
+        const selectedText = @json(__('messages.selected'));
 
         const fabMenu = document.getElementById('fabMenu');
         const fabMain = document.getElementById('fabMain');
@@ -498,7 +504,7 @@
         }
 
         function updateUI(){
-            bulkCount.textContent = `${selected.size} selected`;
+            bulkCount.textContent = `${selected.size} ${selectedText}`;
             setSelectionMode(selected.size > 0);
             
             // Enable/disable buttons based on selection

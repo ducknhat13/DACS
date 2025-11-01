@@ -6,7 +6,7 @@
             <div class="header-left">
                 <!-- Logo -->
                 <div class="logo-container">
-                    <a href="{{ route('dashboard') }}" class="logo-link">
+                    <a href="{{ route('home') }}" class="logo-link">
                         <x-application-logo class="logo" />
                     </a>
                 </div>
@@ -32,7 +32,7 @@
                             <input 
                                 type="text" 
                                 name="code" 
-                                placeholder="Enter Poll Slug..." 
+                                placeholder="{{ __('messages.enter_code') }}" 
                                 class="quick-access-input"
                                 x-model="quickAccessCode"
                                 @focus="quickAccessOpen = true"
@@ -92,16 +92,16 @@
 
             <!-- Mobile Menu Button -->
             <div class="mobile-menu-button">
-                <button @click="open = ! open" class="mobile-menu-trigger" onclick="toggleMobileMenu()">
-                    <i class="fa-solid fa-bars" :class="{ 'hidden': open, 'block': !open }"></i>
-                    <i class="fa-solid fa-times" :class="{ 'block': open, 'hidden': !open }"></i>
+                <button @click="open = !open" type="button" class="mobile-menu-trigger" aria-label="Toggle mobile menu">
+                    <i class="fa-solid fa-bars" x-show="!open" x-cloak></i>
+                    <i class="fa-solid fa-times" x-show="open" x-cloak></i>
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="mobile-navigation">
+    <div x-show="open" x-cloak x-transition class="mobile-navigation">
         <div class="mobile-navigation-content">
             <!-- Mobile Quick Access -->
             <div class="mobile-quick-access">
@@ -110,7 +110,7 @@
                         <input 
                             type="text" 
                             name="code" 
-                            placeholder="Enter Poll Slug..." 
+                            placeholder="{{ __('messages.enter_code') }}" 
                             class="mobile-quick-access-input"
                         >
                         <button type="submit" class="mobile-quick-access-button">
@@ -167,45 +167,6 @@
     </div>
 </nav>
 
-<script>
-function toggleMobileMenu() {
-    const mobileNav = document.querySelector('.mobile-navigation');
-    const barsIcon = document.querySelector('.mobile-menu-trigger .fa-bars');
-    const timesIcon = document.querySelector('.mobile-menu-trigger .fa-times');
-    
-    if (mobileNav) {
-        const isHidden = mobileNav.classList.contains('hidden');
-        
-        if (isHidden) {
-            mobileNav.classList.remove('hidden');
-            mobileNav.classList.add('block');
-            barsIcon.classList.add('hidden');
-            barsIcon.classList.remove('block');
-            timesIcon.classList.remove('hidden');
-            timesIcon.classList.add('block');
-        } else {
-            mobileNav.classList.add('hidden');
-            mobileNav.classList.remove('block');
-            barsIcon.classList.remove('hidden');
-            barsIcon.classList.add('block');
-            timesIcon.classList.add('hidden');
-            timesIcon.classList.remove('block');
-        }
-    }
-}
-
-// Fallback for Alpine.js not working
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if Alpine.js is working
-    setTimeout(function() {
-        const alpineButton = document.querySelector('.mobile-menu-trigger');
-        if (alpineButton && !alpineButton.hasAttribute('x-data')) {
-            // Alpine.js not working, use vanilla JS
-            alpineButton.addEventListener('click', toggleMobileMenu);
-        }
-    }, 100);
-});
-</script>
 
 <script>
 // Quick Access functionality

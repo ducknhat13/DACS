@@ -17,7 +17,7 @@
                         <div class="card-header">
                             <div class="card-title">
                                 <i class="fa-solid fa-images text-primary"></i>
-                                Poll Media
+                                {{ __('messages.media_preview') }}
                             </div>
                         </div>
                         <div class="card-content">
@@ -58,7 +58,7 @@
                 <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                     <div class="flex items-center gap-2 text-red-800 dark:text-red-200">
                         <i class="fa-solid fa-lock"></i>
-                        <span class="font-semibold">This poll is closed</span>
+                        <span class="font-semibold">{{ __('messages.poll_is_closed') }}</span>
                     </div>
                 </div>
             @endif
@@ -153,7 +153,7 @@
                                 <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                                     <div class="flex items-center gap-2 text-blue-800 dark:text-blue-200">
                                         <i class="fa-solid fa-info-circle"></i>
-                                        <span class="text-sm">You can select up to {{ $poll->max_image_selections }} image(s)</span>
+                                        <span class="text-sm">{{ __('messages.max_image_selections') }}: {{ $poll->max_image_selections }}</span>
                                     </div>
                                 </div>
                             @endif
@@ -189,6 +189,16 @@
                                 </label>
                                 @endif
                             </div>
+                            
+                            <!-- Max Choices Info (for standard polls with multiple selection) -->
+                            @if($poll->poll_type === 'standard' && $poll->allow_multiple && $poll->max_image_selections)
+                                <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                                    <div class="flex items-center gap-2 text-blue-800 dark:text-blue-200">
+                                        <i class="fa-solid fa-info-circle"></i>
+                                        <span class="text-sm">{{ __('messages.max_choices') }}: {{ $poll->max_image_selections }}</span>
+                                    </div>
+                                </div>
+                            @endif
                         @endif
 
                         <div class="hidden md:flex justify-between items-center pt-4">
@@ -220,15 +230,15 @@
                     <div class="mb-4">
                         <i class="fa-solid fa-check-circle text-4xl text-green-600 mb-3"></i>
                         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                            Thank you for voting!
+                            {{ __('messages.thank_you') }}
                         </h3>
                         <p class="text-gray-600 dark:text-gray-300">
-                            Your vote has been recorded. You can view the results below.
+                            {{ __('messages.view_results') }}
                         </p>
                     </div>
                     <a href="{{ route('polls.show', $poll->slug) }}" class="btn btn-primary">
                         <i class="fa-solid fa-chart-bar mr-2"></i>
-                        View Results
+                        {{ __('messages.view_results') }}
                     </a>
                 </div>
             </div>
@@ -240,18 +250,18 @@
                 <div class="p-6">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-comments text-green-600"></i>
-                        Comments
+                        {{ __('messages.comments') }}
                     </h3>
 
                     <!-- Add Comment Form -->
                     <form method="POST" action="{{ route('polls.comment', $poll->slug) }}" class="mb-6">
                         @csrf
                         <div class="flex gap-3">
-                            <input type="text" name="content" placeholder="Add a comment..." 
+                            <input type="text" name="content" placeholder="{{ __('messages.add_a_comment') }}" 
                                    class="flex-1 px-4 py-2 border border-[color:var(--outline)] rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-[var(--surface)] text-[color:var(--on-surface)]" required>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa-solid fa-paper-plane mr-2"></i>
-                                Post
+                                {{ __('messages.post_comment') }}
                             </button>
                         </div>
                     </form>
@@ -271,7 +281,7 @@
                                 <p class="text-gray-700 dark:text-gray-300">{{ $comment->content }}</p>
                             </div>
                         @empty
-                            <p class="text-gray-500 dark:text-gray-400 text-center py-4">No comments yet. Be the first to comment!</p>
+                            <p class="text-gray-500 dark:text-gray-400 text-center py-4">{{ __('messages.no_comments_yet') }}</p>
                         @endforelse
                     </div>
                 </div>
