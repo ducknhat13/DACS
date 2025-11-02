@@ -23,7 +23,8 @@ if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ] || [ ${#APP_KEY} -lt 50 ]; th
     # Clear config lại sau khi generate để reload APP_KEY
     php artisan config:clear || true
 else
-    echo "APP_KEY exists and looks valid: ${APP_KEY:0:20}..."
+    APP_KEY_LENGTH=${#APP_KEY}
+    echo "APP_KEY exists (length: $APP_KEY_LENGTH), first 30 chars: ${APP_KEY:0:30}..."
 fi
 
 # Chạy migration (sẽ bỏ qua nếu đã chạy rồi)
@@ -32,11 +33,29 @@ php artisan migrate --force || echo "Migration completed or failed, continuing..
 
 # Cache config, routes, views - PHẢI sau khi generate APP_KEY
 echo "Caching configuration..."
-php artisan config:cache || echo "Config cache failed, continuing..."
+# Đảm bảo APP_KEY có giá trị trước khi cache
+if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
+    echo "WARNING: APP_KEY is empty before caching config!"
+    php artisan config:cache || echo "Config cache failed"
+else
+    echo "APP_KEY is valid, proceeding with config cache..."
+    php artisan config:cache || echo "Config cache failed, continuing..."
+fi
 php artisan route:cache || echo "Route cache failed, continuing..."
 php artisan view:cache || echo "View cache failed, continuing..."
 
+# Không clear config cache sau khi cache (sẽ mất cache)
+# Laravel sẽ đọc từ config cache khi runtime
+
+# Verify APP_KEY trước khi start
+echo "Verifying APP_KEY before server start..."
+if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
+    echo "ERROR: APP_KEY is still empty or invalid!"
+    exit 1
+fi
+
 # Start server
 echo "Starting Laravel server on port ${PORT:-10000}..."
+echo "Final APP_KEY check (length: ${#APP_KEY}, prefix: ${APP_KEY:0:10}...)"
 exec php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
 
