@@ -84,5 +84,14 @@ fi
 # Start server
 echo "Starting Laravel server on port ${PORT:-10000}..."
 echo "Final APP_KEY check (length: ${#APP_KEY}, prefix: ${APP_KEY:0:10}...)"
+
+# Enable error logging to stderr để có thể xem trong Render logs
+# Laravel sẽ log errors vào storage/logs/laravel.log, nhưng cũng output ra stderr
+export LOG_CHANNEL=stderr || true
+
+# Test Laravel có thể load được không
+echo "Testing Laravel application..."
+php artisan about --env=production 2>&1 || echo "Warning: artisan about failed, but continuing..."
+
 exec php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
 
