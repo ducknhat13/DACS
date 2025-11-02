@@ -38,8 +38,13 @@ return [
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        // Ưu tiên GOOGLE_REDIRECT_URI (Render), fallback về GOOGLE_REDIRECT, cuối cùng là default localhost
-        'redirect' => env('GOOGLE_REDIRECT_URI', env('GOOGLE_REDIRECT', 'http://127.0.0.1:8000/auth/google/callback')),
+        // Redirect URI: Ưu tiên GOOGLE_REDIRECT_URI (Render), fallback về GOOGLE_REDIRECT
+        // Nếu không có env variable: sử dụng production URL hoặc localhost tùy environment
+        'redirect' => env('GOOGLE_REDIRECT_URI', env('GOOGLE_REDIRECT', 
+            app()->environment('production') 
+                ? 'https://dacs-web.onrender.com/auth/google/callback'
+                : 'http://127.0.0.1:8000/auth/google/callback'
+        )),
         'disable_ssl_verify' => env('GOOGLE_DISABLE_SSL_VERIFY', false),
     ],
 
