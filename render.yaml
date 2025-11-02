@@ -7,16 +7,10 @@ services:
   # Web Service (Laravel Application)
   - type: web
     name: dacs-web
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     region: singapore  # Chọn region gần bạn nhất
     plan: free  # Free tier - sẽ sleep sau 15 phút không hoạt động
-    buildCommand: |
-      composer install --no-dev --optimize-autoloader &&
-      php artisan config:cache &&
-      php artisan route:cache &&
-      php artisan view:cache &&
-      npm ci &&
-      npm run build
-    startCommand: php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
     envVars:
       # App Config
       - key: APP_NAME
