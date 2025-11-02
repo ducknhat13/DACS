@@ -14,12 +14,14 @@ php artisan view:clear || true
 echo "Checking APP_KEY..."
 if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ] || [ ${#APP_KEY} -lt 50 ]; then
     echo "APP_KEY is missing or invalid, generating new key..."
-    # Generate key và lưu vào .env (nếu có file)
-    # Trên Render, key sẽ được lưu vào .env trong container
-    php artisan key:generate --force
+    # Generate key - Laravel sẽ tự động lưu vào .env file
+    # Nếu không có .env, sẽ tạo mới
+    php artisan key:generate --force --show
+    # Reload env để load APP_KEY mới từ .env
+    # (Laravel sẽ tự động đọc .env nếu có)
     echo "APP_KEY generated successfully"
 else
-    echo "APP_KEY exists and looks valid"
+    echo "APP_KEY exists and looks valid: ${APP_KEY:0:20}..."
 fi
 
 # Chạy migration (sẽ bỏ qua nếu đã chạy rồi)
