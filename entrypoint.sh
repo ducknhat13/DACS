@@ -9,10 +9,17 @@ php artisan config:clear || true
 php artisan route:clear || true
 php artisan view:clear || true
 
-# Generate APP_KEY nếu chưa có hoặc rỗng
-if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
-    echo "Generating APP_KEY..."
+# Generate APP_KEY nếu chưa có, rỗng, hoặc không đúng format
+# Laravel yêu cầu format: base64:... với độ dài 32 bytes (44 chars sau base64:)
+echo "Checking APP_KEY..."
+if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ] || [ ${#APP_KEY} -lt 50 ]; then
+    echo "APP_KEY is missing or invalid, generating new key..."
+    # Generate key và lưu vào .env (nếu có file)
+    # Trên Render, key sẽ được lưu vào .env trong container
     php artisan key:generate --force
+    echo "APP_KEY generated successfully"
+else
+    echo "APP_KEY exists and looks valid"
 fi
 
 # Chạy migration (sẽ bỏ qua nếu đã chạy rồi)
