@@ -14,7 +14,7 @@
     - Fully responsive: Mobile-first design
     - Live Demo: Modal với fake poll để demo tính năng
     - Localization: Tất cả text sử dụng __('messages.key')
-    - Images: Sử dụng Vite::asset() để load từ resources/image/
+    - Images: Sử dụng asset() để load từ public/resources/image/ (được copy khi build)
     
     JavaScript:
     - Live Demo Modal: Open/close với animations
@@ -30,7 +30,7 @@
 
     {{-- Hero Section: Banner với background image và primary CTA --}}
     <section class="relative page-transition" style="min-height:400px;">
-        <img src="{{ Vite::asset('resources/image/review.jpg') }}" alt="QuickPoll review" class="absolute inset-0 w-full h-full object-cover" />
+        <img src="{{ asset('resources/image/review.jpg') }}" alt="QuickPoll review" class="absolute inset-0 w-full h-full object-cover" />
         {{-- Blue overlay: rgba(23,107,239,.4) - Primary color với opacity --}}
         <div class="absolute inset-0" style="background: rgba(23,107,239,.4);"></div>
         <div class="relative container-material py-12 sm:py-16 md:py-20 lg:py-28">
@@ -84,7 +84,7 @@
                 </div>
                 <div class="lg:justify-self-end w-full">
                     <div class="relative overflow-hidden rounded-2xl border h-[250px] sm:h-[320px] md:h-[420px]">
-                        <img src="{{ Vite::asset('resources/image/create_poll.png') }}" alt="Create poll screenshot" class="w-full h-full object-cover" />
+                        <img src="{{ asset('resources/image/create_poll.png') }}" alt="Create poll screenshot" class="w-full h-full object-cover" />
                     </div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center py-6 sm:py-8 md:py-10 border-b border-[color:var(--outline)]">
                 <div class="order-2 lg:order-1 w-full">
                     <div class="relative overflow-hidden rounded-2xl border h-[250px] sm:h-[320px] md:h-[420px]">
-                        <img src="{{ Vite::asset('resources/image/dashboard.png') }}" alt="Dashboard screenshot" class="w-full h-full object-cover" />
+                        <img src="{{ asset('resources/image/dashboard.png') }}" alt="Dashboard screenshot" class="w-full h-full object-cover" />
                     </div>
                 </div>
                 <div class="order-1 lg:order-2 lg:text-right">
@@ -116,7 +116,7 @@
                 </div>
                 <div class="lg:justify-self-end w-full">
                     <div class="relative overflow-hidden rounded-2xl border h-[250px] sm:h-[320px] md:h-[420px]">
-                        <img src="{{ Vite::asset('resources/image/review.jpg') }}" alt="Privacy options" class="w-full h-full object-cover" />
+                        <img src="{{ asset('resources/image/review.jpg') }}" alt="Privacy options" class="w-full h-full object-cover" />
                     </div>
                 </div>
             </div>
