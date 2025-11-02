@@ -20,6 +20,21 @@ if [[ "$APP_KEY" == APP_KEY=* ]]; then
     APP_KEY="${APP_KEY#APP_KEY=}"
     export APP_KEY
     echo "Fixed APP_KEY, new length: ${#APP_KEY}, prefix: ${APP_KEY:0:10}..."
+    
+    # Lưu APP_KEY đã fix vào .env để Laravel đọc
+    echo "Saving fixed APP_KEY to .env file..."
+    if [ -f .env ]; then
+        # Nếu có APP_KEY trong .env, replace nó
+        if grep -q "^APP_KEY=" .env; then
+            sed -i "s/^APP_KEY=.*/APP_KEY=$APP_KEY/" .env
+        else
+            echo "APP_KEY=$APP_KEY" >> .env
+        fi
+    else
+        # Tạo .env mới nếu chưa có
+        echo "APP_KEY=$APP_KEY" > .env
+    fi
+    
     # Clear config cache sau khi fix để Laravel đọc APP_KEY mới
     echo "Clearing config cache after APP_KEY fix..."
     php artisan config:clear || true
