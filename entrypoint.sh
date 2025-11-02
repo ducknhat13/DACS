@@ -13,6 +13,15 @@ php artisan view:clear || true
 # PHẢI generate TRƯỚC KHI cache config
 # Laravel yêu cầu format: base64:... với độ dài 32 bytes (44 chars sau base64:)
 echo "Checking APP_KEY..."
+
+# Fix: Nếu APP_KEY có chứa "APP_KEY=" prefix, remove nó
+if [[ "$APP_KEY" == APP_KEY=* ]]; then
+    echo "Fixing APP_KEY: removing 'APP_KEY=' prefix..."
+    APP_KEY="${APP_KEY#APP_KEY=}"
+    export APP_KEY
+    echo "Fixed APP_KEY, new length: ${#APP_KEY}, prefix: ${APP_KEY:0:10}..."
+fi
+
 if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ] || [ ${#APP_KEY} -lt 50 ]; then
     echo "APP_KEY is missing or invalid, generating new key..."
     # Generate key - Laravel sẽ tự động lưu vào .env file
