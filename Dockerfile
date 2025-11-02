@@ -26,10 +26,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy application files
 COPY . /var/www/html
 
-# Set permissions
+# Set permissions - đảm bảo storage và cache có quyền ghi
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache \
+    && mkdir -p /var/www/html/storage/framework/{sessions,views,cache} \
+    && mkdir -p /var/www/html/storage/logs \
+    && chmod -R 775 /var/www/html/storage/framework \
+    && chmod -R 775 /var/www/html/storage/logs
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
@@ -40,10 +44,10 @@ RUN npm ci && npm run build
 # Expose port (Render sẽ inject PORT variable)
 EXPOSE 10000
 
-# Start script - Cache config và start server
-# Config cache sẽ được chạy khi container start để có env vars
-CMD php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
+# Copy entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Use entrypoint script
+CMD ["/entrypoint.sh"]
 
