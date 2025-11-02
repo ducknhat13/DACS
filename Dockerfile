@@ -47,6 +47,10 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 # Install Node dependencies and build assets
 RUN npm ci && npm run build
 
+# Copy images từ resources/image/ vào public/resources/image/ để asset() có thể truy cập
+RUN mkdir -p public/resources/image && \
+    cp -r resources/image/* public/resources/image/ 2>/dev/null || true
+
 # Expose port (Render sẽ inject PORT variable)
 EXPOSE 10000
 
