@@ -80,13 +80,18 @@ class ContactController extends Controller
              * Error handling:
              * - Log error message và stack trace để debug
              * - Trong local env: Hiển thị error message chi tiết (có exception message)
-             * - Trong production: Chỉ hiển thị generic error message
+             * - Trong production: Log chi tiết, nhưng chỉ hiển thị generic error message
              * - Giữ lại input data để user không phải nhập lại
              */
             \Log::error('Contact form error: ' . $e->getMessage());
             \Log::error('Contact form stack trace: ' . $e->getTraceAsString());
+            \Log::error('Mail config - MAIL_MAILER: ' . config('mail.default'));
+            \Log::error('Mail config - MAIL_HOST: ' . config('mail.mailers.smtp.host'));
+            \Log::error('Mail config - MAIL_FROM_ADDRESS: ' . config('mail.from.address'));
+            \Log::error('Support Email: ' . $supportEmail);
             
             // Show detailed error in development để dễ debug
+            // Trong production, vẫn log chi tiết nhưng chỉ hiển thị generic message
             $errorMessage = app()->environment('local') 
                 ? __('messages.contact_error') . ' (' . $e->getMessage() . ')'
                 : __('messages.contact_error');
