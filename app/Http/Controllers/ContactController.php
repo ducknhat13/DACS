@@ -62,6 +62,18 @@ class ContactController extends Controller
              */
             $supportEmail = config('mail.support_email', env('SUPPORT_EMAIL', 'support@quickpoll.com'));
             
+            // Log mail config để debug (không log password)
+            \Log::info('Attempting to send contact email', [
+                'to' => $supportEmail,
+                'from' => config('mail.from.address'),
+                'mailer' => config('mail.default'),
+                'host' => config('mail.mailers.smtp.host'),
+                'port' => config('mail.mailers.smtp.port'),
+                'encryption' => config('mail.mailers.smtp.encryption'),
+                'username_set' => !empty(config('mail.mailers.smtp.username')),
+                'password_set' => !empty(config('mail.mailers.smtp.password')),
+            ]);
+            
             /**
              * Gửi email đến support team
              * ContactMail sẽ hiển thị thông tin người gửi và message
@@ -73,6 +85,8 @@ class ContactController extends Controller
                 $request->subject,
                 $request->message
             ));
+            
+            \Log::info('Contact email sent successfully');
 
             return back()->with('success', __('messages.contact_success'));
         } catch (\Exception $e) {
