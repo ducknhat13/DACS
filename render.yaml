@@ -41,9 +41,10 @@ services:
       - key: MYSQL_ATTR_SSL_CA
         sync: false  # Có thể để trống hoặc dùng URL tới public CA cert
       
-      # Laravel Key - Cần generate sau khi deploy
+      # Laravel Key - Sẽ được generate tự động bởi entrypoint script
+      # Không set generateValue để entrypoint có thể generate đúng format
       - key: APP_KEY
-        generateValue: true
+        sync: false  # Để trống, entrypoint sẽ generate
       
       # Cache & Session
       - key: CACHE_STORE
