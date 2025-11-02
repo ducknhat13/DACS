@@ -17,8 +17,14 @@ RUN apt-get update && apt-get install -y \
     unzip \
     nodejs \
     npm \
+    ca-certificates \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Download CA certificates cho TiDB Cloud SSL
+RUN mkdir -p /etc/ssl/certs && \
+    curl -o /etc/ssl/certs/cacert.pem https://curl.se/ca/cacert.pem || \
+    curl -o /etc/ssl/certs/cacert.pem https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
