@@ -244,6 +244,56 @@ php artisan serve
 - **Logic**: Tùy chỉnh trong `app/Http/Controllers/`
 - **Database**: Thay đổi migrations trong `database/migrations/`
 
+## 🚀 Deploy Lên Render
+
+Project này đã được cấu hình sẵn để deploy lên Render một cách dễ dàng.
+
+### ⚡ Deploy Tự Động (Khuyến Nghị)
+
+1. **Truy cập Render Dashboard**: https://render.com
+2. **Tạo Blueprint**:
+   - Click "New +" > "Blueprint"
+   - Kết nối GitHub repository: `ducknhat13/DACS`
+   - Render sẽ tự động phát hiện file `render.yaml`
+   - Click "Apply" để deploy
+
+3. **Cấu hình Environment Variables**:
+   - `APP_URL`: URL của web service (Render tự động tạo)
+   - `MAIL_USERNAME`, `MAIL_PASSWORD`: Gmail credentials
+   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`: Nếu dùng OAuth
+
+4. **Chạy Migration**:
+   ```bash
+   php artisan migrate --force
+   php artisan key:generate --force
+   ```
+
+### 📚 Tài Liệu Chi Tiết
+
+Xem file **[DEPLOY_RENDER.md](DEPLOY_RENDER.md)** để có hướng dẫn đầy đủ về:
+- Cách deploy tự động với Blueprint
+- Cách deploy thủ công từng bước
+- Cấu hình môi trường và database
+- Troubleshooting các lỗi thường gặp
+- Best practices cho production
+
+### 📁 Files Cho Render
+
+- ✅ `render.yaml`: Blueprint config tự động setup Web Service
+- ✅ `Procfile`: Start command cho production
+- ✅ `DEPLOY_RENDER.md`: Hướng dẫn deploy chi tiết
+
+### ⚠️ Lưu Ý Quan Trọng
+
+**Database**: Project sử dụng **TiDB Cloud** (đã setup sẵn), không tạo database trên Render.
+
+**TiDB Cloud Network Access**: Cần cấu hình Network Access trong TiDB Cloud (Settings > Networking) để cho phép kết nối từ Render. Xem chi tiết trong DEPLOY_RENDER.md
+
+**Free Tier Limitations**:
+- Service sẽ **sleep** sau 15 phút không hoạt động
+- Lần đầu truy cập sau khi sleep sẽ mất ~30-60s để wake up
+- Render không có IP tĩnh, cần cấu hình TiDB Cloud Network Access phù hợp
+
 ## 🧪 Testing
 
 ```bash
