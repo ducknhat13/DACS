@@ -23,16 +23,35 @@
 5. Click **"Create & View"**
 6. **Copy API Key ngay** (chỉ hiển thị 1 lần!)
 
-## Bước 3: Verify Sender Email
+## Bước 3: Verify Sender Email (Chọn 1 trong 2 cách)
+
+### Cách 1: Single Sender Verification (Đơn giản, khuyến nghị cho test)
 
 1. Vào **Settings** > **Sender Authentication**
 2. Chọn **"Verify a Single Sender"** (đơn giản nhất)
 3. Điền thông tin:
-   - Email: email của bạn (ví dụ: `noreply@yourdomain.com`)
+   - Email: email của bạn (ví dụ: `your-email@gmail.com`)
    - From name: `DACS Poll System`
 4. Verify email qua link trong email SendGrid gửi
 
 **Lưu ý**: Email verify này sẽ dùng làm `MAIL_FROM_ADDRESS`
+
+### Cách 2: Domain Authentication (Cho production, nếu có domain riêng)
+
+Nếu bạn có domain riêng (ví dụ: `yourdomain.com`), có thể verify domain:
+
+1. Vào **Settings** > **Sender Authentication** > **Authenticate Your Domain**
+2. Điền domain: `yourdomain.com` (không có `https://` hay `www`)
+3. **Brand the link**: Chọn **"No"** (đơn giản hơn, có thể bật sau)
+4. **Advanced Settings**:
+   - **Use automated security**: ✅ **Enable** (khuyến nghị)
+   - **Use custom return path**: ❌ Disable (để mặc định)
+   - **Use a custom DKIM selector**: ❌ Disable (để mặc định)
+5. Copy các DNS records (SPF, DKIM, CNAME) SendGrid cung cấp
+6. Thêm vào DNS của domain (qua nhà cung cấp domain hoặc hosting)
+7. Chờ vài phút để SendGrid verify domain
+
+**Sau khi verify domain, có thể dùng bất kỳ email nào @yourdomain.com làm sender**
 
 ## Bước 4: Cấu hình trong Render
 
