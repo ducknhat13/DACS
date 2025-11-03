@@ -4,10 +4,13 @@ namespace App\Notifications;
 
 use App\Models\Poll;
 use App\Models\Vote;
+use App\Services\SendGridMailService;
+use App\Channels\SendGridMailChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 
 /**
  * NewVoteNotification - Email notification khi có vote mới trên poll
@@ -48,11 +51,22 @@ class NewVoteNotification extends Notification implements ShouldQueue
 
     /**
      * Get the notification's delivery channels.
+     * 
+     * Tự động chọn channel:
+     * - SendGridMailChannel nếu SendGrid API available (tránh SMTP timeout trên Render)
+     * - 'mail' (Laravel Mail) làm fallback
      *
      * @return array<int, string>
      */
     public function via(object $notifiable): array
     {
+        $sendGridService = new SendGridMailService();
+        
+        if ($sendGridService->isAvailable()) {
+            return [SendGridMailChannel::class];
+        }
+        
+        // Fallback to Laravel Mail (SMTP) - có thể timeout trên Render
         return ['mail'];
     }
 
@@ -73,7 +87,7 @@ class NewVoteNotification extends Notification implements ShouldQueue
         // URL đến trang kết quả poll
         $pollUrl = route('polls.show', $this->poll->slug);
         
-        return (new MailMessage)
+        $mailMessage = (new MailMessage)
             ->subject(__('messages.new_vote_notification_subject', ['poll' => $this->poll->title ?? $this->poll->question]))
             ->greeting(__('messages.hello', ['name' => $notifiable->name]))
             ->line(__('messages.new_vote_notification_body', [
@@ -82,6 +96,10 @@ class NewVoteNotification extends Notification implements ShouldQueue
             ]))
             ->action(__('messages.view_poll'), $pollUrl) // Button link đến poll results
             ->line(__('messages.thank_you_for_using'));
+        
+        // SendGridMailChannel sẽ tự động gửi email qua SendGrid API
+        // Không cần xử lý ở đây nữa vì via() đã chọn channel đúng
+        return $mailMessage;
     }
 
     /**
