@@ -484,7 +484,7 @@
     </script>
 
     <!-- Bulk Delete Confirm Modal -->
-    <div id="bulkDeleteModal" class="hidden fixed inset-0 z-[100] items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style="backdrop-filter: blur(4px);">
+    <div id="bulkDeleteModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style="backdrop-filter: blur(4px);">
         <div class="card" style="max-width:520px;width:100%;">
             <div class="material-alert error">
                 <div class="alert-content">
@@ -666,8 +666,20 @@
 
         bulkDelete?.addEventListener('click', function(){
             deleteModal.classList.remove('hidden');
+            deleteModal.classList.add('flex');
         });
-        deleteCancel?.addEventListener('click', function(){ deleteModal.classList.add('hidden'); });
+        deleteCancel?.addEventListener('click', function(){ 
+            deleteModal.classList.add('hidden'); 
+            deleteModal.classList.remove('flex');
+        });
+        
+        // Close modal when clicking outside
+        deleteModal?.addEventListener('click', function(e){
+            if (e.target === deleteModal) {
+                deleteModal.classList.add('hidden');
+                deleteModal.classList.remove('flex');
+            }
+        });
         deleteConfirm?.addEventListener('click', async function(){
             for (const slug of selected) { await del(`/polls/${slug}`); }
             window.location.reload();
