@@ -147,7 +147,8 @@
                                     $total = $p->participants_count ?? $p->votes_count ?? 0;
                                     $created = $p->created_at ? \Carbon\Carbon::parse($p->created_at)->format('M d, Y') : '';
                                     $deadline = $p->auto_close_at ? \Carbon\Carbon::parse($p->auto_close_at)->format('M d, Y') : null;
-                                    $isClosed = isset($p->is_closed) ? (bool)$p->is_closed : false;
+                                    // Trạng thái đóng hiệu lực: cờ is_closed hoặc đã quá hạn auto_close_at
+                                    $isClosed = (isset($p->is_closed) ? (bool)$p->is_closed : false) || ($p->auto_close_at && now()->greaterThanOrEqualTo($p->auto_close_at));
                                     $isExpired = $deadline && \Carbon\Carbon::parse($deadline)->isPast();
                                 @endphp
                                 <div class="poll-card animate-fade-in-up stagger-item" style="animation-delay: {{ $index * 0.1 }}s;" data-slug="{{ $p->slug }}" data-closed="{{ $isClosed ? '1' : '0' }}">
