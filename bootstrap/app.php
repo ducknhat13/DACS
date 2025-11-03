@@ -24,7 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->whereNotNull('auto_close_at')
                 ->where('auto_close_at', '<=', $now)
                 ->update(['is_closed' => true]);
-        })->everyMinute()->withoutOverlapping();
+        })->everyMinute()->name('auto-close-polls')->withoutOverlapping();
     })
     ->withMiddleware(function (Middleware $middleware): void {
         // Đảm bảo SetLocale chạy trong nhóm 'web' sau khi session/auth sẵn sàng
