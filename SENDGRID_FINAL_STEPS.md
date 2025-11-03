@@ -42,8 +42,11 @@ QUEUE_CONNECTION=sync
 ```
 
 **Lưu ý quan trọng**:
-- `MAIL_USERNAME` phải là `apikey` (chính xác, không có spaces)
-- `MAIL_PASSWORD` là API Key đầy đủ (copy từ SendGrid)
+- ⚠️ **`MAIL_USERNAME` PHẢI là `apikey`** (chữ thường, chính xác, không có quotes trong env var)
+  - Trong Render Environment: Điền `apikey` (không có dấu ngoặc kép)
+  - Đây là cách SendGrid yêu cầu khi dùng API Key qua SMTP
+  - **KHÔNG phải** email hay username khác!
+- `MAIL_PASSWORD` là API Key đầy đủ (copy từ SendGrid, bắt đầu với `SG.`)
 - `MAIL_FROM_ADDRESS` phải **chính xác** email đã verify trong SendGrid
 - `QUEUE_CONNECTION` phải là `sync` (Render free tier không có worker)
 
@@ -108,9 +111,12 @@ Trước khi test, đảm bảo:
 **Nguyên nhân**: API Key sai hoặc `MAIL_USERNAME` không đúng
 
 **Giải pháp**:
-- Kiểm tra `MAIL_USERNAME` phải là `apikey` (chính xác)
+- ⚠️ **`MAIL_USERNAME` PHẢI là `apikey`** (chữ thường, không có quotes)
+  - Đây là cách SendGrid yêu cầu khi dùng API Key
+  - KHÔNG phải email hay username khác
+  - Trong Render: Điền `apikey` (chỉ text này, không có dấu ngoặc kép)
 - Kiểm tra `MAIL_PASSWORD` là API Key đầy đủ (bắt đầu với `SG.`)
-- Đảm bảo không có spaces thừa
+- Đảm bảo không có spaces thừa trước/sau giá trị
 
 ### Lỗi "Sender not verified"
 
