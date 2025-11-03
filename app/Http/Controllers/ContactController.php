@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Mail\ContactMail;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 /**
  * ContactController - Controller xử lý contact form
@@ -62,8 +64,8 @@ class ContactController extends Controller
              */
             $supportEmail = config('mail.support_email', env('SUPPORT_EMAIL', 'support@quickpoll.com'));
             
-            // Log mail config để debug (không log password)
-            \Log::info('Attempting to send contact email', [
+            // Log mail config để debug (không log password) - output trực tiếp ra stderr
+            $mailConfig = [
                 'to' => $supportEmail,
                 'from' => config('mail.from.address'),
                 'mailer' => config('mail.default'),
@@ -72,13 +74,38 @@ class ContactController extends Controller
                 'encryption' => config('mail.mailers.smtp.encryption'),
                 'username_set' => !empty(config('mail.mailers.smtp.username')),
                 'password_set' => !empty(config('mail.mailers.smtp.password')),
-            ]);
+                'queue_connection' => config('queue.default'),
+            ];
+            
+            // Log cả vào file và stderr
+            Log::info('=== Contact Form: Attempting to send email ===', $mailConfig);
+            error_log('=== Contact Form: Attempting to send email ===');
+            error_log('Mail Config: ' . json_encode($mailConfig, JSON_PRETTY_PRINT));
             
             /**
              * Gửi email đến support team
              * ContactMail sẽ hiển thị thông tin người gửi và message
              * Reply-to được set thành email người gửi để có thể reply trực tiếp
              */
+            error_log('Before Mail::send() call');
+            
+            // LƯU Ý QUAN TRỌNG:
+            // - Nếu QUEUE_CONNECTION=database: Mail sẽ được đẩy vào queue, nhưng CẦN queue worker để process
+            // - Render free tier KHÔNG hỗ trợ background worker, nên mail sẽ KHÔNG được gửi
+            // - Giải pháp: Dùng QUEUE_CONNECTION=sync để gửi mail trực tiếp
+            // - Hoặc: Upgrade Render plan để chạy queue worker
+            
+            $queueConnection = config('queue.default');
+            error_log("Queue connection: $queueConnection");
+            
+            if ($queueConnection === 'database') {
+                error_log("WARNING: Queue connection is 'database' but no queue worker is running!");
+                error_log("Mail will be queued but NOT sent without a worker.");
+                error_log("Solution: Set QUEUE_CONNECTION=sync in Render environment variables");
+            }
+            
+            // Nếu queue = database, mail sẽ được queue thay vì gửi ngay
+            // Nhưng cần queue worker để process, nếu không mail sẽ không được gửi
             Mail::to($supportEmail)->send(new ContactMail(
                 $request->name,
                 $request->email,
@@ -86,32 +113,76 @@ class ContactController extends Controller
                 $request->message
             ));
             
-            \Log::info('Contact email sent successfully');
+            error_log('After Mail::send() call - Success');
+            Log::info('Contact email sent successfully');
 
             return back()->with('success', __('messages.contact_success'));
+        } catch (TransportExceptionInterface $e) {
+            /**
+             * Catch SMTP/Transport exceptions cụ thể
+             * Đây là exception từ SwiftMailer/Symfony Mailer khi không thể kết nối SMTP
+             */
+            $errorDetails = [
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'mail_config' => [
+                    'host' => config('mail.mailers.smtp.host'),
+                    'port' => config('mail.mailers.smtp.port'),
+                    'encryption' => config('mail.mailers.smtp.encryption'),
+                    'username' => config('mail.mailers.smtp.username'),
+                ],
+            ];
+            
+            // Log ra cả file và stderr
+            Log::error('Contact form: SMTP Transport Exception', $errorDetails);
+            error_log('=== Contact Form: SMTP Transport Exception ===');
+            error_log('Error: ' . $e->getMessage());
+            error_log('Details: ' . json_encode($errorDetails, JSON_PRETTY_PRINT));
+            error_log('Stack trace: ' . $e->getTraceAsString());
+            
+            $errorMessage = (app()->environment('local') || config('app.debug'))
+                ? __('messages.contact_error') . ' (SMTP: ' . $e->getMessage() . ')'
+                : __('messages.contact_error');
+            
+            return back()
+                ->withInput()
+                ->with('error', $errorMessage);
         } catch (\Exception $e) {
             /**
-             * Error handling:
+             * Error handling cho các exception khác:
              * - Log error message và stack trace để debug
              * - Trong local env: Hiển thị error message chi tiết (có exception message)
              * - Trong production: Log chi tiết, nhưng chỉ hiển thị generic error message
              * - Giữ lại input data để user không phải nhập lại
              */
-            \Log::error('Contact form error: ' . $e->getMessage());
-            \Log::error('Contact form stack trace: ' . $e->getTraceAsString());
-            \Log::error('Mail config - MAIL_MAILER: ' . config('mail.default'));
-            \Log::error('Mail config - MAIL_HOST: ' . config('mail.mailers.smtp.host'));
-            \Log::error('Mail config - MAIL_FROM_ADDRESS: ' . config('mail.from.address'));
-            \Log::error('Support Email: ' . $supportEmail);
+            $errorDetails = [
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'mail_config' => [
+                    'mailer' => config('mail.default'),
+                    'host' => config('mail.mailers.smtp.host'),
+                    'port' => config('mail.mailers.smtp.port'),
+                    'from' => config('mail.from.address'),
+                ],
+            ];
+            
+            // Log ra cả file và stderr
+            Log::error('Contact form: General Exception', $errorDetails);
+            error_log('=== Contact Form: General Exception ===');
+            error_log('Error: ' . $e->getMessage());
+            error_log('Details: ' . json_encode($errorDetails, JSON_PRETTY_PRINT));
+            error_log('Stack trace: ' . $e->getTraceAsString());
             
             // Show detailed error in development để dễ debug
-            // Trong production, vẫn log chi tiết nhưng chỉ hiển thị generic message
-            $errorMessage = app()->environment('local') 
+            $errorMessage = (app()->environment('local') || config('app.debug'))
                 ? __('messages.contact_error') . ' (' . $e->getMessage() . ')'
                 : __('messages.contact_error');
             
             return back()
-                ->withInput() // Giữ lại input data
+                ->withInput()
                 ->with('error', $errorMessage);
         }
     }
