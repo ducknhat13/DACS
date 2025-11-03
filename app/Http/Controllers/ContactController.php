@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use App\Mail\ContactMail;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use SendGrid\Mail\Mail as SendGridMail;
+use SendGrid;
 
 /**
  * ContactController - Controller xử lý contact form
@@ -104,17 +106,72 @@ class ContactController extends Controller
                 error_log("Solution: Set QUEUE_CONNECTION=sync in Render environment variables");
             }
             
-            // Nếu queue = database, mail sẽ được queue thay vì gửi ngay
-            // Nhưng cần queue worker để process, nếu không mail sẽ không được gửi
-            Mail::to($supportEmail)->send(new ContactMail(
-                $request->name,
-                $request->email,
-                $request->subject,
-                $request->message
-            ));
+            // Render free tier block tất cả outbound SMTP connections
+            // Giải pháp: Dùng SendGrid HTTP API trực tiếp thay vì SMTP
+            $sendGridApiKey = config('mail.mailers.smtp.password'); // API Key từ env
+            $useSendGridApi = !empty($sendGridApiKey) && str_starts_with($sendGridApiKey, 'SG.');
             
-            error_log('After Mail::send() call - Success');
-            Log::info('Contact email sent successfully');
+            if ($useSendGridApi) {
+                error_log('Using SendGrid HTTP API (SMTP blocked on Render)');
+                
+                // Dùng SendGrid HTTP API trực tiếp
+                $sg = new SendGrid($sendGridApiKey);
+                $email = new SendGridMail();
+                
+                $fromAddress = config('mail.from.address');
+                $fromName = config('mail.from.name', 'DACS Poll System');
+                
+                $email->setFrom($fromAddress, $fromName);
+                $email->setSubject($request->subject);
+                $email->addTo($supportEmail);
+                $email->setReplyTo($request->email, $request->name);
+                
+                // Tạo email content từ ContactMail template
+                $mailData = new ContactMail(
+                    $request->name,
+                    $request->email,
+                    $request->subject,
+                    $request->message
+                );
+                
+                // Render email content từ ContactMail template
+                $htmlContent = view('emails.contact', [
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'subject' => $request->subject,
+                    'messageText' => $request->message, // Template dùng $messageText
+                ])->render();
+                
+                $email->addContent("text/html", $htmlContent);
+                
+                try {
+                    $response = $sg->send($email);
+                    error_log('SendGrid API Response Code: ' . $response->statusCode());
+                    
+                    if ($response->statusCode() >= 200 && $response->statusCode() < 300) {
+                        error_log('SendGrid API: Email sent successfully');
+                        Log::info('Contact email sent successfully via SendGrid API');
+                    } else {
+                        $errorBody = $response->body();
+                        error_log('SendGrid API Error: ' . $errorBody);
+                        throw new \Exception('SendGrid API returned status: ' . $response->statusCode());
+                    }
+                } catch (\Exception $e) {
+                    error_log('SendGrid API Exception: ' . $e->getMessage());
+                    throw $e;
+                }
+            } else {
+                // Fallback to Laravel Mail (SMTP) - có thể timeout trên Render
+                error_log('Using Laravel Mail (SMTP) - may timeout on Render');
+                Mail::to($supportEmail)->send(new ContactMail(
+                    $request->name,
+                    $request->email,
+                    $request->subject,
+                    $request->message
+                ));
+                error_log('After Mail::send() call - Success');
+                Log::info('Contact email sent successfully');
+            }
 
             return back()->with('success', __('messages.contact_success'));
         } catch (TransportExceptionInterface $e) {
