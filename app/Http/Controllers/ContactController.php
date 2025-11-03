@@ -122,28 +122,46 @@ class ContactController extends Controller
              * Catch SMTP/Transport exceptions cụ thể
              * Đây là exception từ SwiftMailer/Symfony Mailer khi không thể kết nối SMTP
              */
+            $errorMessage = $e->getMessage();
+            $isTimeout = stripos($errorMessage, 'timeout') !== false || stripos($errorMessage, 'connection timed out') !== false;
+            
             $errorDetails = [
                 'exception' => get_class($e),
-                'message' => $e->getMessage(),
+                'message' => $errorMessage,
                 'code' => $e->getCode(),
+                'is_timeout' => $isTimeout,
                 'mail_config' => [
                     'host' => config('mail.mailers.smtp.host'),
                     'port' => config('mail.mailers.smtp.port'),
                     'encryption' => config('mail.mailers.smtp.encryption'),
                     'username' => config('mail.mailers.smtp.username'),
                 ],
+                'possible_causes' => $isTimeout ? [
+                    'Render firewall may block outbound SMTP connections',
+                    'Gmail may block Render IP addresses',
+                    'Try using port 465 with SSL instead of 587 with TLS',
+                    'Consider using alternative mail service (SendGrid, Mailgun)',
+                ] : [],
             ];
             
             // Log ra cả file và stderr
             Log::error('Contact form: SMTP Transport Exception', $errorDetails);
             error_log('=== Contact Form: SMTP Transport Exception ===');
-            error_log('Error: ' . $e->getMessage());
+            error_log('Error: ' . $errorMessage);
+            error_log('Is Timeout: ' . ($isTimeout ? 'YES' : 'NO'));
             error_log('Details: ' . json_encode($errorDetails, JSON_PRETTY_PRINT));
-            error_log('Stack trace: ' . $e->getTraceAsString());
             
-            $errorMessage = (app()->environment('local') || config('app.debug'))
-                ? __('messages.contact_error') . ' (SMTP: ' . $e->getMessage() . ')'
-                : __('messages.contact_error');
+            // Hiển thị error message chi tiết nếu debug mode
+            if (config('app.debug')) {
+                $errorMessage = __('messages.contact_error') . ' (SMTP: ' . $errorMessage . ')';
+            } else {
+                // Trong production, hiển thị message thân thiện hơn
+                if ($isTimeout) {
+                    $errorMessage = __('messages.contact_error') . ' (SMTP connection timeout. This may be due to network restrictions. Please try again later or contact support.)';
+                } else {
+                    $errorMessage = __('messages.contact_error');
+                }
+            }
             
             return back()
                 ->withInput()

@@ -86,7 +86,14 @@ return [
             'encryption' => env('MAIL_ENCRYPTION', 'tls'), // tls, ssl, hoặc null
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'), // Nên dùng quotes nếu có spaces: "xxxx xxxx xxxx xxxx"
-            'timeout' => 30, // Timeout 30 giây thay vì null để tránh đợi quá lâu
+            'timeout' => 10, // Giảm timeout xuống 10 giây để fail fast nếu bị block
+            'stream' => [
+                'ssl' => [
+                    'allow_self_signed' => false,
+                    'verify_peer' => true,
+                    'verify_peer_name' => true,
+                ],
+            ],
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 
