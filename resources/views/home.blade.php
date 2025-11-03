@@ -48,7 +48,7 @@
     </section>
 
     {{-- Statistics Section: Trust indicators với số liệu --}}
-    <section class="py-12 sm:py-16 md:py-20" style="background-color: var(--surface-variant);">
+    <section class="py-12 sm:py-16 md:py-20" style="background-color: var(--surface);">
         <div class="container-material">
             <div class="text-center mb-8 sm:mb-12">
                 <p class="text-sm sm:text-label-large uppercase tracking-wider text-[color:var(--on-surface-variant)] px-4">{{ __('messages.trusted_by_users') }}</p>
