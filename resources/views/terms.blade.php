@@ -1,3 +1,10 @@
+<!--
+    Terms Page
+    - Trang Điều khoản sử dụng của QuickPoll.
+    - Nội dung tĩnh, trình bày quy định và trách nhiệm khi sử dụng hệ thống.
+    - Gợi ý bố cục: mục lục (anchor), điều khoản, quyền & nghĩa vụ, giới hạn trách nhiệm, liên hệ.
+    - Frontend: dùng heading rõ ràng (h2/h3), khoảng cách dòng thoáng để dễ đọc.
+-->
 <x-app-layout>
     <x-slot name="header">
         <div class="hidden"></div>

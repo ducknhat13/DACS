@@ -1,1 +1,5 @@
+{{--
+    Component: dropdown-link
+    - Mục liên kết trong menu dropdown; hỗ trợ slot nội dung và trạng thái active.
+--}}
 <a {{ $attributes->merge(['class' => 'block w-full px-4 py-2 text-start text-sm leading-5 text-[color:var(--on-surface)] hover:bg-[var(--surface-variant)] focus:outline-none focus:bg-[var(--surface-variant)] transition duration-150 ease-in-out']) }}>{{ $slot }}</a>

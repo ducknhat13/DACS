@@ -1,3 +1,7 @@
+{{--
+    Page: auth/register
+    - Form đăng ký: name, email, password, password_confirmation.
+--}}
 <x-guest-layout>
     <form method="POST" action="{{ route('register') }}" class="space-y-4">
         @csrf

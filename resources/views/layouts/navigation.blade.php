@@ -1,4 +1,11 @@
 {{--
+    Partial: layouts/navigation
+    - Thanh điều hướng chính: logo, menu, user dropdown, dark-mode toggle.
+    - Frontend: đảm bảo responsive (mobile menu), highlight link đang active.
+--}}
+
+{{-- Nút hamburger mở/đóng menu mobile, cần JS toggle class/ẩn hiện --}}
+{{--
     Navigation Layout - navigation.blade.php
     
     Component này render top navigation bar của ứng dụng với Material Design 3 styling.

@@ -1,4 +1,9 @@
 {{--
+    Page: polls/show
+    - Trang xem kết quả một poll: biểu đồ/tỷ lệ, tổng participants, chia sẻ.
+    - Frontend: đảm bảo trạng thái closed hiển thị rõ, link quay lại dashboard.
+--}}
+{{--
     Poll Results Page - polls/show.blade.php
     
     Trang hiển thị kết quả poll với Material Design 3 UI.

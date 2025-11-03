@@ -1,3 +1,10 @@
+<!--
+    Welcome Page
+    - Trang chào mừng mặc định, có thể dùng như landing phụ hoặc trang tĩnh demo.
+    - Chứa các section giới thiệu, link điều hướng nhanh đến chức năng chính.
+    - Gợi ý chia khối: Hero đơn giản, giới thiệu nhanh, link tới create/stats.
+    - Lưu ý frontend: tất cả icon/class theo MD3, ưu tiên text rõ ràng, tương phản tốt.
+-->
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

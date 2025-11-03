@@ -1,4 +1,10 @@
 {{--
+    Layout: app.blade.php
+    - Layout chính sau khi đăng nhập: bao gồm navigation, footer, slot nội dung.
+    - Chịu trách nhiệm nạp CSS/JS (vite), meta csrf, và vùng thông báo chung.
+    - Frontend lưu ý: các section yield/slot để trang con chèn nội dung.
+--}}
+{{--
     Main Application Layout - app.blade.php
     
     Đây là layout chính của ứng dụng, được sử dụng cho tất cả các trang.

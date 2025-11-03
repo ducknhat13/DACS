@@ -1,4 +1,9 @@
 {{--
+    Page: polls/vote
+    - Trang bỏ phiếu: hiển thị danh sách lựa chọn, cho phép chọn theo cấu hình poll.
+    - Frontend: xử lý disabled nếu poll closed/expired, hiển thị lỗi validate.
+--}}
+{{--
     Vote Poll Page - polls/vote.blade.php
     
     Trang vote cho poll với Material Design 3 UI.
@@ -40,7 +45,7 @@
 
     <div class="py-6 page-transition">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            {{-- Poll Media Section: Hiển thị images/videos trong description --}}
+            {{-- Poll Media Section: Hiển thị media trong mô tả poll (nếu có) --}}
             @if($poll->hasDescriptionMedia())
                 <div class="mb-8">
                     <div class="card card-elevated">
@@ -83,7 +88,7 @@
                     </div>
                 </div>
             @endif
-            {{-- Poll Status Banner: Hiển thị nếu poll đã đóng --}}
+            {{-- Poll Status Banner: thông báo poll đã đóng, không thể vote --}}
             @if ($poll->is_closed)
                 <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                     <div class="flex items-center gap-2 text-red-800 dark:text-red-200">
@@ -93,7 +98,7 @@
                 </div>
             @endif
 
-            {{-- Success/Error Messages: Flash messages từ session --}}
+            {{-- Flash Messages: hiển thị thông báo thành công/lỗi từ session --}}
             @if (session('success'))
                 <div class="mb-6 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 p-4 rounded-lg border border-green-200 dark:border-green-700 flex items-center gap-2">
                     <i class="fa-solid fa-check-circle"></i>
@@ -117,14 +122,14 @@
                         {{ __('messages.cast_your_vote') }}
                     </h3>
                     
-                    {{-- Vote Form: Submit đến VoteController@store --}}
+                    {{-- Vote Form: submit đến VoteController@store --}}
                     <form method="POST" action="{{ route('polls.vote.store', $poll->slug) }}" class="space-y-3">
                         @csrf
                         
                         {{-- Ranking Poll: Drag & drop để rank options --}}
                         @if ($poll->poll_type === 'ranking')
                             <div class="mb-4">
-                                {{-- Sortable options container: Sử dụng HTML5 drag API --}}
+                                {{-- Sortable container: dùng HTML5 drag API để sắp xếp --}}
                                 <div id="sortable-options" class="space-y-2">
                                     @foreach ($poll->options as $option)
                                         <div class="option-item flex items-center gap-3 p-3 bg-[var(--surface-variant)] rounded-lg border border-[color:var(--outline)] cursor-move" data-option-id="{{ $option->id }}" draggable="true">
@@ -136,7 +141,7 @@
                                         </div>
                                     @endforeach
                                 </div>
-                                {{-- Hidden input để submit ranking order --}}
+                                {{-- Input ẩn để submit thứ hạng (JSON) --}}
                                 <input type="hidden" name="ranking" id="ranking-input">
                             </div>
                         {{-- Image Poll: Image cards với checkbox/radio --}}

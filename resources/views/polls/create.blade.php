@@ -1,4 +1,9 @@
 ﻿{{--
+    Page: polls/create
+    - Form tạo poll: câu hỏi, loại poll (single/multiple/ranking), options, private/access key.
+    - Nếu có JS kèm theo: thêm/xoá option động, validate client nhẹ.
+--}}
+{{--
     Create Poll Page - polls/create.blade.php
     
     Trang tạo poll mới với Material Design 3 form.
@@ -69,13 +74,13 @@
                                     <p class="text-body-medium text-on-surface-variant">{{ __('messages.basic_info_desc') }}</p>
                                 </div>
                             
-                                {{-- Poll Title Input --}}
+                                {{-- Poll Title Input: tiêu đề hiển thị công khai của poll --}}
                                 <div class="input-field">
                                     <input type="text" name="title" id="title" required placeholder=" " value="{{ old('title') }}">
                                     <label for="title">{{ __('messages.poll_title') }}</label>
                                 </div>
 
-                                {{-- Poll Description Textarea với character counter --}}
+                                {{-- Poll Description: mô tả ngắn cho poll, tối đa 500 ký tự --}}
                                 <div class="input-field">
                                     <textarea name="description" id="description" rows="3" placeholder=" " maxlength="500">{{ old('description') }}</textarea>
                                     <label for="description">{{ __('messages.description_optional') }}</label>
@@ -130,7 +135,7 @@
                                     </div>
                                 </div>
 
-                                {{-- Poll Type Selection: Standard, Ranking, hoặc Image --}}
+                                {{-- Poll Type: chọn loại khảo sát (standard/ranking/image) --}}
                                 <div class="space-y-3">
                                     <div class="segmented-control">
                                         <input type="radio" name="poll_type" id="poll_type_standard" value="standard" checked class="segmented-input">
@@ -153,7 +158,7 @@
                                     </div>
                                 </div>
 
-                                {{-- Choice Type: Single hoặc Multiple (chỉ cho Standard polls) --}}
+                                {{-- Choice Type: dạng lựa chọn (single/multiple) - chỉ áp dụng cho standard --}}
                                 <div id="choice-type-section" class="space-y-2">
                                     <div class="segmented-control">
                                         <input type="radio" name="choice_type" id="choice_type_single" value="single" checked class="segmented-input">
@@ -170,14 +175,14 @@
                                     </div>
                                 </div>
 
-                                {{-- Maximum Choices: Chỉ hiển thị cho Standard polls với multiple selection --}}
+                                {{-- Maximum Choices: số lựa chọn tối đa khi chọn multiple (standard) --}}
                                 <div id="max-choices-section" class="input-field hidden">
                                     <input type="number" name="max_choices" id="max_choices" min="2" placeholder=" " value="{{ old('max_choices') }}">
                                     <label for="max_choices">{{ __('messages.max_choices') }}</label>
                                     <div class="text-body-small text-on-surface-variant mt-1">{{ __('messages.leave_empty_unlimited') }}</div>
                                 </div>
 
-                                {{-- Maximum Image Selections: Chỉ cho Image polls --}}
+                                {{-- Maximum Image Selections: giới hạn số ảnh được chọn (image poll) --}}
                                 <div id="max-image-selections-section" class="input-field hidden">
                                     <input type="number" name="max_image_selections" id="max_image_selections" min="1" placeholder=" " value="{{ old('max_image_selections') }}">
                                     <label for="max_image_selections">{{ __('messages.max_image_selections') }}</label>
@@ -187,7 +192,7 @@
                                 <div class="space-y-3">
                                     <label class="text-title-small text-on-surface">{{ __('messages.options') }}</label>
                                     
-                                    <!-- Text Options Container -->
+                                    <!-- Text Options Container: danh sách lựa chọn dạng text -->
                                     <div id="text-options" class="space-y-3 max-h-80 overflow-y-auto pr-1">
                                         <div class="flex items-center gap-3 option-row">
                                             <div class="input-field flex-1">
@@ -205,7 +210,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Image Options Container -->
+                                    <!-- Image Options Container: danh sách lựa chọn dạng ảnh -->
                                     <div id="image-options" class="space-y-4 max-h-80 overflow-y-auto pr-1 hidden">
                                         <div class="image-option-card bg-surface-variant rounded-xl p-4 border border-outline">
                                             <div class="space-y-3">
@@ -307,14 +312,17 @@
                                     </div>
                                     
                                     <div class="flex items-center justify-start mt-3 gap-3">
+                                        {{-- Thêm lựa chọn text --}}
                                         <button type="button" id="addOption" class="text-button text-primary">
                                             <i class="fa-solid fa-plus"></i>
                                             {{ __('messages.add_option') }}
                                         </button>
+                                        {{-- Thêm lựa chọn ảnh --}}
                                         <button type="button" id="addImageOption" class="text-button text-primary hidden">
                                             <i class="fa-solid fa-plus"></i>
                                             {{ __('messages.add_image_option') }}
                                         </button>
+                                        {{-- Thêm lựa chọn "Other" (khác) --}}
                                         <button type="button" id="addOther" class="text-button text-primary">
                                             <i class="fa-solid fa-plus"></i>
                                             {{ __('messages.add_other') }}

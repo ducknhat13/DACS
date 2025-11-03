@@ -1,3 +1,7 @@
+{{--
+    Page: auth/login
+    - Form đăng nhập: email, password, remember; link quên mật khẩu.
+--}}
 <x-guest-layout>
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />

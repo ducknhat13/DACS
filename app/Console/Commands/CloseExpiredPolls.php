@@ -23,7 +23,6 @@ class CloseExpiredPolls extends Command
         $now = Carbon::now();
 
         $affected = Poll::query()
-            ->whereNull('deleted_at')
             ->where('is_closed', false)
             ->whereNotNull('auto_close_at')
             ->where('auto_close_at', '<=', $now)

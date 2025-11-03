@@ -1,4 +1,8 @@
 {{--
+    Partial: layouts/footer
+    - Footer toàn site: links chính sách, bản quyền, mạng xã hội (nếu có).
+--}}
+{{--
     Footer Layout - layouts/footer.blade.php
     
     Component này render site footer với Material Design 3 styling.

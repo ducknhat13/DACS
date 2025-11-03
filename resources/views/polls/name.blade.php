@@ -1,3 +1,8 @@
+{{--
+    Page: polls/name
+    - (Nếu sử dụng) Thu thập tên người tham gia trước khi vote.
+    - Frontend: input tên ngắn gọn, chuyển tiếp sang trang vote sau khi submit.
+--}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-3xl text-gray-800 dark:text-gray-200 leading-tight">{{ __('messages.please_enter_name') }}</h2>

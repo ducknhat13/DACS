@@ -1,4 +1,9 @@
 {{--
+    Page: contact
+    - Form liên hệ: name, email, subject, message; POST tới ContactController@store.
+    - Frontend: hiển thị thông báo lỗi/thành công; tránh reload khi chưa cần.
+--}}
+{{--
     Contact Us Page - contact.blade.php
     
     Trang liên hệ với Material Design 3 design.

@@ -1,3 +1,7 @@
+{{--
+    Partial: update-password-form
+    - Form đổi mật khẩu: current_password, password, password_confirmation.
+--}}
 <section>
     @php $requiresCurrent = (bool) (Auth::user()->has_local_password ?? !empty(Auth::user()->password)); @endphp
     <form method="post" action="{{ route('password.update') }}" class="space-y-6">

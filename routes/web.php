@@ -1,3 +1,11 @@
+<?php /*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+| - Khai báo route HTTP cho giao diện web (Blade) và các endpoint form.
+| - Bao gồm trang chủ, dashboard, polls CRUD, voting, profile, và auth middleware.
+| - Lưu ý: các route require auth được nhóm với middleware('auth').
+*/ ?>
 <?php
 
 /**

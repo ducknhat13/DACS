@@ -1,3 +1,7 @@
+{{--
+    Email: contact
+    - Mẫu email nhận từ form liên hệ: name, email, subject, message.
+--}}
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 <head>

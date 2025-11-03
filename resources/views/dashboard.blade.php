@@ -1,4 +1,11 @@
-﻿{{--
+﻿<!--
+    Dashboard Page
+    - Hiển thị danh sách poll của người dùng, bộ lọc, tìm kiếm, bulk actions.
+    - Có modal xác nhận xóa hàng loạt và modal xác nhận xóa đơn lẻ (singleDeleteModal).
+    - Logic hiển thị trạng thái poll: dựa trên is_closed và auto_close_at.
+    - JS: openDeleteModal(...) thay thế confirm() native cho xóa đơn lẻ.
+-->
+{{--
     Dashboard Page - dashboard.blade.php
     
     Trang Dashboard hiển thị tất cả polls của user với Material Design 3 UI.
@@ -30,16 +37,16 @@
                 <p class="text-body-medium text-on-surface-variant mt-1">{{ __('messages.create_poll_help') }}</p>
             </div>
             <div class="flex items-center gap-3">
-                {{-- Refresh Button --}}
+                {{-- Nút làm mới danh sách polls --}}
                 <button class="btn btn-neutral" data-tooltip="{{ __('messages.refresh') }}">
                     <i class="fa-solid fa-refresh"></i>
                 </button>
-                {{-- History/Stats Link --}}
+                {{-- Link tới trang thống kê/lịch sử --}}
                 <a href="{{ route('stats.index') }}" class="material-nav-link">
                     <i class="fa-solid fa-chart-line"></i>
                     {{ __('messages.history') }}
                 </a>
-                {{-- Create Poll Button --}}
+                {{-- Nút tạo poll mới (đi tới form tạo) --}}
                 <a href="{{ route('polls.create') }}" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                     {{ __('messages.create_poll') }}
@@ -75,46 +82,55 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="card card-elevated animate-fade-in-up">
                 <div class="text-gray-900 dark:text-gray-100">
-                    {{-- Filter & Search Bar với Material Design Chips --}}
+                    {{--
+                        Filter & Search Bar
+                        - Input tìm kiếm: name="q"; giữ giá trị với request('q')
+                        - Chips Status: all/open/closed → set input hidden #status-input
+                        - Chips Sort: newest/votes → set input hidden #sort-input
+                        - JS: on click chip -> toggle lớp 'active' + submit form
+                    --}}
                     <form method="GET" class="mb-6">
                         <div class="bg-surface-variant rounded-2xl p-4 mb-6">
                             <div class="flex flex-col lg:flex-row gap-4">
-                                {{-- Search Input: Tìm kiếm theo tên poll hoặc slug --}}
+                                {{-- Ô tìm kiếm theo tên poll hoặc slug --}}
                                 <div class="input-field flex-1">
                                     <input type="text" name="q" value="{{ request('q') }}" placeholder=" " class="bg-surface">
                                     <label>{{ __('messages.search_placeholder') }} / {{ __('messages.slug') }}</label>
                                 </div>
                                 
-                                {{-- Filter Chips: Lọc theo status và sort --}}
+                                {{-- Các chip lọc: trạng thái và sắp xếp --}}
                                 <div class="flex flex-wrap gap-2 items-center">
                                     @php $st = request('status','all'); @endphp
-                                    {{-- Status Filter Chips --}}
+                                    {{-- Chip trạng thái: tất cả --}}
                                     <button type="button" class="filter-chip {{ $st === 'all' ? 'active' : '' }}" data-status="all">
                                         <i class="fa-solid fa-list"></i>
                                         {{ __('messages.all') }}
                                     </button>
+                                    {{-- Chip trạng thái: đang mở --}}
                                     <button type="button" class="filter-chip {{ $st === 'open' ? 'active' : '' }}" data-status="open">
                                         <i class="fa-solid fa-play-circle"></i>
                                         {{ __('messages.active') }}
                                     </button>
+                                    {{-- Chip trạng thái: đã đóng --}}
                                     <button type="button" class="filter-chip {{ $st === 'closed' ? 'active' : '' }}" data-status="closed">
                                         <i class="fa-solid fa-stop-circle"></i>
                                         {{ __('messages.closed') }}
                                     </button>
                                     
-                                    {{-- Sort Options Chips --}}
+                                    {{-- Chip sắp xếp: mới nhất --}}
                                     @php $so = request('sort','newest'); @endphp
                                     <button type="button" class="filter-chip {{ $so === 'newest' ? 'active' : '' }}" data-sort="newest">
                                         <i class="fa-solid fa-clock"></i>
                                         {{ __('messages.newest') }}
                                     </button>
+                                    {{-- Chip sắp xếp: nhiều vote nhất --}}
                                     <button type="button" class="filter-chip {{ $so === 'votes' ? 'active' : '' }}" data-sort="votes">
                                         <i class="fa-solid fa-chart-line"></i>
                                         {{ __('messages.most_votes') }}
                                     </button>
                                 </div>
                                 
-                                {{-- Hidden inputs để submit form với filter values --}}
+                                {{-- Hidden inputs: lưu giá trị filter khi submit form --}}
                                 <input type="hidden" name="status" id="status-input" value="{{ $st }}">
                                 <input type="hidden" name="sort" id="sort-input" value="{{ $so }}">
                             </div>
@@ -125,7 +141,11 @@
                         $polls = $polls ?? [];
                     @endphp
 
-                    {{-- Empty State: Hiển thị khi chưa có polls --}}
+                    {{--
+                        Empty State
+                        - Hiển thị khi không có polls
+                        - CTA: nút tạo poll mới (route('polls.create'))
+                    --}}
                     @if (empty($polls) || count($polls) === 0)
                         <div class="text-center py-12">
                             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-variant flex items-center justify-center">
@@ -139,7 +159,19 @@
                             </a>
                         </div>
                     @else
-                        {{-- Polls Grid: Responsive grid layout (1-3 columns) --}}
+                        {{--
+                            Polls Grid
+                            - Responsive grid 1-3 cột
+                            - Mỗi thẻ .poll-card chứa:
+                              + Menu hành động (toggle/reopen, export csv, delete)
+                              + Tiêu đề (link sang trang vote)
+                              + Meta (participants, deadline, created)
+                              + Trạng thái (active/closed)
+                              + Checkbox ẩn cho bulk select (.bulk-check)
+                            - Data attributes:
+                              + data-slug: slug poll (dùng cho bulk và delete)
+                              + data-closed: '1' nếu closed, '0' nếu active
+                        --}}
                         <div class="poll-grid grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                             @foreach ($polls as $index => $p)
                                 @php
@@ -153,12 +185,20 @@
                                 @endphp
                                 <div class="poll-card animate-fade-in-up stagger-item" style="animation-delay: {{ $index * 0.1 }}s;" data-slug="{{ $p->slug }}" data-closed="{{ $isClosed ? '1' : '0' }}">
                                     <input type="checkbox" class="bulk-check hidden" value="{{ $p->slug }}">
-                                    <!-- Action Menu Button -->
+                                    <!-- Nút mở menu hành động cho từng poll -->
                                     <div class="poll-actions">
+                                        {{--
+                                            Action Menu
+                                            - Button ba chấm mở/đóng menu (#menu{{ $p->id }})
+                                            - Toggle/Reopen: POST route('polls.toggle', slug)
+                                            - Export CSV: GET route('polls.export', slug)
+                                            - Delete: mở modal confirm đơn lẻ (singleDeleteModal)
+                                        --}}
                                         <button type="button" class="action-menu-button" onclick="toggleActionMenu('menu{{ $p->id }}')">
                                             <i class="fa-solid fa-ellipsis-vertical"></i>
                                         </button>
                                         <div id="menu{{ $p->id }}" class="action-menu">
+                                            {{-- Form toggle: đóng/mở poll --}}
                                             <form method="POST" action="{{ route('polls.toggle', $p->slug) }}">
                                                 @csrf
                                                 <button type="submit" class="action-menu-item">
@@ -166,14 +206,17 @@
                                                     {{ $isClosed ? __('messages.reopen') : __('messages.close_poll') }}
                                                 </button>
                                             </form>
+                                            {{-- Link export CSV kết quả poll --}}
                                             <a href="{{ route('polls.export', $p->slug) }}" class="action-menu-item">
                                                 <i class="fa-solid fa-download"></i>
                                                 {{ __('messages.export_csv') }}
                                             </a>
+                                            {{-- Form ẩn xoá poll (được submit khi xác nhận trong modal) --}}
                                             <form id="deleteForm{{ $p->id }}" method="POST" action="{{ route('polls.destroy', $p->slug) }}" style="display:none;">
                                                 @csrf
                                                 @method('DELETE')
                                             </form>
+                                            {{-- Nút mở modal xác nhận xoá poll đơn lẻ --}}
                                             <button type="button" class="action-menu-item danger" onclick="openDeleteModal('{{ $p->slug }}', '{{ $p->id }}', '{{ addslashes($p->title ?? $p->question) }}')">
                                                 <i class="fa-solid fa-trash"></i>
                                                 {{ __('messages.delete') }}
@@ -181,12 +224,12 @@
                                         </div>
                                     </div>
 
-                                    <!-- Poll Title -->
+                                    <!-- Tiêu đề Poll: link tới trang bình chọn (vote) -->
                                     <a href="{{ route('polls.vote', $p->slug) }}" class="poll-title block bulk-link poll-title-truncate" title="{{ $p->title ?? $p->question }}">
                                         {{ $p->title ?? $p->question }}
                                     </a>
 
-                                    <!-- Poll Meta -->
+                                    <!-- Meta Poll: số người tham gia, hạn kết thúc, ngày tạo -->
                                     <div class="poll-meta">
                                         <div class="poll-meta-item">
                                             <i class="fa-solid fa-users"></i>
@@ -204,13 +247,14 @@
                                         </div>
                                     </div>
 
-                                    <!-- Poll Status -->
+                                    <!-- Footer Poll: badge trạng thái và link xem kết quả -->
                                     <div class="poll-footer">
                                         <span class="poll-status {{ $isClosed ? 'closed' : 'active' }}">
                                             <i class="fa-solid {{ $isClosed ? 'fa-stop-circle' : 'fa-play-circle' }}"></i>
                                             {{ $isClosed ? __('messages.closed') : __('messages.active') }}
                                         </span>
                                         
+                                        {{-- Link tới trang kết quả của poll --}}
                                         <a href="{{ route('polls.show', $p->slug) }}" class="text-primary text-sm font-medium hover:underline bulk-link">
                                             {{ __('messages.view_results') }} →
                                         </a>
@@ -224,7 +268,7 @@
         </div>
     </div>
 
-    <!-- Extended FAB with menu -->
+    <!-- Extended FAB with menu: menu nổi truy cập nhanh các hành động -->
     <div id="fabMenu" class="fab-menu">
         <button id="fabMain" class="md-fab ripple tooltip" aria-label="{{ __('messages.open_actions') }}" data-tooltip="{{ __('messages.actions') }}">
             <span class="material-symbols-rounded">more_vert</span>
@@ -237,7 +281,7 @@
         </button>
     </div>
 
-    <!-- Modal tạo poll -->
+    <!-- Create Poll Modal: modal tạo poll nhanh (form POST polls.store) -->
     <div id="createPollModal" class="hidden">
         <div>
             <div class="flex items-start justify-between mb-4">
@@ -248,6 +292,13 @@
             </div>
 
             <form method="POST" action="{{ route('polls.store') }}" class="space-y-4">
+                {{--
+                    Form fields:
+                    - question (textarea, required)
+                    - poll_type (regular|ranking): toggle hiển thị regular options hoặc ranking info
+                    - options[]: tối đa 10, có nút add/remove; validate server sẽ mở lại modal
+                    - is_private + access_key: ẩn/hiện theo checkbox
+                --}}
                 @if ($errors->any())
                     <div class="bg-red-100 text-red-800 p-3 rounded text-sm">
                         <ul class="list-disc pl-5">
@@ -321,7 +372,9 @@
     </div>
 
     <script>
-        // Filter Chips Functionality
+        // =============================
+        // Filter/Search & Action Menus
+        // =============================
         document.addEventListener('DOMContentLoaded', function() {
             // Handle filter chips
             const filterChips = document.querySelectorAll('.filter-chip');
@@ -391,7 +444,7 @@
             });
         });
 
-        // Add ripple effect to cards
+        // Add ripple effect to cards (hiệu ứng click trên poll card, tránh ảnh hưởng menu)
         document.querySelectorAll('.poll-card').forEach(card => {
             card.addEventListener('click', function(e) {
                 if (e.target.closest('.action-menu-button') || e.target.closest('.action-menu')) {
@@ -417,6 +470,9 @@
             });
         });
 
+        // =============================
+        // Create Poll Modal Handlers
+        // =============================
         (function(){
             const modal = document.getElementById('createPollModal');
             const openBtn = document.getElementById('openCreatePoll');
@@ -554,6 +610,38 @@
         modal.classList.add('flex');
     }
     
+    // =============================
+    // Single Delete Modal & Bulk Actions
+    // =============================
+    // Single poll delete modal
+    function openDeleteModal(slug, pollId, pollTitle) {
+        const modal = document.getElementById('singleDeleteModal');
+        const message = document.getElementById('singleDeleteMessage');
+        const confirmBtn = document.getElementById('singleDeleteConfirm');
+        
+        // Update message with poll title if available
+        if (pollTitle) {
+            message.textContent = `{{ __('messages.delete_confirm') }} "${pollTitle}"?`;
+        } else {
+            message.textContent = '{{ __('messages.delete_confirm') }}';
+        }
+        
+        // Remove previous event listeners by cloning
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        // Set up confirm button
+        newConfirmBtn.addEventListener('click', function() {
+            const form = document.getElementById('deleteForm' + pollId);
+            if (form) {
+                form.submit();
+            }
+        });
+        
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    
     // Bulk selection & actions
     document.addEventListener('DOMContentLoaded', function(){
         // Single delete modal handlers
@@ -572,6 +660,7 @@
                 singleDeleteModal.classList.remove('flex');
             }
         });
+        // Bulk selection elements
         const checks = document.querySelectorAll('.bulk-check');
         const bulkBar = document.getElementById('bulkBar');
         const bulkCount = document.getElementById('bulkCount');
@@ -593,12 +682,14 @@
         const fabBulk = document.getElementById('fabBulk');
         const fabCreateBtn = document.getElementById('fabCreate');
 
+        // Bật/tắt selection mode (hiển thị thanh bulkBar, ẩn FAB)
         function setSelectionMode(enabled){
             document.body.classList.toggle('selection-mode', enabled);
             if (enabled) { bulkBar.classList.add('show'); fabMenu.style.display = 'none'; }
             else { bulkBar.classList.remove('show'); fabMenu.style.display = ''; }
         }
 
+        // Cập nhật UI theo số lượng item đã chọn
         function updateUI(){
             bulkCount.textContent = `${selected.size} ${selectedText}`;
             setSelectionMode(selected.size > 0);
@@ -611,7 +702,7 @@
             bulkDelete.disabled = !hasSelection;
         }
 
-        // Handle card click for bulk selection
+        // Bắt click trên poll-card khi đang ở selection-mode để toggle chọn
         document.addEventListener('click', function(e) {
             const pollCard = e.target.closest('.poll-card');
             if (!pollCard) return;
@@ -681,12 +772,13 @@
         // Click outside to close
         document.addEventListener('click', function(){ fabMenu.classList.remove('open'); });
 
-        // Create action from mini button
+        // Nút tạo poll nhanh từ FAB
         fabCreateBtn?.addEventListener('click', function(){
             window.location.href = '{{ route('polls.create') }}';
             fabMenu.classList.remove('open');
         });
 
+        // Helpers gọi API POST/DELETE (dùng cho toggle/close/open/delete)
         async function post(url, body){
             return fetch(url, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, 'Accept':'text/html' }, body });
         }
@@ -694,6 +786,7 @@
             return fetch(url, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, 'Accept':'text/html' }, body: new URLSearchParams({ _method: 'DELETE' }) });
         }
 
+        // Lấy danh sách thẻ poll đã chọn (phục vụ close/reopen/export/delete)
         function getSelectedCards(){
             const list = [];
             selected.forEach(slug => {
@@ -703,6 +796,7 @@
             return list;
         }
 
+        // Close selected polls: gọi /polls/{slug}/toggle với các poll đang active
         bulkClose?.addEventListener('click', function(){
             const items = getSelectedCards().filter(el => el.dataset.closed === '0');
             // Fire-and-forget requests, then reload shortly after
@@ -710,12 +804,14 @@
             setTimeout(() => window.location.reload(), 500);
         });
 
+        // Reopen selected polls: gọi /polls/{slug}/toggle với các poll đang closed
         bulkReopen?.addEventListener('click', function(){
             const items = getSelectedCards().filter(el => el.dataset.closed === '1');
             items.forEach(el => { post(`/polls/${el.dataset.slug}/toggle`, new URLSearchParams()); });
             setTimeout(() => window.location.reload(), 500);
         });
 
+        // Export CSV các poll đã chọn: mở từng file tuần tự qua iframe ẩn để tránh chặn popup
         bulkExport?.addEventListener('click', function(){
             // Tải tuần tự để tránh bị chặn popup; dùng iframe ẩn mỗi 500ms
             const slugs = Array.from(selected);
@@ -731,6 +827,7 @@
             });
         });
 
+        // Hiện modal xác nhận xoá hàng loạt
         bulkDelete?.addEventListener('click', function(){
             deleteModal.classList.remove('hidden');
             deleteModal.classList.add('flex');
@@ -747,6 +844,7 @@
                 deleteModal.classList.remove('flex');
             }
         });
+        // Xác nhận xoá: gửi DELETE tuần tự rồi reload
         deleteConfirm?.addEventListener('click', async function(){
             for (const slug of selected) { await del(`/polls/${slug}`); }
             window.location.reload();

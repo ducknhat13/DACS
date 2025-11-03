@@ -1,3 +1,7 @@
+{{--
+    Component: dark-mode-toggle
+    - Nút chuyển chế độ sáng/tối; thao tác toggle class 'dark' trên <html>.
+--}}
 @props(['class' => ''])
 
 <div class="dark-mode-toggle {{ $class }}" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" 

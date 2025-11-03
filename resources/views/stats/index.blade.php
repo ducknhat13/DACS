@@ -1,4 +1,10 @@
 {{--
+    Page: stats/index
+    - Trang thống kê lịch sử polls: bảng/list polls và thao tác xoá đơn lẻ.
+    - Đã dùng modal confirm xoá (singleDeleteModal) thay cho confirm() native.
+    - Frontend: đồng nhất cùng dashboard về style modal và JS openDeleteModal.
+--}}
+{{--
     History/Stats Page - stats/index.blade.php
     
     Trang thống kê và lịch sử polls của user với Material Design 3 UI.
@@ -36,9 +42,9 @@
                     <p class="text-body-medium text-[color:var(--on-surface-variant)] mt-1">{{ __('messages.history_subtitle') }}</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    {{-- Export to CSV Button --}}
+                    {{-- Nút Export CSV theo scope hiện tại --}}
                     <a href="{{ request()->fullUrlWithQuery(['scope' => $scope, 'export' => 'csv']) }}" class="btn btn-neutral" title="{{ __('messages.export_to_csv') }}"><i class="fa-solid fa-file-export"></i></a>
-                    {{-- Refresh Button --}}
+                    {{-- Nút Refresh danh sách --}}
                     <a href="{{ route('stats.index', ['scope' => $scope]) }}" class="btn btn-neutral" title="{{ __('messages.refresh') }}"><i class="fa-solid fa-rotate-right"></i></a>
                 </div>
             </div>
@@ -64,8 +70,11 @@
                             <input type="date" name="to" value="{{ $to }}" placeholder=" ">
                             <label>{{ __('messages.to_date') }}</label>
                         </div>
+                        {{-- Chip: lọc phạm vi Created --}}
                         <button class="filter-chip {{ $scope==='created' ? 'active' : '' }}" name="scope" value="created" type="submit">{{ __('messages.scope_created') }}</button>
+                        {{-- Chip: lọc phạm vi Joined --}}
                         <button class="filter-chip {{ $scope==='joined' ? 'active' : '' }}" name="scope" value="joined" type="submit">{{ __('messages.scope_joined') }}</button>
+                        {{-- Xoá toàn bộ filter --}}
                         <a href="{{ route('stats.index') }}" class="assist-chip">{{ __('messages.clear_filters') }}</a>
                     </div>
                     <div class="ml-auto">
@@ -196,13 +205,18 @@
                         <div class="mt-2 md:mt-0 md:col-span-2 flex items-center gap-2 justify-end whitespace-nowrap justify-self-end">
                             <a href="{{ route('polls.show', $p->slug) }}" class="btn btn-neutral btn-sm">{{ __('messages.results') }}</a>
                             <div class="relative">
+                                {{-- Nút mở menu hành động cho dòng poll --}}
                                 <button class="icon-button action-menu-trigger" aria-haspopup="true" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></button>
                                 <div class="menu dropdown action-menu">
+                                    {{-- Toggle đóng/mở poll --}}
                                     <form method="POST" action="{{ route('polls.toggle', $p->slug) }}">@csrf
                                         <button type="submit" class="dropdown-item"><i class="fa-solid {{ $isClosed ? 'fa-play' : 'fa-stop' }} mr-2"></i>{{ $isClosed ? __('messages.reopen') : __('messages.close_poll') }}</button>
                                     </form>
+                                    {{-- Export CSV kết quả poll --}}
                                     <a class="dropdown-item" href="{{ route('polls.export', $p->slug) }}"><i class="fa-solid fa-file-export mr-2"></i>{{ __('messages.export_to_csv') }}</a>
+                                    {{-- Form ẩn để submit xoá khi xác nhận modal --}}
                                     <form id="deleteForm{{ $p->id }}" method="POST" action="{{ route('polls.destroy', $p->slug) }}" style="display:none;">@csrf @method('DELETE')</form>
+                                    {{-- Mở modal xác nhận xoá poll đơn lẻ --}}
                                     <button type="button" class="dropdown-item text-error-600" onclick="openDeleteModal('{{ $p->slug }}', '{{ $p->id }}', '{{ addslashes($p->title ?? $p->question) }}')"><i class="fa-solid fa-trash mr-2"></i>{{ __('messages.delete') }}</button>
                                 </div>
                             </div>

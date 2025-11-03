@@ -1,3 +1,7 @@
+{{--
+    Partial: delete-user-form
+    - Form xoá tài khoản: yêu cầu nhập mật khẩu xác nhận, cảnh báo dữ liệu.
+--}}
 <section class="space-y-6">
     <div class="p-4 bg-error-50 border border-error-200 rounded-xl">
         <div class="flex items-start gap-3">

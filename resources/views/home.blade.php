@@ -1,3 +1,16 @@
+<!--
+    Home Page (Landing)
+    - Mục tiêu: giới thiệu sản phẩm, dẫn hướng nhanh tạo poll và xem thống kê.
+    - Bố cục gợi ý các khối (có thể khác chút tùy code thực tế):
+      1) Hero: tagline + CTA (tạo poll)
+      2) Features: card mô tả tính năng chính (tạo nhanh, chia sẻ, thống kê...)
+      3) How it works: các bước sử dụng
+      4) Statistics Section: các con số/tổng quan; đã đổi nền = var(--surface)
+      5) Testimonials/FAQ (nếu có)
+      6) Call-to-Action cuối trang
+    - CSS/Theme: dùng token MD3 (surface, surface-variant, on-surface...)
+    - Accessibility: chú ý aria-label trên nút, tương phản màu, heading hierarchy.
+-->
 {{--
     Home Page - home.blade.php
     
@@ -255,6 +268,7 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function(){
+        // Mục đích: Điều khiển Live Demo modal (mở/đóng), mô phỏng chọn & hiển thị kết quả
         const open = document.getElementById('openDemo');
         const modal = document.getElementById('demoModal');
         const close = document.getElementById('closeDemo');
@@ -272,7 +286,8 @@
             hard: Math.floor(Math.random() * 60) + 120
         };
         
-        // Initialize fake results display
+        // updateFakeResults()
+        // - Tính lại tổng, cập nhật số liệu, width progress bar, badge (You)
         function updateFakeResults() {
             const total = counts['easy'] + counts['so-so'] + counts['hard'];
             document.getElementById('r-easy').textContent = counts['easy'];
@@ -299,6 +314,7 @@
             });
         }
 
+        // show(): mở modal demo, reset state dữ liệu và UI
         function show(){ 
             modal.classList.remove('hidden'); 
             modal.classList.add('flex'); 
@@ -341,6 +357,7 @@
             if (voteWrap) voteWrap.classList.remove('hidden');
             if (resultWrap) resultWrap.classList.add('hidden');
         }
+        // hide(): đóng modal demo và khôi phục scroll body
         function hide(){ 
             modal.classList.add('hidden'); 
             modal.classList.remove('flex');
@@ -354,7 +371,7 @@
         });
         close2?.addEventListener('click', hide);
 
-        // Update radio button styling
+        // Lắng nghe thay đổi radio trong modal để bật nút Vote và highlight dòng được chọn
         modal?.addEventListener('change', (e)=>{
             if (e.target && e.target.name === 'demo') {
                 voteBtn.disabled = false;
@@ -370,7 +387,7 @@
             }
         });
 
-        // Click on option label also triggers
+        // Cho phép click anywhere trên option (label container) để chọn radio
         document.querySelectorAll('.demo-option').forEach(opt => {
             opt.addEventListener('click', function(e) {
                 if (e.target.tagName !== 'INPUT') {
@@ -380,6 +397,7 @@
             });
         });
 
+        // Xử lý Vote: hiển thị loading, tăng số liệu giả lập, chuyển animation sang kết quả
         voteBtn?.addEventListener('click', function(){
             const selected = modal.querySelector('input[name="demo"]:checked');
             if (!selected) return;

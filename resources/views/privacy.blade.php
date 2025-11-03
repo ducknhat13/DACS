@@ -1,3 +1,10 @@
+<!--
+    Privacy Page
+    - Trang Chính sách bảo mật, mô tả cách thu thập và xử lý dữ liệu.
+    - Tĩnh, không phụ thuộc script ngoài để tối ưu tốc độ tải.
+    - Gợi ý khối: dữ liệu thu thập, mục đích, lưu trữ, chia sẻ, cookie, liên hệ.
+    - Frontend: cho danh sách bullets ngắn gọn; liên kết tới email/contact nếu cần.
+-->
 <x-app-layout>
     <x-slot name="header">
         <div class="hidden"></div>

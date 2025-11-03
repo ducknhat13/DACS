@@ -1,4 +1,9 @@
 {{--
+    Page: profile/edit
+    - Trang quản lý hồ sơ: cập nhật thông tin, đổi mật khẩu, xoá tài khoản.
+    - Sử dụng partials trong profile/partials/* để tách form nhỏ.
+--}}
+{{--
     Profile Edit Page - profile/edit.blade.php
     
     Trang quản lý profile của user với tabbed interface.

@@ -1,3 +1,7 @@
+{{--
+    Page: auth/reset-password
+    - Form đặt lại mật khẩu (qua token): email, password, password_confirmation.
+--}}
 <x-guest-layout>
     <form method="POST" action="{{ route('password.store') }}">
         @csrf

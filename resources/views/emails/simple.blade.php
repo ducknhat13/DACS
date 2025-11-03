@@ -1,3 +1,8 @@
+{{--
+    Email: simple
+    - Template render nội dung MailMessage (greeting, introLines, action, outro).
+    - Dùng cho kênh SendGridMailChannel khi chuyển đổi MailMessage -> HTML.
+--}}
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 <head>

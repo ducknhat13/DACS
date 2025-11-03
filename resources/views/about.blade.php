@@ -1,4 +1,9 @@
 {{--
+    Page: about
+    - Giới thiệu về QuickPoll: mục tiêu, nhóm phát triển, công nghệ sử dụng.
+    - Frontend: trình bày ngắn gọn, có liên kết liên hệ/hỗ trợ.
+--}}
+{{--
     About Us Page - about.blade.php
     
     Trang giới thiệu về QuickPoll với Material Design 3 design.
