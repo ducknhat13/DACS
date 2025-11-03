@@ -169,14 +169,14 @@
                                                 <i class="fa-solid fa-download"></i>
                                                 {{ __('messages.export_csv') }}
                                             </a>
-                                            <form method="POST" action="{{ route('polls.destroy', $p->slug) }}" onsubmit="return confirm('{{ __('messages.delete_confirm') }}');">
+                                            <form id="deleteForm{{ $p->id }}" method="POST" action="{{ route('polls.destroy', $p->slug) }}" style="display:none;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="action-menu-item danger">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                    {{ __('messages.delete') }}
-                                                </button>
                                             </form>
+                                            <button type="button" class="action-menu-item danger" onclick="openDeleteModal('{{ $p->slug }}', '{{ $p->id }}', '{{ addslashes($p->title ?? $p->question) }}')">
+                                                <i class="fa-solid fa-trash"></i>
+                                                {{ __('messages.delete') }}
+                                            </button>
                                         </div>
                                     </div>
 
@@ -483,6 +483,27 @@
         })();
     </script>
 
+    <!-- Single Poll Delete Confirm Modal -->
+    <div id="singleDeleteModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style="backdrop-filter: blur(4px);">
+        <div class="card" style="max-width:520px;width:100%;">
+            <div class="material-alert error">
+                <div class="alert-content">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div class="alert-text">
+                        <div class="alert-title">{{ __('messages.confirm_delete') }}</div>
+                        <div class="alert-description">
+                            <span id="singleDeleteMessage">{{ __('messages.delete_confirm') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button id="singleDeleteCancel" class="btn btn-neutral">{{ __('messages.cancel') }}</button>
+                <button id="singleDeleteConfirm" class="btn btn-primary">{{ __('messages.delete') }}</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Bulk Delete Confirm Modal -->
     <div id="bulkDeleteModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style="backdrop-filter: blur(4px);">
         <div class="card" style="max-width:520px;width:100%;">
@@ -503,8 +524,53 @@
     </div>
 
     <script>
+    // Single poll delete modal
+    function openDeleteModal(slug, pollId, pollTitle) {
+        const modal = document.getElementById('singleDeleteModal');
+        const message = document.getElementById('singleDeleteMessage');
+        const confirmBtn = document.getElementById('singleDeleteConfirm');
+        
+        // Update message with poll title if available
+        if (pollTitle) {
+            message.textContent = `{{ __('messages.delete_confirm') }} "${pollTitle}"?`;
+        } else {
+            message.textContent = '{{ __('messages.delete_confirm') }}';
+        }
+        
+        // Remove previous event listeners by cloning
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        // Set up confirm button
+        newConfirmBtn.addEventListener('click', function() {
+            const form = document.getElementById('deleteForm' + pollId);
+            if (form) {
+                form.submit();
+            }
+        });
+        
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    
     // Bulk selection & actions
     document.addEventListener('DOMContentLoaded', function(){
+        // Single delete modal handlers
+        const singleDeleteModal = document.getElementById('singleDeleteModal');
+        const singleDeleteCancel = document.getElementById('singleDeleteCancel');
+        
+        singleDeleteCancel?.addEventListener('click', function() {
+            singleDeleteModal.classList.add('hidden');
+            singleDeleteModal.classList.remove('flex');
+        });
+        
+        // Close modal when clicking outside
+        singleDeleteModal?.addEventListener('click', function(e) {
+            if (e.target === singleDeleteModal) {
+                singleDeleteModal.classList.add('hidden');
+                singleDeleteModal.classList.remove('flex');
+            }
+        });
         const checks = document.querySelectorAll('.bulk-check');
         const bulkBar = document.getElementById('bulkBar');
         const bulkCount = document.getElementById('bulkCount');
