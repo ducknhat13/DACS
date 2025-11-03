@@ -98,5 +98,9 @@ export LOG_CHANNEL=stderr || true
 echo "Testing Laravel application..."
 php artisan about --env=production 2>&1 || echo "Warning: artisan about failed, but continuing..."
 
+# Start Laravel scheduler in background (auto-close polls, etc.)
+echo "Starting Laravel scheduler (schedule:work) in background..."
+php artisan schedule:work --no-interaction >> /proc/1/fd/1 2>&1 &
+
 exec php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
 
