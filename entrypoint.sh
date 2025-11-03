@@ -58,6 +58,11 @@ fi
 echo "Running migrations..."
 php artisan migrate --force || echo "Migration completed or failed, continuing..."
 
+# Tạo storage link để public/storage -> storage/app/public
+# Cần thiết để truy cập uploaded files qua URL
+echo "Creating storage link..."
+php artisan storage:link || echo "Storage link already exists or failed, continuing..."
+
 # Cache config, routes, views - PHẢI sau khi generate APP_KEY
 echo "Caching configuration..."
 # Đảm bảo APP_KEY có giá trị trước khi cache
