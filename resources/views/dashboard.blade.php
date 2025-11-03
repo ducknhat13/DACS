@@ -484,8 +484,8 @@
     </script>
 
     <!-- Bulk Delete Confirm Modal -->
-    <div id="bulkDeleteModal" class="hidden">
-        <div class="card" style="max-width:520px;margin:10vh auto;">
+    <div id="bulkDeleteModal" class="hidden fixed inset-0 z-[100] items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style="backdrop-filter: blur(4px);">
+        <div class="card" style="max-width:520px;width:100%;">
             <div class="material-alert error">
                 <div class="alert-content">
                     <i class="fa-solid fa-triangle-exclamation"></i>
