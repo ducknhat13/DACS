@@ -79,7 +79,7 @@
                                 </div>
                                 <div>
                                     <h3 class="text-title-medium font-semibold mb-1">{{ __('messages.phone') }}</h3>
-                                    <p class="text-body-medium text-[color:var(--on-surface-variant)]">{{ __('messages.phone_available') }}</p>
+                                    <!-- <p class="text-body-medium text-[color:var(--on-surface-variant)]">{{ __('messages.phone_available') }}</p> -->
                                 </div>
                             </div>
                         </div>
