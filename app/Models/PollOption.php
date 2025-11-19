@@ -7,6 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * PollOption Model - Model đại diện cho một Option trong Poll
+ * 
+ * Một Poll có nhiều Options (lựa chọn):
+ * - Standard/Ranking polls: Chỉ có option_text (text only)
+ * - Image polls: Có option_text, image_url, image_title, image_alt_text
+ * 
+ * Đặc biệt:
+ * - "Other" option: User có thể nhập text tự do (tạo PollOption mới khi vote)
+ * 
+ * Relationships:
+ * - belongsTo Poll: Option này thuộc poll nào
+ * - hasMany Vote: Các votes đã được cast cho option này
+ * 
+ * Helper Methods:
+ * - hasImage(): Check xem option có image không
+ * - getDisplayText(): Lấy text để hiển thị (image_title hoặc option_text)
+ * - getImageAltText(): Lấy alt text cho image (accessibility)
+ * 
+ * @author QuickPoll Team
+ */
 class PollOption extends Model
 {
     use HasFactory;
@@ -30,7 +51,9 @@ class PollOption extends Model
     }
 
     /**
-     * Check if this option has an image
+     * Kiểm tra option có image không
+     * 
+     * @return bool - true nếu có image_url
      */
     public function hasImage(): bool
     {
@@ -38,19 +61,40 @@ class PollOption extends Model
     }
 
     /**
-     * Get the display text for this option
+     * Lấy text để hiển thị cho option này
+     * 
+     * Priority:
+     * 1. image_title (nếu có image và có title)
+     * 2. option_text (fallback)
+     * 
+     * Dùng cho:
+     * - Hiển thị trong vote page
+     * - Hiển thị trong results
+     * - Export CSV
+     * 
+     * @return string - Text để hiển thị
      */
     public function getDisplayText(): string
     {
+        // Ưu tiên image_title nếu có (cho image polls)
         if ($this->hasImage() && !empty($this->image_title)) {
             return $this->image_title;
         }
         
+        // Fallback về option_text (cho standard polls)
         return $this->option_text;
     }
 
     /**
-     * Get the alt text for the image
+     * Lấy alt text cho image (accessibility)
+     * 
+     * Dùng cho HTML img tag: <img alt="...">
+     * 
+     * Priority:
+     * 1. image_alt_text (nếu được set)
+     * 2. getDisplayText() (fallback)
+     * 
+     * @return string - Alt text cho image
      */
     public function getImageAltText(): string
     {

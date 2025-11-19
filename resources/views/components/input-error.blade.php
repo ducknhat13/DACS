@@ -1,3 +1,7 @@
+{{--
+    Component: input-error
+    - Hiển thị lỗi validate cho một input; nhận messages và styles hoá text.
+--}}
 @props(['messages'])
 
 @if ($messages)

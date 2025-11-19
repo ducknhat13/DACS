@@ -1,3 +1,7 @@
+{{--
+    Component: dropdown
+    - Vỏ bọc dropdown: trigger + content panel; kiểm soát hiển thị bằng JS ngoài.
+--}}
 @props(['align' => 'right', 'width' => '48', 'contentClasses' => 'py-1 bg-[var(--surface)] border border-[color:var(--outline)] text-[color:var(--on-surface)]'])
 
 @php

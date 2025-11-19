@@ -1,3 +1,10 @@
+<?php /*
+|--------------------------------------------------------------------------
+| Auth Routes
+|--------------------------------------------------------------------------
+| - Nhóm route đăng ký/đăng nhập, đổi mật khẩu, email verification (nếu bật).
+| - Có thể bao gồm OAuth (Google) callback/redirect nếu dùng Socialite.
+*/ ?>
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;

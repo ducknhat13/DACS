@@ -1,3 +1,7 @@
+{{--
+    Component: modal
+    - Modal cơ bản: header/body/footer qua slot; hiển thị/ẩn do JS bên ngoài điều khiển.
+--}}
 @props([
     'name',
     'show' => false,

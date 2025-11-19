@@ -1,3 +1,38 @@
+{{--
+    Page: polls/vote
+    - Trang bỏ phiếu: hiển thị danh sách lựa chọn, cho phép chọn theo cấu hình poll.
+    - Frontend: xử lý disabled nếu poll closed/expired, hiển thị lỗi validate.
+--}}
+{{--
+    Vote Poll Page - polls/vote.blade.php
+    
+    Trang vote cho poll với Material Design 3 UI.
+    
+    Features:
+    - Poll media display: Images/videos trong description
+    - Poll status banner: Hiển thị nếu poll đã đóng
+    - Vote form: Khác nhau tùy poll type (standard/ranking/image)
+    - Results view: Hiển thị kết quả sau khi vote
+    - Comments section: Cho phép comment nếu poll.allow_comments = true
+    
+    Poll Types:
+    - Standard: Radio buttons hoặc checkboxes
+    - Ranking: Drag & drop để rank options
+    - Image: Image cards với checkbox/radio
+    
+    JavaScript:
+    - Ranking drag & drop: Sortable.js hoặc HTML5 drag API
+    - Image fullscreen modal: Click để xem image full size
+    - Form validation: Client-side validation trước khi submit
+    - Vote submission: AJAX hoặc form post với loading state
+    
+    Data từ Controller:
+    - $poll: Poll model với relationships (options, votes)
+    - $hasVoted: Boolean, đã vote chưa
+    - $isOwner: Boolean, có phải owner không
+    
+    @author QuickPoll Team
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div>
@@ -10,14 +45,14 @@
 
     <div class="py-6 page-transition">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <!-- Poll Media Section -->
+            {{-- Poll Media Section: Hiển thị media trong mô tả poll (nếu có) --}}
             @if($poll->hasDescriptionMedia())
                 <div class="mb-8">
                     <div class="card card-elevated">
                         <div class="card-header">
                             <div class="card-title">
                                 <i class="fa-solid fa-images text-primary"></i>
-                                Poll Media
+                                {{ __('messages.media_preview') }}
                             </div>
                         </div>
                         <div class="card-content">
@@ -53,17 +88,17 @@
                     </div>
                 </div>
             @endif
-            <!-- Poll Status -->
+            {{-- Poll Status Banner: thông báo poll đã đóng, không thể vote --}}
             @if ($poll->is_closed)
                 <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                     <div class="flex items-center gap-2 text-red-800 dark:text-red-200">
                         <i class="fa-solid fa-lock"></i>
-                        <span class="font-semibold">This poll is closed</span>
+                        <span class="font-semibold">{{ __('messages.poll_is_closed') }}</span>
                     </div>
                 </div>
             @endif
 
-            <!-- Success/Error Messages -->
+            {{-- Flash Messages: hiển thị thông báo thành công/lỗi từ session --}}
             @if (session('success'))
                 <div class="mb-6 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 p-4 rounded-lg border border-green-200 dark:border-green-700 flex items-center gap-2">
                     <i class="fa-solid fa-check-circle"></i>
@@ -78,7 +113,7 @@
             @endif
 
 
-            <!-- Vote Form -->
+            {{-- Vote Form: Chỉ hiển thị nếu chưa vote hoặc là owner --}}
             @if (!$hasVoted || $isOwner)
             <div class="card card-elevated mb-6 animate-fade-in-up">
                 <div class="p-6">
@@ -87,10 +122,14 @@
                         {{ __('messages.cast_your_vote') }}
                     </h3>
                     
+                    {{-- Vote Form: submit đến VoteController@store --}}
                     <form method="POST" action="{{ route('polls.vote.store', $poll->slug) }}" class="space-y-3">
                         @csrf
+                        
+                        {{-- Ranking Poll: Drag & drop để rank options --}}
                         @if ($poll->poll_type === 'ranking')
                             <div class="mb-4">
+                                {{-- Sortable container: dùng HTML5 drag API để sắp xếp --}}
                                 <div id="sortable-options" class="space-y-2">
                                     @foreach ($poll->options as $option)
                                         <div class="option-item flex items-center gap-3 p-3 bg-[var(--surface-variant)] rounded-lg border border-[color:var(--outline)] cursor-move" data-option-id="{{ $option->id }}" draggable="true">
@@ -102,10 +141,12 @@
                                         </div>
                                     @endforeach
                                 </div>
+                                {{-- Input ẩn để submit thứ hạng (JSON) --}}
                                 <input type="hidden" name="ranking" id="ranking-input">
                             </div>
+                        {{-- Image Poll: Image cards với checkbox/radio --}}
                         @elseif ($poll->poll_type === 'image')
-                            <!-- Image Poll Options -->
+                            {{-- Image Poll Options Grid --}}
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                 @foreach ($poll->options as $option)
                                     <label class="image-option-card bg-[var(--surface)] text-[color:var(--on-surface)] rounded-xl border border-[color:var(--outline)] hover:shadow-lg transition-all duration-200 cursor-pointer group w-full sm:max-w-xs mx-auto">
@@ -153,7 +194,7 @@
                                 <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                                     <div class="flex items-center gap-2 text-blue-800 dark:text-blue-200">
                                         <i class="fa-solid fa-info-circle"></i>
-                                        <span class="text-sm">You can select up to {{ $poll->max_image_selections }} image(s)</span>
+                                        <span class="text-sm">{{ __('messages.max_image_selections') }}: {{ $poll->max_image_selections }}</span>
                                     </div>
                                 </div>
                             @endif
@@ -189,6 +230,16 @@
                                 </label>
                                 @endif
                             </div>
+                            
+                            <!-- Max Choices Info (for standard polls with multiple selection) -->
+                            @if($poll->poll_type === 'standard' && $poll->allow_multiple && $poll->max_image_selections)
+                                <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                                    <div class="flex items-center gap-2 text-blue-800 dark:text-blue-200">
+                                        <i class="fa-solid fa-info-circle"></i>
+                                        <span class="text-sm">{{ __('messages.max_choices') }}: {{ $poll->max_image_selections }}</span>
+                                    </div>
+                                </div>
+                            @endif
                         @endif
 
                         <div class="hidden md:flex justify-between items-center pt-4">
@@ -220,15 +271,15 @@
                     <div class="mb-4">
                         <i class="fa-solid fa-check-circle text-4xl text-green-600 mb-3"></i>
                         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                            Thank you for voting!
+                            {{ __('messages.thank_you') }}
                         </h3>
                         <p class="text-gray-600 dark:text-gray-300">
-                            Your vote has been recorded. You can view the results below.
+                            {{ __('messages.view_results') }}
                         </p>
                     </div>
                     <a href="{{ route('polls.show', $poll->slug) }}" class="btn btn-primary">
                         <i class="fa-solid fa-chart-bar mr-2"></i>
-                        View Results
+                        {{ __('messages.view_results') }}
                     </a>
                 </div>
             </div>
@@ -240,18 +291,18 @@
                 <div class="p-6">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-comments text-green-600"></i>
-                        Comments
+                        {{ __('messages.comments') }}
                     </h3>
 
                     <!-- Add Comment Form -->
                     <form method="POST" action="{{ route('polls.comment', $poll->slug) }}" class="mb-6">
                         @csrf
                         <div class="flex gap-3">
-                            <input type="text" name="content" placeholder="Add a comment..." 
+                            <input type="text" name="content" placeholder="{{ __('messages.add_a_comment') }}" 
                                    class="flex-1 px-4 py-2 border border-[color:var(--outline)] rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-[var(--surface)] text-[color:var(--on-surface)]" required>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa-solid fa-paper-plane mr-2"></i>
-                                Post
+                                {{ __('messages.post_comment') }}
                             </button>
                         </div>
                     </form>
@@ -271,7 +322,7 @@
                                 <p class="text-gray-700 dark:text-gray-300">{{ $comment->content }}</p>
                             </div>
                         @empty
-                            <p class="text-gray-500 dark:text-gray-400 text-center py-4">No comments yet. Be the first to comment!</p>
+                            <p class="text-gray-500 dark:text-gray-400 text-center py-4">{{ __('messages.no_comments_yet') }}</p>
                         @endforelse
                     </div>
                 </div>

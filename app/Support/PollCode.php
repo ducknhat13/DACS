@@ -4,11 +4,36 @@ namespace App\Support;
 
 use App\Models\Poll;
 
+/**
+ * PollCode - Helper class để generate unique poll slugs
+ * 
+ * Class này tạo ra các slug thân thiện với người dùng cho polls
+ * Format: noun-verb-adjective (danh-từ-động-từ-tính-từ)
+ * 
+ * Ví dụ: "meo-chay-xanh", "ca-hat-do", "bien-doc-sang"
+ * 
+ * Đặc điểm:
+ * - Dùng từ tiếng Việt không dấu (dễ đọc, dễ nhớ)
+ * - Format: 3 từ nối bằng dấu gạch ngang
+ * - Đảm bảo unique: Kiểm tra database trước khi return
+ * - Fallback: Nếu collision, thêm random string vào cuối
+ * 
+ * @author QuickPoll Team
+ */
 class PollCode
 {
     /**
-     * Generate a unique, human-friendly slug in format word-word-word
-     * using simple Vietnamese words without diacritics.
+     * Generate một unique slug cho poll
+     * 
+     * Flow:
+     * 1. Generate slug ngẫu nhiên (noun-verb-adjective)
+     * 2. Kiểm tra xem đã tồn tại trong database chưa
+     * 3. Nếu chưa → return
+     * 4. Nếu đã tồn tại → generate lại (tối đa $maxAttempts lần)
+     * 5. Nếu vẫn collision → thêm random string vào cuối
+     * 
+     * @param int $maxAttempts - Số lần thử tối đa trước khi dùng fallback
+     * @return string - Unique slug (ví dụ: "meo-chay-xanh" hoặc "meo-chay-xanh-a3f2")
      */
     public static function generateUniqueSlug(int $maxAttempts = 10): string
     {
@@ -23,9 +48,23 @@ class PollCode
         return self::generate() . '-' . substr(strtolower(bin2hex(random_bytes(2))), 0, 4);
     }
 
+    /**
+     * Generate một slug ngẫu nhiên (không check unique)
+     * 
+     * Format: noun-verb-adjective (danh-từ-động-từ-tính-từ)
+     * 
+     * Ví dụ: "meo-chay-xanh", "ca-hat-do", "bien-doc-sang"
+     * 
+     * @return string - Slug format (ví dụ: "meo-chay-xanh")
+     */
     public static function generate(): string
     {
-        // Danh sách từ không dấu, đơn giản, dễ đọc
+        /**
+         * Danh sách từ tiếng Việt không dấu, đơn giản, dễ đọc
+         * - Nouns: Danh từ (con vật, đồ vật, thiên nhiên)
+         * - Verbs: Động từ (hành động)
+         * - Adjectives: Tính từ (màu sắc, tính chất)
+         */
         $nouns = [
             'meo','cho','chim','ca','cay','bien','nui','sao','mua','nang',
             'trang','may','gio','lua','song','la','hoa','ban','banh','sua',
@@ -40,20 +79,36 @@ class PollCode
             'nhanh','manh','sang','sach','dep','vui','tot','gan','xa','moi',
         ];
 
-        // Cấu trúc: danh tu - dong tu - tinh tu (noun-verb-adjective)
+        /**
+         * Cấu trúc: danh-từ-động-từ-tính-từ
+         * Chọn ngẫu nhiên 1 từ mỗi loại và nối bằng dấu gạch ngang
+         */
         $w1 = $nouns[array_rand($nouns)];
         $w2 = $verbs[array_rand($verbs)];
         $w3 = $adjectives[array_rand($adjectives)];
 
+        // Normalize và join các từ
         $parts = [self::normalize($w1), self::normalize($w2), self::normalize($w3)];
         return implode('-', $parts);
     }
 
+    /**
+     * Normalize từ (loại bỏ ký tự đặc biệt, lowercase)
+     * 
+     * - Chuyển về lowercase
+     * - Giữ lại a-z, 0-9
+     * - Thay các ký tự khác bằng '-'
+     * - Loại bỏ '-' ở đầu và cuối
+     * 
+     * @param string $word - Từ cần normalize
+     * @return string - Từ đã được normalize
+     */
     public static function normalize(string $word): string
     {
         $word = strtolower($word);
-        // keep a-z 0-9, replace others with '-'
+        // Giữ lại a-z 0-9, thay các ký tự khác bằng '-'
         $word = preg_replace('/[^a-z0-9]+/i', '-', $word) ?? '';
+        // Loại bỏ '-' ở đầu và cuối
         $word = trim($word, '-');
         return $word;
     }

@@ -1,3 +1,10 @@
+<?php /*
+|--------------------------------------------------------------------------
+| Console Routes
+|--------------------------------------------------------------------------
+| - Định nghĩa các Artisan commands closure-based (nếu cần).
+| - Với Laravel 11, lịch Scheduler được cấu hình trong bootstrap/app.php.
+*/ ?>
 <?php
 
 use Illuminate\Foundation\Inspiring;

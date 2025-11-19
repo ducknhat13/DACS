@@ -1,3 +1,8 @@
+{{--
+    Layout: guest.blade.php
+    - Layout cho khách/unauthenticated: khung đơn giản cho login/register/landing.
+    - Gồm header đơn giản (logo), slot nội dung trang con.
+--}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

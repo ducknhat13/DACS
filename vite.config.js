@@ -8,4 +8,15 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    build: {
+        rollupOptions: {
+            onwarn(warning, warn) {
+                // Suppress CSS syntax warnings từ esbuild (không ảnh hưởng đến build)
+                if (warning.message && warning.message.includes('css-syntax-error')) {
+                    return;
+                }
+                warn(warning);
+            },
+        },
+    },
 });

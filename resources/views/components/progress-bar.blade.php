@@ -1,3 +1,7 @@
+{{--
+    Component: progress-bar
+    - Thanh tiến trình đơn giản; nhận giá trị phần trăm qua props/attributes.
+--}}
 @props(['value' => 0, 'max' => 100, 'size' => 'md', 'variant' => 'primary', 'showLabel' => false, 'label' => ''])
 
 @php

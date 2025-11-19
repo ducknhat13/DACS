@@ -1,8 +1,14 @@
+{{--
+    Partial: update-password-form
+    - Form đổi mật khẩu: current_password, password, password_confirmation.
+--}}
 <section>
+    @php $requiresCurrent = (bool) (Auth::user()->has_local_password ?? !empty(Auth::user()->password)); @endphp
     <form method="post" action="{{ route('password.update') }}" class="space-y-6">
         @csrf
         @method('put')
 
+        @if ($requiresCurrent)
         <div class="input-field">
             <input 
                 id="update_password_current_password" 
@@ -16,6 +22,7 @@
                 <div class="text-error-500 text-sm mt-1">{{ $message }}</div>
             @enderror
         </div>
+        @endif
 
         <div class="input-field">
             <input 
@@ -25,7 +32,7 @@
                 autocomplete="new-password"
                 placeholder=" "
             />
-            <label for="update_password_password">{{ __('New Password') }}</label>
+            <label for="update_password_password">{{ $requiresCurrent ? __('New Password') : __('Set Password') }}</label>
             @error('password', 'updatePassword')
                 <div class="text-error-500 text-sm mt-1">{{ $message }}</div>
             @enderror

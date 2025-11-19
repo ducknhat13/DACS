@@ -1,3 +1,7 @@
+{{--
+    Component: toast
+    - Thông báo tạm thời (success/error/info); tự ẩn sau thời gian đặt sẵn.
+--}}
 @props(['type' => 'success', 'message' => '', 'duration' => 3000])
 
 <div 

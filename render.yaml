@@ -1,0 +1,84 @@
+# Render Blueprint - Web Service cho Laravel Application
+# File này cho phép Render tự động setup web service khi deploy
+# LƯU Ý: Database sử dụng TiDB Cloud (đã setup sẵn), không tạo PostgreSQL
+# Sử dụng: Vào Render Dashboard > New > Blueprint > Kéo thả file này vào
+
+services:
+  # Web Service (Laravel Application)
+  - type: web
+    name: dacs-web
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    region: singapore  # Chọn region gần bạn nhất
+    plan: free  # Free tier - sẽ sleep sau 15 phút không hoạt động
+    envVars:
+      # App Config
+      - key: APP_NAME
+        value: DACS Poll System
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        sync: false  # Sẽ được set tự động bởi Render
+      
+      # Database - TiDB Cloud (MySQL compatible)
+      # Cần cấu hình thủ công các biến sau trong Render Dashboard
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        sync: false  # Host từ TiDB Cloud (ví dụ: gateway01.ap-southeast-1.prod.aws.tidbcloud.com)
+      - key: DB_PORT
+        value: 4000  # Port mặc định của TiDB Cloud
+      - key: DB_DATABASE
+        sync: false  # Tên database trên TiDB Cloud
+      - key: DB_USERNAME
+        sync: false  # Username từ TiDB Cloud
+      - key: DB_PASSWORD
+        sync: false  # Password từ TiDB Cloud
+      # SSL Certificate - TiDB Cloud yêu cầu SSL
+      # Trên Render, có thể để trống hoặc dùng public CA certificate
+      - key: MYSQL_ATTR_SSL_CA
+        sync: false  # Có thể để trống hoặc dùng URL tới public CA cert
+      
+      # Laravel Key - Sẽ được generate tự động bởi entrypoint script
+      # Không set generateValue để entrypoint có thể generate đúng format
+      - key: APP_KEY
+        sync: false  # Để trống, entrypoint sẽ generate
+      
+      # Cache & Session
+      - key: CACHE_STORE
+        value: file
+      - key: SESSION_DRIVER
+        value: database
+      
+      # Queue
+      - key: QUEUE_CONNECTION
+        value: sync  # Free tier dùng sync, upgrade để dùng Redis/Database queue
+      
+      # Mail (cần cấu hình sau)
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_USERNAME
+        sync: false  # Điền Gmail của bạn
+      - key: MAIL_PASSWORD
+        sync: false  # Điền App Password từ Gmail
+      - key: MAIL_ENCRYPTION
+        value: tls
+      - key: MAIL_FROM_ADDRESS
+        sync: false  # Điền email của bạn
+      - key: MAIL_FROM_NAME
+        value: "${APP_NAME}"
+      
+      # Google OAuth (nếu có)
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        sync: false
+

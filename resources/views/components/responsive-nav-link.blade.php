@@ -1,3 +1,8 @@
+{{--
+    Component: responsive-nav-link
+    - Link điều hướng cho menu responsive (mobile);
+    - Tự đổi style khi active.
+--}}
 @props(['active'])
 
 @php

@@ -1,4 +1,36 @@
-﻿<x-app-layout>
+﻿{{--
+    Page: polls/create
+    - Form tạo poll: câu hỏi, loại poll (single/multiple/ranking), options, private/access key.
+    - Nếu có JS kèm theo: thêm/xoá option động, validate client nhẹ.
+--}}
+{{--
+    Create Poll Page - polls/create.blade.php
+    
+    Trang tạo poll mới với Material Design 3 form.
+    
+    Features:
+    - Two-column layout: Basic info (left) và Advanced settings (right)
+    - Poll types: Standard, Ranking, Image
+    - Dynamic form: Hiển thị/ẩn fields dựa trên poll type
+    - Media upload: Upload images/videos cho image polls
+    - Options management: Thêm/xóa options dynamically
+    - Form validation: Client-side và server-side validation
+    
+    Poll Types:
+    - Standard: Single/multiple choice với text options
+    - Ranking: User phải rank tất cả options
+    - Image: Chọn images với optional max selections
+    
+    JavaScript:
+    - Dynamic form fields: Show/hide sections dựa trên poll type
+    - Options management: Add/remove options với validation
+    - Media upload: Handle file upload và URL validation
+    - Character counter: Description field counter
+    - Form submission: Validate và submit với loading state
+    
+    @author QuickPoll Team
+--}}
+<x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
@@ -6,9 +38,10 @@
                 <p class="text-body-medium text-on-surface-variant mt-1">{{ __('messages.create_poll_subtext') }}</p>
             </div>
             <div class="flex items-center gap-3">
+                {{-- Back to Dashboard Button --}}
                 <a href="{{ route('dashboard') }}" class="btn btn-neutral">
                     <i class="fa-solid fa-arrow-left"></i>
-                    Back to Dashboard
+                    {{ __('messages.back_to_dashboard') }}
                 </a>
             </div>
         </div>
@@ -16,8 +49,9 @@
 
     <div class="py-12">
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-            <!-- Main Material Card -->
+            {{-- Main Material Design Card --}}
             <div class="bg-[var(--surface)] overflow-hidden shadow-lg sm:rounded-2xl border border-[color:var(--outline)] text-[color:var(--on-surface)]">
+                {{-- Validation Errors --}}
                 @if ($errors->any())
                     <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
                         <ul class="list-disc pl-5">
@@ -29,32 +63,33 @@
                 @endif
 
                 <div class="p-8">
+                    {{-- Poll Creation Form --}}
                     <form id="poll-form" method="POST" action="{{ route('polls.store') }}" class="space-y-8">
                         @csrf
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <!-- Left section: Basic Information -->
+                            {{-- Left Section: Basic Information --}}
                             <div class="space-y-6">
                                 <div class="border-b border-outline pb-4">
                                     <h3 class="text-headline-small text-on-surface font-semibold mb-2">{{ __('messages.basic_info') }}</h3>
                                     <p class="text-body-medium text-on-surface-variant">{{ __('messages.basic_info_desc') }}</p>
                                 </div>
                             
-                                <!-- Poll Title -->
+                                {{-- Poll Title Input: tiêu đề hiển thị công khai của poll --}}
                                 <div class="input-field">
                                     <input type="text" name="title" id="title" required placeholder=" " value="{{ old('title') }}">
                                     <label for="title">{{ __('messages.poll_title') }}</label>
                                 </div>
 
-                                <!-- Poll Description -->
+                                {{-- Poll Description: mô tả ngắn cho poll, tối đa 500 ký tự --}}
                                 <div class="input-field">
                                     <textarea name="description" id="description" rows="3" placeholder=" " maxlength="500">{{ old('description') }}</textarea>
                                     <label for="description">{{ __('messages.description_optional') }}</label>
                                     <div class="text-right text-body-small text-on-surface-variant mt-1">
-                                        <span id="desc-count">0</span>/500 characters
+                                        <span id="desc-count">0</span>/500 {{ __('messages.characters') }}
                                     </div>
                                 </div>
 
-                                <!-- Media Upload Section (only for Image polls) -->
+                                {{-- Media Upload Section: Chỉ hiển thị cho Image polls --}}
                                 <div id="media-upload-section" class="space-y-3" style="display: none;">
                                     <label class="text-title-small text-on-surface">{{ __('messages.media_files_optional') }}</label>
                                     <div class="media-upload-section bg-surface-variant rounded-xl p-4 border border-outline">
@@ -100,7 +135,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Poll Type Segmented Buttons -->
+                                {{-- Poll Type: chọn loại khảo sát (standard/ranking/image) --}}
                                 <div class="space-y-3">
                                     <div class="segmented-control">
                                         <input type="radio" name="poll_type" id="poll_type_standard" value="standard" checked class="segmented-input">
@@ -123,7 +158,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Choice Type (only for Standard polls) -->
+                                {{-- Choice Type: dạng lựa chọn (single/multiple) - chỉ áp dụng cho standard --}}
                                 <div id="choice-type-section" class="space-y-2">
                                     <div class="segmented-control">
                                         <input type="radio" name="choice_type" id="choice_type_single" value="single" checked class="segmented-input">
@@ -140,7 +175,14 @@
                                     </div>
                                 </div>
 
-                                <!-- Maximum Image Selections (only for Image polls) -->
+                                {{-- Maximum Choices: số lựa chọn tối đa khi chọn multiple (standard) --}}
+                                <div id="max-choices-section" class="input-field hidden">
+                                    <input type="number" name="max_choices" id="max_choices" min="2" placeholder=" " value="{{ old('max_choices') }}">
+                                    <label for="max_choices">{{ __('messages.max_choices') }}</label>
+                                    <div class="text-body-small text-on-surface-variant mt-1">{{ __('messages.leave_empty_unlimited') }}</div>
+                                </div>
+
+                                {{-- Maximum Image Selections: giới hạn số ảnh được chọn (image poll) --}}
                                 <div id="max-image-selections-section" class="input-field hidden">
                                     <input type="number" name="max_image_selections" id="max_image_selections" min="1" placeholder=" " value="{{ old('max_image_selections') }}">
                                     <label for="max_image_selections">{{ __('messages.max_image_selections') }}</label>
@@ -150,7 +192,7 @@
                                 <div class="space-y-3">
                                     <label class="text-title-small text-on-surface">{{ __('messages.options') }}</label>
                                     
-                                    <!-- Text Options Container -->
+                                    <!-- Text Options Container: danh sách lựa chọn dạng text -->
                                     <div id="text-options" class="space-y-3 max-h-80 overflow-y-auto pr-1">
                                         <div class="flex items-center gap-3 option-row">
                                             <div class="input-field flex-1">
@@ -168,7 +210,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Image Options Container -->
+                                    <!-- Image Options Container: danh sách lựa chọn dạng ảnh -->
                                     <div id="image-options" class="space-y-4 max-h-80 overflow-y-auto pr-1 hidden">
                                         <div class="image-option-card bg-surface-variant rounded-xl p-4 border border-outline">
                                             <div class="space-y-3">
@@ -270,14 +312,17 @@
                                     </div>
                                     
                                     <div class="flex items-center justify-start mt-3 gap-3">
+                                        {{-- Thêm lựa chọn text --}}
                                         <button type="button" id="addOption" class="text-button text-primary">
                                             <i class="fa-solid fa-plus"></i>
                                             {{ __('messages.add_option') }}
                                         </button>
+                                        {{-- Thêm lựa chọn ảnh --}}
                                         <button type="button" id="addImageOption" class="text-button text-primary hidden">
                                             <i class="fa-solid fa-plus"></i>
                                             {{ __('messages.add_image_option') }}
                                         </button>
+                                        {{-- Thêm lựa chọn "Other" (khác) --}}
                                         <button type="button" id="addOther" class="text-button text-primary">
                                             <i class="fa-solid fa-plus"></i>
                                             {{ __('messages.add_other') }}
@@ -574,6 +619,7 @@
                     if (addImageOptionBtn) addImageOptionBtn.classList.remove('hidden');
                     if (addOtherBtn) addOtherBtn.classList.add('hidden');
                 } else {
+                    // Standard poll
                     if (rankingInfo) rankingInfo.classList.add('hidden');
                     if (choiceTypeSection) choiceTypeSection.classList.remove('hidden');
                     if (maxImageSelectionsSection) maxImageSelectionsSection.classList.add('hidden');
@@ -587,6 +633,16 @@
                     if (addOptionBtn) addOptionBtn.classList.remove('hidden');
                     if (addImageOptionBtn) addImageOptionBtn.classList.add('hidden');
                     if (addOtherBtn) addOtherBtn.classList.remove('hidden');
+                    
+                    // Check current choice type to show/hide max-choices-section
+                    const selectedChoiceType = document.querySelector('input[name="choice_type"]:checked');
+                    if (maxChoicesSection && selectedChoiceType) {
+                        if (selectedChoiceType.value === 'multiple') {
+                            maxChoicesSection.classList.remove('hidden');
+                        } else {
+                            maxChoicesSection.classList.add('hidden');
+                        }
+                    }
                 }
             });
         });

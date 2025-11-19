@@ -59,7 +59,14 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                // SSL Configuration cho TiDB Cloud
+                // TiDB Cloud yêu cầu SSL connection bắt buộc
+                // MYSQL_ATTR_SSL_CA: Đường dẫn tới CA certificate
+                // - Nếu set trong env: dùng giá trị đó
+                // - Nếu không set: dùng default path trong container (/etc/ssl/certs/cacert.pem)
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA', '/etc/ssl/certs/cacert.pem'),
+                // Verify server certificate (recommended for production)
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => env('MYSQL_ATTR_SSL_VERIFY', true) !== false,
             ]) : [],
         ],
 

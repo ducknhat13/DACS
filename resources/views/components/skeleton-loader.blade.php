@@ -1,3 +1,7 @@
+{{--
+    Component: skeleton-loader
+    - Placeholder loading (khung xương) trong lúc chờ dữ liệu.
+--}}
 @props(['count' => 3, 'class' => ''])
 
 <div class="skeleton-container {{ $class }}">

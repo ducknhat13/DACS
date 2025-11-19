@@ -1,3 +1,22 @@
+/**
+ * Main CSS Entry Point
+ * 
+ * File này chứa:
+ * - Font imports (Product Sans, Montserrat)
+ * - Tailwind CSS directives
+ * - Material Design 3 color palette (CSS variables)
+ * - Material Design Typography scale
+ * - Custom utility classes
+ * - Component styles (buttons, cards, forms, etc.)
+ * 
+ * Material Design 3:
+ * - Color system: Primary, Error, Warning, Success
+ * - Typography scale: Display, Headline, Title, Body, Label
+ * - Component styles: Buttons, Cards, Inputs, Navigation
+ * 
+ * @author QuickPoll Team
+ */
+
 @import url('https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 
@@ -5,7 +24,21 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Material Design Color Palette - Now using Tailwind classes */
+/**
+ * Alpine.js x-cloak directive
+ * Ẩn elements có x-cloak attribute cho đến khi Alpine.js load xong
+ * Prevent flash of unstyled content (FOUC)
+ */
+[x-cloak] {
+  display: none !important;
+}
+
+/**
+ * Material Design 3 Color Palette
+ * 
+ * CSS variables được dùng trong toàn bộ application
+ * Hỗ trợ dark mode qua @media (prefers-color-scheme: dark)
+ */
 :root {
   --primary: theme('colors.primary.500');
   --primary-dark: theme('colors.primary.700');
@@ -207,6 +240,24 @@ body {
     @apply bg-transparent text-surface-600 hover:bg-surface-100 hover:text-surface-900;
   }
 
+  .icon-button {
+    @apply w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200;
+    background-color: var(--surface-variant);
+    color: var(--on-surface-variant);
+    border: none;
+    cursor: pointer;
+  }
+
+  .icon-button:hover {
+    @apply shadow-material;
+    background-color: var(--surface-variant);
+    transform: scale(1.05);
+  }
+
+  .icon-button:active {
+    transform: scale(0.95);
+  }
+
   .btn-danger { 
     @apply bg-error-500 text-white hover:bg-error-600 hover:shadow-material-lg hover:-translate-y-0.5;
   }
@@ -405,6 +456,33 @@ body {
   .input-field label {
     @apply absolute top-4 left-3 text-surface-600 text-base transition-all duration-200 pointer-events-none px-1;
     background-color: var(--surface);
+  }
+
+  /* Form Styles for Contact Page */
+  .form-group {
+    @apply mb-6;
+  }
+
+  .form-label {
+    @apply block text-body-medium font-medium mb-2 text-[color:var(--on-surface)];
+  }
+
+  .form-input {
+    @apply w-full px-4 py-3 rounded-xl border border-[color:var(--outline)] text-body-medium;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    transition: all 0.2s ease;
+  }
+
+  .form-input:focus {
+    @apply outline-none ring-2;
+    border-color: var(--primary);
+    ring-color: rgba(23, 107, 239, 0.2);
+  }
+
+  .form-input::placeholder {
+    color: var(--on-surface-variant);
+    opacity: 0.6;
   }
 
   .input-field input:focus + label,
@@ -906,6 +984,22 @@ textarea:focus-visible {
   margin-bottom: 8px;
   line-height: 1.4;
   flex-shrink: 0;
+}
+
+/* Hard truncate long titles to preserve space for other columns */
+.poll-title-truncate {
+  max-width: 22ch; /* tighter on desktop */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 1024px) {
+  .poll-title-truncate { max-width: 18ch; }
+}
+
+@media (max-width: 640px) {
+  .poll-title-truncate { max-width: 16ch; }
 }
 
 .poll-title:hover {
@@ -2280,7 +2374,6 @@ textarea:focus-visible {
 }
 
 .mobile-navigation {
-  display: none;
   background-color: var(--surface);
   border-top: 1px solid var(--outline);
 }

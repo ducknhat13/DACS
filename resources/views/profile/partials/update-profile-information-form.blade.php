@@ -1,3 +1,7 @@
+{{--
+    Partial: update-profile-information-form
+    - Form cập nhật tên/email; có xác minh email nếu bật.
+--}}
 <section>
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
         @csrf

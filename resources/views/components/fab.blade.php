@@ -1,3 +1,7 @@
+{{--
+    Component: fab (Floating Action Button)
+    - Nút nổi truy cập nhanh hành động chính; có biến thể mini/secondary.
+--}}
 @props(['href' => '#', 'icon' => '+', 'text' => ''])
 
 <a href="{{ $href }}" 

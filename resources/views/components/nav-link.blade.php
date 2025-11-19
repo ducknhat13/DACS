@@ -1,3 +1,7 @@
+{{--
+    Component: nav-link
+    - Link điều hướng trong header/sidebar; hỗ trợ trạng thái active.
+--}}
 @props(['active'])
 
 @php

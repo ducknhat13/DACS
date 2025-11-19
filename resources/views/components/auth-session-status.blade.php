@@ -1,3 +1,7 @@
+{{--
+    Component: auth-session-status
+    - Hiển thị thông báo trạng thái phiên đăng nhập (ví dụ: link reset password đã gửi).
+--}}
 @props(['status'])
 
 @if ($status)

@@ -1,3 +1,8 @@
+{{--
+    Page: polls/access
+    - Bảo vệ poll private: nhập access key để vào trang vote/kết quả.
+    - Frontend: hiển thị lỗi sai key, giữ lại giá trị cũ nếu cần.
+--}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-3xl text-gray-800 dark:text-gray-200 leading-tight">{{ __('messages.access_key') }}</h2>
