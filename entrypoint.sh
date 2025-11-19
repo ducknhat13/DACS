@@ -46,58 +46,17 @@ if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ] || [ ${#APP_KEY} -lt 50 ]; th
     # Nếu không có .env, sẽ tạo mới
     php artisan key:generate --force --show
     echo "APP_KEY generated successfully"
-    
-    # QUAN TRỌNG: Đọc APP_KEY từ .env file và export vào shell environment
-    # Vì key:generate chỉ lưu vào .env, không set biến shell
-    if [ -f .env ]; then
-        # Đọc APP_KEY từ .env file (loại bỏ quotes nếu có)
-        APP_KEY_FROM_ENV=$(grep "^APP_KEY=" .env | cut -d '=' -f2- | sed 's/^["'\'']//;s/["'\'']$//')
-        if [ -n "$APP_KEY_FROM_ENV" ]; then
-            export APP_KEY="$APP_KEY_FROM_ENV"
-            echo "APP_KEY loaded from .env file (length: ${#APP_KEY})"
-        fi
-    fi
-    
     # Reload environment để đảm bảo Laravel đọc APP_KEY mới từ .env
     # Clear config lại sau khi generate để reload APP_KEY
     php artisan config:clear || true
 else
     APP_KEY_LENGTH=${#APP_KEY}
     echo "APP_KEY exists (length: $APP_KEY_LENGTH), first 30 chars: ${APP_KEY:0:30}..."
-    
-    # Đảm bảo APP_KEY cũng có trong .env file
-    if [ -f .env ]; then
-        if ! grep -q "^APP_KEY=" .env || [ -z "$(grep "^APP_KEY=" .env | cut -d '=' -f2-)" ]; then
-            echo "Saving APP_KEY to .env file..."
-            if grep -q "^APP_KEY=" .env; then
-                sed -i "s|^APP_KEY=.*|APP_KEY=$APP_KEY|" .env
-            else
-                echo "APP_KEY=$APP_KEY" >> .env
-            fi
-        fi
-    fi
 fi
 
 # Chạy migration (sẽ bỏ qua nếu đã chạy rồi)
-# Kiểm tra database connection trước khi migrate
 echo "Running migrations..."
-# Retry migration nếu database chưa sẵn sàng (thường xảy ra khi database service khởi động chậm)
-MAX_RETRIES=3
-RETRY_COUNT=0
-while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-    if php artisan migrate --force 2>&1; then
-        echo "Migrations completed successfully"
-        break
-    else
-        RETRY_COUNT=$((RETRY_COUNT + 1))
-        if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-            echo "Migration failed, retrying in 5 seconds... (attempt $RETRY_COUNT/$MAX_RETRIES)"
-            sleep 5
-        else
-            echo "Migration failed after $MAX_RETRIES attempts, continuing..."
-        fi
-    fi
-done
+php artisan migrate --force || echo "Migration completed or failed, continuing..."
 
 # Tạo storage link để public/storage -> storage/app/public
 # Cần thiết để truy cập uploaded files qua URL
@@ -122,27 +81,8 @@ php artisan view:cache || echo "View cache failed, continuing..."
 
 # Verify APP_KEY trước khi start
 echo "Verifying APP_KEY before server start..."
-# Nếu biến shell vẫn empty, thử đọc từ .env file lần nữa
 if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
-    if [ -f .env ]; then
-        APP_KEY_FROM_ENV=$(grep "^APP_KEY=" .env | cut -d '=' -f2- | sed 's/^["'\'']//;s/["'\'']$//')
-        if [ -n "$APP_KEY_FROM_ENV" ] && [ "$APP_KEY_FROM_ENV" != "base64:" ] && [ ${#APP_KEY_FROM_ENV} -ge 50 ]; then
-            export APP_KEY="$APP_KEY_FROM_ENV"
-            echo "APP_KEY loaded from .env file (length: ${#APP_KEY})"
-        fi
-    fi
-fi
-
-# Final check - nếu vẫn empty thì exit
-if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ] || [ ${#APP_KEY} -lt 50 ]; then
     echo "ERROR: APP_KEY is still empty or invalid!"
-    echo "APP_KEY value: '${APP_KEY}' (length: ${#APP_KEY})"
-    if [ -f .env ]; then
-        echo "Checking .env file..."
-        grep "^APP_KEY=" .env || echo "APP_KEY not found in .env"
-    else
-        echo ".env file not found!"
-    fi
     exit 1
 fi
 
