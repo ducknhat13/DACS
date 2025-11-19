@@ -1,38 +1,3 @@
-{{--
-    Page: polls/vote
-    - Trang bỏ phiếu: hiển thị danh sách lựa chọn, cho phép chọn theo cấu hình poll.
-    - Frontend: xử lý disabled nếu poll closed/expired, hiển thị lỗi validate.
---}}
-{{--
-    Vote Poll Page - polls/vote.blade.php
-    
-    Trang vote cho poll với Material Design 3 UI.
-    
-    Features:
-    - Poll media display: Images/videos trong description
-    - Poll status banner: Hiển thị nếu poll đã đóng
-    - Vote form: Khác nhau tùy poll type (standard/ranking/image)
-    - Results view: Hiển thị kết quả sau khi vote
-    - Comments section: Cho phép comment nếu poll.allow_comments = true
-    
-    Poll Types:
-    - Standard: Radio buttons hoặc checkboxes
-    - Ranking: Drag & drop để rank options
-    - Image: Image cards với checkbox/radio
-    
-    JavaScript:
-    - Ranking drag & drop: Sortable.js hoặc HTML5 drag API
-    - Image fullscreen modal: Click để xem image full size
-    - Form validation: Client-side validation trước khi submit
-    - Vote submission: AJAX hoặc form post với loading state
-    
-    Data từ Controller:
-    - $poll: Poll model với relationships (options, votes)
-    - $hasVoted: Boolean, đã vote chưa
-    - $isOwner: Boolean, có phải owner không
-    
-    @author QuickPoll Team
---}}
 <x-app-layout>
     <x-slot name="header">
         <div>
@@ -45,14 +10,14 @@
 
     <div class="py-6 page-transition">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            {{-- Poll Media Section: Hiển thị media trong mô tả poll (nếu có) --}}
+            <!-- Poll Media Section -->
             @if($poll->hasDescriptionMedia())
                 <div class="mb-8">
                     <div class="card card-elevated">
                         <div class="card-header">
                             <div class="card-title">
                                 <i class="fa-solid fa-images text-primary"></i>
-                                {{ __('messages.media_preview') }}
+                                Poll Media
                             </div>
                         </div>
                         <div class="card-content">
@@ -88,17 +53,17 @@
                     </div>
                 </div>
             @endif
-            {{-- Poll Status Banner: thông báo poll đã đóng, không thể vote --}}
+            <!-- Poll Status -->
             @if ($poll->is_closed)
                 <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                     <div class="flex items-center gap-2 text-red-800 dark:text-red-200">
                         <i class="fa-solid fa-lock"></i>
-                        <span class="font-semibold">{{ __('messages.poll_is_closed') }}</span>
+                        <span class="font-semibold">This poll is closed</span>
                     </div>
                 </div>
             @endif
 
-            {{-- Flash Messages: hiển thị thông báo thành công/lỗi từ session --}}
+            <!-- Success/Error Messages -->
             @if (session('success'))
                 <div class="mb-6 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 p-4 rounded-lg border border-green-200 dark:border-green-700 flex items-center gap-2">
                     <i class="fa-solid fa-check-circle"></i>
@@ -113,7 +78,7 @@
             @endif
 
 
-            {{-- Vote Form: Chỉ hiển thị nếu chưa vote hoặc là owner --}}
+            <!-- Vote Form -->
             @if (!$hasVoted || $isOwner)
             <div class="card card-elevated mb-6 animate-fade-in-up">
                 <div class="p-6">
@@ -122,31 +87,30 @@
                         {{ __('messages.cast_your_vote') }}
                     </h3>
                     
-                    {{-- Vote Form: submit đến VoteController@store --}}
                     <form method="POST" action="{{ route('polls.vote.store', $poll->slug) }}" class="space-y-3">
                         @csrf
-                        
-                        {{-- Ranking Poll: Drag & drop để rank options --}}
                         @if ($poll->poll_type === 'ranking')
                             <div class="mb-4">
-                                {{-- Sortable container: dùng HTML5 drag API để sắp xếp --}}
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2">
+                                    <i class="fa-solid fa-info-circle"></i>
+                                    <span class="hidden md:inline">{{ __('messages.drag_to_reorder') }}</span>
+                                    <span class="md:hidden">{{ __('messages.click_to_swap') }}</span>
+                                </p>
                                 <div id="sortable-options" class="space-y-2">
                                     @foreach ($poll->options as $option)
-                                        <div class="option-item flex items-center gap-3 p-3 bg-[var(--surface-variant)] rounded-lg border border-[color:var(--outline)] cursor-move" data-option-id="{{ $option->id }}" draggable="true">
-                                            <i class="fa-solid fa-grip-vertical text-gray-400"></i>
+                                        <div class="option-item flex items-center gap-3 p-3 bg-[var(--surface-variant)] rounded-lg border border-[color:var(--outline)] cursor-move touch-manipulation select-none" data-option-id="{{ $option->id }}" draggable="true">
+                                            <i class="fa-solid fa-grip-vertical text-gray-400 flex-shrink-0"></i>
                                             <span class="flex-1 text-gray-800 dark:text-gray-200">{{ $option->option_text }}</span>
-                                            <span class="rank-badge px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded text-sm font-medium">
+                                            <span class="rank-badge px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded text-sm font-medium flex-shrink-0">
                                                 Rank <span class="rank-number">-</span>
                                             </span>
                                         </div>
                                     @endforeach
                                 </div>
-                                {{-- Input ẩn để submit thứ hạng (JSON) --}}
                                 <input type="hidden" name="ranking" id="ranking-input">
                             </div>
-                        {{-- Image Poll: Image cards với checkbox/radio --}}
                         @elseif ($poll->poll_type === 'image')
-                            {{-- Image Poll Options Grid --}}
+                            <!-- Image Poll Options -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                 @foreach ($poll->options as $option)
                                     <label class="image-option-card bg-[var(--surface)] text-[color:var(--on-surface)] rounded-xl border border-[color:var(--outline)] hover:shadow-lg transition-all duration-200 cursor-pointer group w-full sm:max-w-xs mx-auto">
@@ -194,7 +158,7 @@
                                 <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                                     <div class="flex items-center gap-2 text-blue-800 dark:text-blue-200">
                                         <i class="fa-solid fa-info-circle"></i>
-                                        <span class="text-sm">{{ __('messages.max_image_selections') }}: {{ $poll->max_image_selections }}</span>
+                                        <span class="text-sm">You can select up to {{ $poll->max_image_selections }} image(s)</span>
                                     </div>
                                 </div>
                             @endif
@@ -230,16 +194,6 @@
                                 </label>
                                 @endif
                             </div>
-                            
-                            <!-- Max Choices Info (for standard polls with multiple selection) -->
-                            @if($poll->poll_type === 'standard' && $poll->allow_multiple && $poll->max_image_selections)
-                                <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                                    <div class="flex items-center gap-2 text-blue-800 dark:text-blue-200">
-                                        <i class="fa-solid fa-info-circle"></i>
-                                        <span class="text-sm">{{ __('messages.max_choices') }}: {{ $poll->max_image_selections }}</span>
-                                    </div>
-                                </div>
-                            @endif
                         @endif
 
                         <div class="hidden md:flex justify-between items-center pt-4">
@@ -271,15 +225,15 @@
                     <div class="mb-4">
                         <i class="fa-solid fa-check-circle text-4xl text-green-600 mb-3"></i>
                         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                            {{ __('messages.thank_you') }}
+                            Thank you for voting!
                         </h3>
                         <p class="text-gray-600 dark:text-gray-300">
-                            {{ __('messages.view_results') }}
+                            Your vote has been recorded. You can view the results below.
                         </p>
                     </div>
                     <a href="{{ route('polls.show', $poll->slug) }}" class="btn btn-primary">
                         <i class="fa-solid fa-chart-bar mr-2"></i>
-                        {{ __('messages.view_results') }}
+                        View Results
                     </a>
                 </div>
             </div>
@@ -291,18 +245,18 @@
                 <div class="p-6">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-comments text-green-600"></i>
-                        {{ __('messages.comments') }}
+                        Comments
                     </h3>
 
                     <!-- Add Comment Form -->
                     <form method="POST" action="{{ route('polls.comment', $poll->slug) }}" class="mb-6">
                         @csrf
                         <div class="flex gap-3">
-                            <input type="text" name="content" placeholder="{{ __('messages.add_a_comment') }}" 
+                            <input type="text" name="content" placeholder="Add a comment..." 
                                    class="flex-1 px-4 py-2 border border-[color:var(--outline)] rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-[var(--surface)] text-[color:var(--on-surface)]" required>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa-solid fa-paper-plane mr-2"></i>
-                                {{ __('messages.post_comment') }}
+                                Post
                             </button>
                         </div>
                     </form>
@@ -313,7 +267,7 @@
                             <div class="p-3 bg-[var(--surface-variant)] rounded-lg border border-[color:var(--outline)]">
                                 <div class="flex items-center gap-2 mb-2">
                                     <span class="font-medium text-gray-800 dark:text-gray-200">
-                                        {{ $comment->user ? $comment->user->name : $comment->voter_name }}
+                                        {{ $comment->user?->name ?? $comment->voter_name ?? 'Anonymous' }}
                                     </span>
                                     <span class="text-xs text-gray-500 dark:text-gray-400">
                                         {{ $comment->created_at->diffForHumans() }}
@@ -322,7 +276,7 @@
                                 <p class="text-gray-700 dark:text-gray-300">{{ $comment->content }}</p>
                             </div>
                         @empty
-                            <p class="text-gray-500 dark:text-gray-400 text-center py-4">{{ __('messages.no_comments_yet') }}</p>
+                            <p class="text-gray-500 dark:text-gray-400 text-center py-4">No comments yet. Be the first to comment!</p>
                         @endforelse
                     </div>
                 </div>
@@ -363,36 +317,11 @@
             const sortableContainer = document.getElementById('sortable-options');
             const rankingInput = document.getElementById('ranking-input');
             
-            // Make options sortable
+            // Detect if mobile device
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+            
             let draggedElement = null;
-            
-            sortableContainer.addEventListener('dragstart', function(e) {
-                draggedElement = e.target.closest('.option-item');
-                if (!draggedElement) return;
-                draggedElement.style.opacity = '0.5';
-            });
-            
-            sortableContainer.addEventListener('dragend', function(e) {
-                const el = e.target.closest('.option-item') || draggedElement;
-                if (el) el.style.opacity = '1';
-                draggedElement = null;
-                updateRankings();
-            });
-            
-            sortableContainer.addEventListener('dragover', function(e) {
-                e.preventDefault();
-            });
-            
-            sortableContainer.addEventListener('drop', function(e) {
-                e.preventDefault();
-                const targetElement = e.target.closest('.option-item');
-                if (draggedElement && targetElement) {
-                    if (draggedElement !== targetElement) {
-                        sortableContainer.insertBefore(draggedElement, targetElement);
-                        updateRankings();
-                    }
-                }
-            });
+            let selectedElement = null; // For mobile click-to-swap
             
             function updateRankings() {
                 const options = sortableContainer.querySelectorAll('.option-item');
@@ -404,10 +333,119 @@
                     ranking[optionId] = rank;
                     
                     const rankNumber = option.querySelector('.rank-number');
-                    rankNumber.textContent = rank;
+                    if (rankNumber) {
+                        rankNumber.textContent = rank;
+                    }
                 });
                 
                 rankingInput.value = JSON.stringify(ranking);
+            }
+            
+            function clearSelection() {
+                const allItems = sortableContainer.querySelectorAll('.option-item');
+                allItems.forEach(item => {
+                    item.classList.remove('selected');
+                });
+                selectedElement = null;
+            }
+            
+            function swapElements(element1, element2) {
+                if (!element1 || !element2 || element1 === element2) return;
+                
+                const parent = sortableContainer;
+                const allItems = Array.from(parent.querySelectorAll('.option-item'));
+                const index1 = allItems.indexOf(element1);
+                const index2 = allItems.indexOf(element2);
+                
+                if (index1 === -1 || index2 === -1) return;
+                
+                // Simple approach: swap in array, then reorder DOM
+                // Swap in array
+                [allItems[index1], allItems[index2]] = [allItems[index2], allItems[index1]];
+                
+                // Clear container and re-append in new order
+                while (parent.firstChild) {
+                    parent.removeChild(parent.firstChild);
+                }
+                
+                // Append all items in new order
+                allItems.forEach(item => {
+                    parent.appendChild(item);
+                });
+                
+                updateRankings();
+            }
+            
+            // Desktop: HTML5 Drag and Drop
+            if (!isMobile) {
+                sortableContainer.addEventListener('dragstart', function(e) {
+                    draggedElement = e.target.closest('.option-item');
+                    if (!draggedElement) return;
+                    draggedElement.style.opacity = '0.5';
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                
+                sortableContainer.addEventListener('dragend', function(e) {
+                    const el = e.target.closest('.option-item') || draggedElement;
+                    if (el) el.style.opacity = '1';
+                    draggedElement = null;
+                    updateRankings();
+                });
+                
+                sortableContainer.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    
+                    const targetElement = e.target.closest('.option-item');
+                    if (draggedElement && targetElement && draggedElement !== targetElement) {
+                        const rect = targetElement.getBoundingClientRect();
+                        const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+                        sortableContainer.insertBefore(draggedElement, next ? targetElement.nextSibling : targetElement);
+                    }
+                });
+                
+                sortableContainer.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    updateRankings();
+                });
+            }
+            
+            // Mobile: Click to select and swap
+            if (isMobile) {
+                // Disable drag on mobile
+                const optionItems = sortableContainer.querySelectorAll('.option-item');
+                optionItems.forEach(item => {
+                    item.setAttribute('draggable', 'false');
+                    
+                    // Click/touch handler
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // If no item is selected, select this one
+                        if (!selectedElement) {
+                            clearSelection();
+                            selectedElement = this;
+                            this.classList.add('selected');
+                        } 
+                        // If this item is already selected, deselect it
+                        else if (selectedElement === this) {
+                            clearSelection();
+                        }
+                        // If another item is selected, swap them
+                        else {
+                            swapElements(selectedElement, this);
+                            clearSelection();
+                        }
+                    });
+                });
+                
+                // Clear selection when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!sortableContainer.contains(e.target)) {
+                        clearSelection();
+                    }
+                });
             }
             
             // Initialize rankings
@@ -435,6 +473,53 @@
 
     <!-- Custom CSS for Image Poll Aspect Ratio Optimization -->
     <style>
+        /* Ranking Poll - Mobile Touch Support */
+        #sortable-options .option-item {
+            transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        #sortable-options .option-item:active {
+            cursor: grabbing;
+        }
+        
+        /* Selected state for mobile click-to-swap */
+        #sortable-options .option-item.selected {
+            border-color: #3b82f6 !important;
+            border-width: 2px !important;
+            background-color: rgba(59, 130, 246, 0.1) !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        /* Improve touch target size on mobile */
+        @media (max-width: 768px) {
+            #sortable-options .option-item {
+                min-height: 56px;
+                padding: 12px;
+                cursor: pointer;
+            }
+            
+            #sortable-options .option-item .fa-grip-vertical {
+                font-size: 1.2rem;
+                padding: 4px;
+            }
+            
+            #sortable-options .option-item.selected {
+                border-color: #3b82f6 !important;
+                border-width: 3px !important;
+                background-color: rgba(59, 130, 246, 0.15) !important;
+            }
+        }
+        
+        /* Prevent text selection during drag */
+        #sortable-options.dragging {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
         /* Responsive Grid Layout for Image Options */
         .image-option-card {
             position: relative;
